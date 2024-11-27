@@ -12,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-require_once 'pdo-connect.php';
+require_once __DIR__ . "../../../../camping_db.php";
 
 
 // 相對路徑從 admin/api/products 到 uploads/products/img

@@ -1,5 +1,5 @@
 <?php
-require_once 'pdo-connect.php';
+require_once __DIR__ . "../../../../camping_db.php";
 header('Content-Type: application/json');
 
 

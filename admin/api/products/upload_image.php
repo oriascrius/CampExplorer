@@ -1,5 +1,5 @@
 <?php
-require_once 'pdo-connect.php'; // 確保已載入資料庫連線
+require_once __DIR__ . "../../../../camping_db.php";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $productId = $_POST['product_id'];  // 確保有收到產品 ID

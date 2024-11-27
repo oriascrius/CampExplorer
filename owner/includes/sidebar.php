@@ -690,11 +690,11 @@
 
         <!-- 營位預訂管理 -->
         <div class="nav-item">
-            <a href="/CampExplorer/owner/index.php?page=order_management" 
+            <a href="/CampExplorer/owner/index.php?page=booking_list" 
                class="nav-link nav-async-link" 
-               data-page="order_management">
+               data-page="booking_list">
                 <i class="bi bi-calculator"></i>
-                <span class="nav-text">營位預訂管理</span>
+                <span class="nav-text">訂單管理</span>
             </a>
         </div>
 

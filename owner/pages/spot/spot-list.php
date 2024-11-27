@@ -359,7 +359,7 @@ require_once __DIR__ . '/../../../camping_db.php';
         .stat-card {
             background: white;
             border-radius: 16px;
-            padding: 1.5rem;
+            padding: 0.5rem;
             box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
             transition: all 0.3s ease;
             cursor: pointer;

@@ -1,5 +1,5 @@
 <?php
-require_once 'pdo-connect.php'; // 確保已載入資料庫連線
+require_once __DIR__ . "../../../../camping_db.php";
 header('Content-Type: application/json');
 
 // 確保接收到圖片 ID

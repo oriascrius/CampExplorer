@@ -381,7 +381,7 @@ require_once __DIR__ . '/../../../camping_db.php';
         .stat-card {
             background: white;
             border-radius: 16px;
-            padding: 1.5rem;
+            padding: 0.5rem;
             box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
             transition: all 0.3s ease;
             cursor: pointer;
@@ -945,6 +945,209 @@ require_once __DIR__ . '/../../../camping_db.php';
         </div>
         */
     </style>
+    <style>
+    /* 優化關閉按鈕樣式 */
+    .swal2-close {
+        width: 1.5em !important;
+        height: 1.5em !important;
+        font-size: 1.25em !important;
+        color: var(--morandy-blue) !important;
+        background: var(--morandy-light) !important;
+        border-radius: 50% !important;
+        margin: 0.5rem !important;
+        transition: all 0.3s ease !important;
+    }
+
+    .swal2-close:hover {
+        color: var(--morandy-green) !important;
+        background: var(--morandy-border) !important;
+        transform: rotate(90deg) !important;
+    }
+    </style>
+    <style>
+    /* 活動詳情頁樣式 */
+    .activity-detail {
+        /* 與營位系統一致的配色 */
+        --camp-primary: #4C6B74;    /* 主色調 - 深青灰 */
+        --camp-secondary: #94A7AE;  /* 次要色 - 淺青灰 */
+        --camp-dark: #2D3F4B;      /* 深色文字 */
+        --camp-light: #F5F7F8;     /* 淺色背景 */
+        --camp-border: #E3E8EA;    /* 邊框色 */
+        --camp-success: #7BA896;   /* 成功狀態 - 綠 */
+        --camp-warning: #B4A197;   /* 警告狀態 - 褐 */
+        
+        background: var(--camp-light);
+        padding: 1.5rem;
+        border-radius: 12px;
+    }
+
+    /* 標題區域 */
+    .detail-header {
+        background: var(--camp-primary);
+        padding: 1.5rem 2rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 2px 8px rgba(76, 107, 116, 0.15);
+    }
+
+    .activity-id {
+        color: white;
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    /* 狀態標籤 */
+    .status-badge {
+        display: inline-block;
+        padding: 0.5rem 1.25rem;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: white;
+    }
+
+    .status-active {
+        background: var(--camp-success);
+    }
+
+    .status-inactive {
+        background: var(--camp-warning);
+    }
+
+    /* 確認按鈕 */
+    .swal2-confirm {
+        background-color: var(--morandy-blue) !important; /* 莫蘭迪藍色 */
+        color: white !important;
+        padding: 0.75rem 2rem !important;
+        border-radius: 8px !important;
+        font-weight: 500 !important;
+        transition: all 0.3s ease !important;
+        border: none !important;
+        box-shadow: 0 2px 6px rgba(148, 167, 174, 0.2) !important; /* 初始陰影 */
+    }
+
+    .swal2-confirm:hover {
+        background-color: var(--morandy-green) !important; /* hover時變為較深的莫蘭迪綠 */
+        transform: translateY(-2px) !important;
+        box-shadow: 0 4px 12px rgba(148, 167, 174, 0.4) !important; /* hover時加深陰影 */
+        filter: brightness(105%) !important; /* 增加亮度 */
+    }
+
+    .swal2-confirm:active {
+        transform: translateY(0) !important; /* 點擊時的回彈效果 */
+        box-shadow: 0 2px 4px rgba(148, 167, 174, 0.3) !important;
+    }
+
+    /* 資訊卡片 */
+    .info-item {
+        background: white;
+        padding: 1.25rem;
+        border-radius: 8px;
+        border: 1px solid var(--camp-border);
+        transition: all 0.3s ease;
+    }
+
+    .info-item:hover {
+        border-color: var(--camp-primary);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(76, 107, 116, 0.1);
+    }
+
+    .info-icon {
+        color: var(--camp-primary);
+    }
+
+    .info-label {
+        color: var(--camp-secondary);
+    }
+
+    .info-value {
+        color: var(--camp-dark);
+    }
+
+    /* 價格特別樣式 */
+    .price-value {
+        color: var(--camp-primary);
+        font-size: 1.25rem;
+        font-weight: 600;
+    }
+    </style>
+    <style>
+
+
+    /* 資訊項目互動效果 */
+    .info-item {
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .info-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    /* 工具提示 */
+    .info-item[data-tooltip] {
+        position: relative;
+    }
+
+    .info-item[data-tooltip]:before {
+        content: attr(data-tooltip);
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 0.5rem 1rem;
+        background: var(--detail-text);
+        color: white;
+        font-size: 0.875rem;
+        border-radius: 4px;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+        z-index: 1000;
+    }
+
+    .info-item[data-tooltip]:hover:before {
+        opacity: 1;
+        visibility: visible;
+        bottom: calc(100% + 10px);
+    }
+
+    /* 條列式優化 */
+    .info-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .info-list-item {
+        position: relative;
+        padding-left: 1.5rem;
+        margin-bottom: 0.5rem;
+        color: var(--detail-text);
+    }
+
+    .info-list-item:before {
+        content: "•";
+        position: absolute;
+        left: 0.5rem;
+        color: var(--detail-blue);
+        font-weight: bold;
+    }
+
+    /* 重要資訊標記 */
+    .important-info {
+        border-left: 4px solid var(--detail-green);
+        padding-left: 1rem;
+        margin: 1rem 0;
+    }
+    </style>
 </head>
 
 <body>
@@ -954,7 +1157,7 @@ require_once __DIR__ . '/../../../camping_db.php';
         <!-- 統計卡片 -->
         <div class="stats-container">
             <div class="row g-4 stats-container">
-                <!-- 全部活動統計卡片 -->
+                <!-- 全部活�������統計卡片 -->
                 <div class="col-md-4">
                     <div class="stat-card" onclick="filterActivities('all')" style="cursor: pointer;">
                         <div class="stat-icon">
@@ -1130,19 +1333,40 @@ require_once __DIR__ . '/../../../camping_db.php';
             }
         }
 
-        // 根據狀態取得對應 CSS class
-        function getStatusClass(status) {
-            if (!status) return 'status-inactive';
-
+        // 添加 getStatusText 函數
+        function getStatusText(status) {
+            if (!status) return '未知狀態';
+            
             const statusMap = {
-                '營地審核中': 'status-pending',
-                '營地未通過': 'status-inactive',
-                '下架中': 'status-inactive',
-                '已結': 'status-ended',
-                '即將開始': 'status-active',
-                '進行中': 'status-active'
+                '營地審核中': '營地審核中',
+                '營地未通過': '營地���通過',
+                '下架中': '下架中',
+                '已結束': '已結束',
+                '即將開始': '上架中',
+                '進行中': '上架中'
             };
-            return statusMap[status] || 'status-inactive';
+
+            return statusMap[status] || status;
+        }
+
+        // 狀態樣式判斷函數
+        function getStatusClass(status) {
+            switch (status) {
+                case '進行中':
+                case '即將開始':
+                    return 'status-active';
+                case '已結束':
+                    statusClass = 'status-ended';
+                    statusText = '已結束';
+                    break;
+                case '下架中':
+                    statusClass = 'status-inactive';
+                    statusText = '下架中';
+                    break;
+                default:
+                    statusClass = 'status-secondary';
+                    statusText = activity.activity_status;
+            }
         }
 
         // 操作按鈕
@@ -1321,7 +1545,7 @@ require_once __DIR__ . '/../../../camping_db.php';
 
                 // 基本欄位驗證
                 if (!formData.activity_name?.trim()) throw new Error('請輸入活動名稱');
-                if (!formData.title?.trim()) throw new Error('請輸入活動標題');
+                if (!formData.title?.trim()) throw new Error('���輸入活動標題');
                 if (!formData.start_date) throw new Error('請選擇開始日期');
                 if (!formData.end_date) throw new Error('請選擇結束日期');
 
@@ -1578,7 +1802,7 @@ require_once __DIR__ . '/../../../camping_db.php';
                 Swal.fire({
                     icon: 'warning',
                     title: '無法新增',
-                    text: '請先選擇營地，或目前營地無可用營位'
+                    text: '請先��擇營地，或目前營地無可用營���'
                 });
                 return;
             }
@@ -1707,7 +1931,7 @@ require_once __DIR__ . '/../../../camping_db.php';
                 Swal.fire({
                     icon: 'error',
                     title: '錯誤',
-                    text: '同一個營位不能重複選擇'
+                    text: '同一個營��不能重複選擇'
                 });
                 return false;
             }
@@ -1991,9 +2215,7 @@ require_once __DIR__ . '/../../../camping_db.php';
                         <div>${formatDate(activity.end_date)}</div>
                     </td>
                     <td>
-                        <div>NT$ ${Number(activity.min_price).toLocaleString()}</div>
-                        ${activity.min_price !== activity.max_price ? 
-                            `<small class="text-muted">~ NT$ ${Number(activity.max_price).toLocaleString()}</small>` : ''}
+                        <div>${formatPrice(activity.min_price)}~ ${formatPrice(activity.max_price)}</div>
                     </td>
                     <td>${activity.total_quantity || 0}</td>
                     <td>
@@ -2032,7 +2254,7 @@ require_once __DIR__ . '/../../../camping_db.php';
         }
 
         function isActivityDeletable(activity) {
-            const notDeletableStatus = ['營地審核中', '營地未通過', '進行中', '已結束'];
+            const notDeletableStatus = ['營地審核中', '營地未通過', '進行中', '���結束'];
             return !notDeletableStatus.includes(activity.activity_status);
         }
 
@@ -2124,132 +2346,283 @@ require_once __DIR__ . '/../../../camping_db.php';
                 });
             });
         });
-  
+
         // 新增顯示詳細資料的函數
         async function showActivityDetail(activity) {
-            // 修改狀態顯示邏輯
-            let statusClass = '';
-            let statusText = '';
+            try {
+                // 調用 API 獲取活動詳情
+                const response = await axios.get(`/CampExplorer/owner/api/activity/get_activity_spots.php`, {
+                    params: { activity_id: activity.activity_id }
+                });
 
-            switch (activity.activity_status) {
-                case '進行中':
-                case '即將開始':
-                    statusClass = 'success';
-                    statusText = '上架中';
-                    break;
-                case '已結束':
-                    statusClass = 'secondary';
-                    statusText = '已結束';
-                    break;
-                case '下架中':
-                    statusClass = 'warning';
-                    statusText = '下架中';
-                    break;
-                default:
-                    statusClass = 'secondary';
-                    statusText = activity.activity_status;
-            }
+                if (!response.data.data) {
+                    throw new Error('回應資料結構不正確');
+                }
 
-            // 格式化日期
-            const formatDate = (dateStr) => {
-                const date = new Date(dateStr);
-                return date.toLocaleDateString('zh-TW');
-            };
+                const { activity: activityData, spots, stats } = response.data.data;
 
-            // 格化價格
-            const formatPrice = (price) => {
-                return `NT$ ${Number(price).toLocaleString()}`;
-            };
+                // 計算價格範圍
+                const prices = spots.map(spot => spot.price);
+                const minPrice = Math.min(...prices);
+                const maxPrice = Math.max(...prices);
 
-            Swal.fire({
-                title: activity.activity_name,
-                html: `
-                    <div class="activity-detail-container">
-                        <!-- 主要資訊區 -->
-                        <div class="detail-section mb-4">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <img src="${activity.main_image ? `/CampExplorer/uploads/activities/${activity.main_image}` : '/CampExplorer/assets/images/no-image.png'}"
-                                         class="img-fluid rounded mb-3"
-                                         alt="${activity.activity_name}"
-                                         style="width: 100%; height: 200px; object-fit: cover;">
+                // 使用新的狀態轉換函數
+                const statusClass = getStatusClass(activityData.activity_status);
+                const statusText = getStatusText(activityData.activity_status);
+
+                Swal.fire({
+                    title: '',
+                    html: `
+                        <div class="activity-detail-container">
+                            <!-- 標題區 -->
+                            <div class="detail-header">
+                                <div class="header-left">
+                                    <div class="activity-id">活動名稱：${activityData.activity_name}</div>
                                 </div>
-                                <div class="col-md-6 text-start">
-                                    <h5 class="mb-3">${activity.title}</h5>
-                                    <p class="text-muted mb-2">${activity.subtitle || ''}</p>
-                                    <div class="badge bg-${getStatusClass(activity.activity_status)} mb-2">
-                                        ${statusText}
+                                <div class="status-badge ${statusClass}">
+                                    ${statusText}
+                                </div>
+                            </div>
+
+                            <!-- 基本資訊區 -->
+                            <div class="info-container">
+                                <div class="info-group">
+                                    <!-- 活動期間 -->
+                                    <div class="info-item">
+                                        <i class="bi bi-calendar-event info-icon"></i>
+                                        <div class="info-content">
+                                            <div class="info-label">活動期間</div>
+                                            <div class="info-value">
+                                                ${formatDate(activityData.start_date)} ~ ${formatDate(activityData.end_date)}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 營地名稱 -->
+                                    <div class="info-item">
+                                        <i class="bi bi-geo-alt info-icon"></i>
+                                        <div class="info-content">
+                                            <div class="info-label">營地名稱</div>
+                                            <div class="info-value">${activityData.camp_name}</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 價格範圍 -->
+                                    <div class="info-item">
+                                        <i class="bi bi-tag info-icon"></i>
+                                        <div class="info-content">
+                                            <div class="info-label">價格範圍</div>
+                                            <div class="info-value price-value">
+                                                ${formatPrice(minPrice)} ~ ${formatPrice(maxPrice)}
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- 詳細資訊表格 -->
-                        <div class="table-responsive">
-                            <table class="table table-bordered">
-                                <tbody class="text-start">
-                                    <tr>
-                                        <th width="30%">營地名稱</th>
-                                        <td>${activity.camp_name}</td>
-                                    </tr>
-                                    <tr>
-                                        <th>活動期間</th>
-                                        <td>${formatDate(activity.start_date)} ~ ${formatDate(activity.end_date)}</td>
-                                    </tr>
-                                    <tr>
-                                        <th>價格範圍</th>
-                                        <td>${formatPrice(activity.min_price)} ~ ${formatPrice(activity.max_price)}</td>
-                                    </tr>
-                                    <tr>
-                                        <th>總數量</th>
-                                        <td>${activity.total_quantity || 0} 個</td>
-                                    </tr>
-                                    <tr>
-                                        <th>活動說明</th>
-                                        <td>${activity.description || '無'}</td>
-                                    </tr>
-                                    <tr>
-                                        <th>注意事項</th>
-                                        <td>${activity.notice || '無'}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <!-- 營位選項列表 -->
-                        <div class="spot-options mt-4">
-                            <h6 class="text-start mb-3">營位選項</h6>
-                            <div class="table-responsive">
-                                <table class="table table-sm">
-                                    <thead>
-                                        <tr>
-                                            <th>營位稱</th>
-                                            <th>價格</th>
-                                            <th>數量</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        ${activity.spot_options ? activity.spot_options.map(option => `
+                            <!-- 營位表格 -->
+                            <div class="spots-section">
+                                <h5 class="section-title mt-4">
+                                    <i class="bi bi-grid"></i>
+                                    營位選項
+                                    <span class="spot-count">(共 ${stats.total_spots} 個選項)</span>
+                                </h5>
+                                <div class="table-container">
+                                    <table class="spot-table">
+                                        <thead>
                                             <tr>
-                                                <td>${option.spot_name}</td>
-                                                <td>${formatPrice(option.price)}</td>
-                                                <td>${option.max_quantity}</td>
+                                                <th>營位名稱</th>
+                                                <th>價格</th>
+                                                <th>可預訂</th>
+                                                <th>已預訂</th>
+                                                <th>剩餘</th>
                                             </tr>
-                                        `).join('') : '<tr><td colspan="3">無營位選項資料</td></tr>'}
-                                    </tbody>
-                                </table>
+                                        </thead>
+                                        <tbody>
+                                            ${spots.map(spot => `
+                                                <tr>
+                                                    <td class="spot-name-cell">${spot.spot_name}</td>
+                                                    <td class="price-cell">${formatPrice(spot.price)}</td>
+                                                    <td class="quantity-cell">${spot.max_quantity}</td>
+                                                    <td class="quantity-cell">${spot.booked_quantity}</td>
+                                                    <td class="quantity-cell">${spot.remaining_quantity}</td>
+                                                </tr>
+                                            `).join('')}
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                `,
-                width: '800px',
-                showCloseButton: true,
-                showConfirmButton: false,
-                customClass: {
-                    container: 'activity-detail-modal'
-                }
-            });
+                    `,
+                    width: '800px',
+                    customClass: {
+                        container: 'activity-detail-modal'
+                    }
+                });
+
+            } catch (error) {
+                console.error('完整錯誤資訊:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: '載入失敗',
+                    text: error.response?.data?.message || '無法載入活動資料'
+                });
+            }
         }
+
+        // 確保價格格式化函數正確定義
+        function formatPrice(price) {
+            if (!price || isNaN(price)) return 'NT$ 0';
+            return `NT$ ${Number(price).toLocaleString('zh-TW')}`;
+        }
+
+        // 添加活動詳情視窗的專屬樣式
+        const detailStyles = `
+        <style>
+            .activity-detail-container {
+                padding: 1.5rem;
+                color: var(--morandy-text);
+            }
+
+            /* 標題樣式 */
+            .detail-title {
+                font-size: 1.75rem;
+                font-weight: 600;
+                margin: 0;
+                color: var(--morandy-text);
+            }
+
+            .detail-subtitle {
+                color: var(--morandy-blue);
+                margin: 0.5rem 0 1.5rem;
+            }
+
+            /* 圖片樣式 */
+            .detail-image-section {
+                text-align: center;
+                margin-bottom: 2rem;
+            }
+
+            .detail-image {
+                max-width: 100%;
+                height: 300px;
+                object-fit: cover;
+                border-radius: 12px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            }
+
+            /* 資訊卡片樣式 */
+            .info-cards {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
+                margin-bottom: 2rem;
+            }
+
+            .info-card {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                padding: 1rem;
+                background: var(--morandy-light);
+                border-radius: 8px;
+                border: 1px solid var(--morandy-border);
+            }
+
+            .info-card i {
+                font-size: 1.5rem;
+                color: var(--morandy-green);
+            }
+
+            .info-content {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .info-content label {
+                font-size: 0.875rem;
+                color: var(--morandy-blue);
+                margin-bottom: 0.25rem;
+            }
+
+            .info-content span {
+                font-weight: 500;
+                color: var(--morandy-text);
+            }
+
+            /* 區段標題 */
+            .section-title {
+                font-size: 1.25rem;
+                font-weight: 600;
+                color: var(--morandy-green);
+                margin-bottom: 1rem;
+                padding-bottom: 0.5rem;
+                border-bottom: 2px solid var(--morandy-border);
+            }
+
+            /* 內容區塊 */
+            .description-content,
+            .notice-content {
+                background: var(--morandy-light);
+                padding: 1rem;
+                border-radius: 8px;
+                line-height: 1.6;
+                white-space: pre-line;
+            }
+
+            /* 營位表格樣式 */
+            .spot-table {
+                width: 100%;
+                border-collapse: separate;
+                border-spacing: 0;
+                margin-top: 1rem;
+            }
+
+            .spot-table th {
+                background: var(--morandy-green);
+                color: white;
+                padding: 0.75rem 1rem;
+                font-weight: 500;
+                text-align: left;
+            }
+
+            .spot-table th:first-child {
+                border-radius: 8px 0 0 0;
+            }
+
+            .spot-table th:last-child {
+                border-radius: 0 8px 0 0;
+            }
+
+            .spot-table td {
+                padding: 0.75rem 1rem;
+                border-bottom: 1px solid var(--morandy-border);
+            }
+
+            .spot-table tr:last-child td {
+                border-bottom: none;
+            }
+
+            /* 狀態標籤 */
+            .status-badge {
+                padding: 0.5rem 1rem;
+                border-radius: 20px;
+                font-size: 0.875rem;
+                font-weight: 500;
+                color: white;
+            }
+
+            /* 響應式調整 */
+            @media (max-width: 768px) {
+                .info-cards {
+                    grid-template-columns: 1fr;
+                }
+            }
+        </style>
+        `;
+
+        // 將樣式添加到文檔頭部
+        document.head.insertAdjacentHTML('beforeend', detailStyles);
 
         // 修改 showAddActivityForm 函數
         async function showAddActivityForm() {
@@ -2274,7 +2647,7 @@ require_once __DIR__ . '/../../../camping_db.php';
                         <form id="addActivityForm" class="needs-validation">
                             <div class="row g-3">
                                 <div class="col-md-6">
-                                    <label class="form-label required">選營地</label>
+                                    <label class="form-label required">選擇營地</label>
                                     <select id="application_id" class="form-select morandy-select" required onchange="loadSpotOptions(this.value)">
                                         <option value="">請選擇營地</option>
                                         ${campsResponse.data.camps.map(camp => 
@@ -2444,7 +2817,7 @@ require_once __DIR__ . '/../../../camping_db.php';
                     formData.append(field, value);
                 });
 
-                // 4. 處理營位選項
+                // 4. 理營位選項
                 const spotOptions = [];
                 const spotOptionElements = document.querySelectorAll('.spot-option');
 
@@ -2458,7 +2831,7 @@ require_once __DIR__ . '/../../../camping_db.php';
                     const maxQuantity = option.querySelector('input[name$="[max_quantity]"]')?.value;
 
                     if (!spotId || !price || !maxQuantity) {
-                        throw new Error(`請完整填寫第 ${index + 1} 個營位選項的資訊`);
+                        throw new Error(`請完�����填寫第 ${index + 1} 個營位選項的資訊`);
                     }
 
                     spotOptions.push({
@@ -2605,6 +2978,26 @@ require_once __DIR__ . '/../../../camping_db.php';
 
             container.appendChild(newOption);
         }
+
+        // 價格格式化函數
+        function formatPrice(price) {
+            return Number(price).toLocaleString('zh-TW', {
+                style: 'currency',
+                currency: 'TWD',
+                minimumFractionDigits: 0
+            });
+        }
+
+        // 添加點擊效果
+        document.querySelectorAll('.info-item').forEach(item => {
+            item.addEventListener('click', () => {
+                // 點擊時的視覺反饋
+                item.style.transform = 'scale(0.98)';
+                setTimeout(() => {
+                    item.style.transform = 'translateY(-2px)';
+                }, 150);
+            });
+        });
     </script>
 </body>
 
