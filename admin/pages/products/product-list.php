@@ -1,7 +1,6 @@
 <?php
 // 引入資料庫連線檔案
-require_once("pdo-connect.php");
-
+require_once __DIR__ . '/../../../camping_db.php';
 
 // 排序邏輯處理
 $orderClause = "";
@@ -50,14 +49,14 @@ if (isset($_GET["search"])) {
 
 //獲取category表內有的類別
 try {
-    $stmt = $pdo->query("SELECT id, name ,status FROM categories");
+    $stmt = $db->query("SELECT id, name ,status FROM categories");
     $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     die("無法取得類別資料：" . $e->getMessage());
 }
 
 try {
-    $stmt = $pdo->query("SELECT id, name ,category_id AS subcategory_category FROM subcategories");
+    $stmt = $db->query("SELECT id, name ,category_id AS subcategory_category ,subcategories.status FROM subcategories");
     $subcategories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     die("無法取得類別資料：" . $e->getMessage());
@@ -80,7 +79,7 @@ $countQuery = "SELECT COUNT(*) FROM products
                 $whereClause"; // 加上篩選條件
 
 try {
-    $stmt = $pdo->query($countQuery);
+    $stmt = $db->query($countQuery);
     $totalItems = $stmt->fetchColumn();
 } catch (PDOException $e) {
     die("查詢資料總數失敗：" . $e->getMessage());
@@ -103,7 +102,7 @@ if ($offset < 0) $offset = 1;
 // 獲取商品資料並關聯類別子類別表
 
 try {
-    $stmt = $pdo->query("SELECT 
+    $stmt = $db->query("SELECT 
         products.id, 
         products.name AS product_name, 
         products.price, 
@@ -425,7 +424,9 @@ try {
     <!-- 圖片編輯功能的JS -->
     <?php include("img_js.php") ?>
     <!-- 圖片編輯功能的JS -->
-
+    <!-- 測試 -->
+    <script src="../test.js"></script>
+    <!-- 測試 -->
 </body>
 
 </html>

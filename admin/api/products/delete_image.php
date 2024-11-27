@@ -1,5 +1,5 @@
 <?php
-require_once 'pdo-connect.php'; // 確保已載入資料庫連線
+require_once __DIR__ . "../../../../camping_db.php";
 header('Content-Type: application/json');
 
 // 確保接收到圖片 ID
@@ -12,7 +12,7 @@ if (!$imageId) {
 }
 
 // 獲取圖片路徑
-$stmt = $pdo->prepare("SELECT image_path FROM product_images WHERE id = :id");
+$stmt = $db->prepare("SELECT image_path FROM product_images WHERE id = :id");
 $stmt->execute([':id' => $imageId]);
 $image = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -40,11 +40,11 @@ if (file_exists($filePath)) {
 }
 
 // 從資料庫刪除圖片資料
-$stmt = $pdo->prepare("DELETE FROM product_images WHERE id = :id");
+$stmt = $db->prepare("DELETE FROM product_images WHERE id = :id");
 $stmt->execute([':id' => $imageId]);
 
 // 手動檢查圖片是否已經被刪除
-$stmt = $pdo->prepare("SELECT * FROM product_images WHERE id = :id");
+$stmt = $db->prepare("SELECT * FROM product_images WHERE id = :id");
 $stmt->execute([':id' => $imageId]);
 $image = $stmt->fetch(PDO::FETCH_ASSOC);
 

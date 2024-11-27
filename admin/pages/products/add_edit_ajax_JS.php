@@ -228,6 +228,11 @@
             option.value = subcategory.id;
             option.textContent = subcategory.name;
 
+            // 如果次類別停用（status === 0），設置為禁用
+            if (subcategory.status == 0) {
+                option.disabled = true;
+            }
+
             // 如果是當前商品的次分類，則預設選中
             if (subcategory.id == selectedSubcategoryId) {
                 option.selected = true;
@@ -256,6 +261,12 @@
             const option = document.createElement("option");
             option.value = subcategory.id;
             option.textContent = subcategory.name;
+
+
+            // 如果次類別停用（status === 0），設置為禁用
+            if (subcategory.status == 0) {
+                option.disabled = true;
+            }
 
             // 如果是當前商品的次分類，則預設選中
             if (subcategory.id == selectedSubcategoryId) {

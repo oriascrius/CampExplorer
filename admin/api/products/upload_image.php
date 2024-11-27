@@ -1,5 +1,5 @@
 <?php
-require_once 'pdo-connect.php'; // 確保已載入資料庫連線
+require_once __DIR__ . "../../../../camping_db.php"; // 確保已載入資料庫連線
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $productId = $_POST['product_id'];  // 確保有收到產品 ID
@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (move_uploaded_file($file['tmp_name'], $filePath)) {
         // 新增圖片資訊到資料庫
         try {
-            $stmt = $pdo->prepare("
+            $stmt = $db->prepare("
                 INSERT INTO product_images (product_id, image_path, is_main, status, created_at)
                 VALUES (:product_id, :image_path, 0, 1, NOW())
             ");
