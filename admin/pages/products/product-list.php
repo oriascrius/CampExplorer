@@ -427,9 +427,6 @@ try {
     <!-- 圖片編輯功能的JS -->
     <?php include("img_js.php") ?>
     <!-- 圖片編輯功能的JS -->
-    <!-- 測試 -->
-    <script src="../test.js"></script>
-    <!-- 測試 -->
 </body>
 
 </html>

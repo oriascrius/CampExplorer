@@ -128,9 +128,6 @@ foreach ($categories as $category) {
 
 
 
-        <!-- 測試 -->
-        <script src="../test.js"></script>
-        <!-- 測試 -->
         <script src="pages/categories/edit_ajax_modal_JS.js"></script>
         <!-- Bootstrap JS -->
 

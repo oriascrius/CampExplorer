@@ -51,21 +51,28 @@ try {
     LIMIT 5";
     $result_popular_articles = $db->query($sql_popular_articles);
 
-    // 商品分類統計
+    // 商品分類統計 - 優化查詢
     $sql_categories = "SELECT 
+        c.id,
         c.name as category_name,
-        COUNT(p.id) as product_count
+        COUNT(DISTINCT p.id) as total_products,
+        COUNT(CASE WHEN p.status = 1 THEN p.id END) as active_products,
+        SUM(CASE WHEN p.status = 1 AND p.stock <= 10 THEN 1 ELSE 0 END) as low_stock_count,
+        SUM(CASE WHEN p.status = 1 AND p.stock = 0 THEN 1 ELSE 0 END) as out_of_stock_count,
+        ROUND(AVG(CASE WHEN p.status = 1 THEN p.price END), 0) as avg_price
     FROM categories c
     LEFT JOIN products p ON c.id = p.category_id
-    GROUP BY c.id
-    ORDER BY product_count DESC";
+    WHERE c.status = 1
+    GROUP BY c.id, c.name
+    HAVING active_products > 0
+    ORDER BY active_products DESC";
     $result_categories = $db->query($sql_categories);
 
     // 新增最近活動查詢
     $sql_recent_activities = "SELECT 
         'camp_review' as type,
         cr.reviewed_at as time,
-        CONCAT('審核了營地申請 #', cr.application_id) as description,
+        CONCAT('審核營地申請 #', cr.application_id) as description,
         ca.name as detail,
         a.name as admin_name
     FROM campsite_reviews cr
@@ -94,14 +101,15 @@ try {
 
     // 營收統計
     $sql_revenue = "SELECT 
-        SUM(CASE WHEN payment_status = 1 THEN total_amount ELSE 0 END) as total_revenue,
-        SUM(CASE WHEN payment_status = 1 AND DATE(created_at) = CURDATE() THEN total_amount ELSE 0 END) as today_revenue,
-        COUNT(CASE WHEN payment_status = 1 THEN 1 END) as total_orders,
-        COUNT(CASE WHEN payment_status = 0 THEN 1 END) as pending_orders,
-        (
-            SUM(CASE WHEN payment_status = 1 AND MONTH(created_at) = MONTH(CURDATE()) THEN total_amount ELSE 0 END) / 
-            NULLIF(SUM(CASE WHEN payment_status = 1 AND MONTH(created_at) = MONTH(DATE_SUB(CURDATE(), INTERVAL 1 MONTH)) THEN total_amount ELSE 0 END), 0) * 100 - 100
-        ) as growth_rate
+        COALESCE(SUM(CASE WHEN payment_status = 1 THEN total_amount ELSE 0 END), 0) as total_revenue,
+        COALESCE(SUM(CASE WHEN payment_status = 1 AND DATE(created_at) = CURDATE() THEN total_amount ELSE 0 END), 0) as today_revenue,
+        COUNT(*) as total_orders,
+        COUNT(CASE WHEN order_status = 0 THEN 1 END) as pending_orders,
+        COALESCE(
+            ((SUM(CASE WHEN payment_status = 1 AND MONTH(created_at) = MONTH(CURDATE()) THEN total_amount ELSE 0 END) / 
+            NULLIF(SUM(CASE WHEN payment_status = 1 AND MONTH(created_at) = MONTH(DATE_SUB(CURDATE(), INTERVAL 1 MONTH)) 
+            THEN total_amount ELSE 0 END), 0)) * 100) - 100, 
+        0) as growth_rate
     FROM product_orders";
 
     $result_revenue = $db->query($sql_revenue);
@@ -110,73 +118,66 @@ try {
     // 訂單狀態統計
     $sql_order_stats = "SELECT 
         COUNT(*) as total_orders,
-        COUNT(CASE WHEN order_status = 0 THEN 1 END) as pending_orders,
-        COUNT(CASE WHEN order_status = 1 THEN 1 END) as processing_orders,
-        COUNT(CASE WHEN order_status = 2 THEN 1 END) as completed_orders,
-        COUNT(CASE WHEN order_status = 3 THEN 1 END) as cancelled_orders,
-        COUNT(CASE WHEN payment_status = 0 THEN 1 END) as unpaid_orders,
-        COUNT(CASE WHEN payment_status = 1 THEN 1 END) as paid_orders,
-        COUNT(CASE WHEN payment_status = 2 THEN 1 END) as refunded_orders
-    FROM product_orders";
+        COALESCE(COUNT(CASE WHEN order_status = 0 THEN 1 END), 0) as pending_orders,
+        COALESCE(COUNT(CASE WHEN order_status = 1 THEN 1 END), 0) as processing_orders,
+        COALESCE(COUNT(CASE WHEN order_status = 2 THEN 1 END), 0) as completed_orders,
+        COALESCE(COUNT(CASE WHEN order_status = 3 THEN 1 END), 0) as cancelled_orders,
+        COALESCE(COUNT(CASE WHEN payment_status = 0 THEN 1 END), 0) as unpaid_orders,
+        COALESCE(COUNT(CASE WHEN payment_status = 1 THEN 1 END), 0) as paid_orders,
+        COALESCE(COUNT(CASE WHEN payment_status = 2 THEN 1 END), 0) as refunded_orders
+    FROM product_orders
+    WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR)";
 
     $result_order_stats = $db->query($sql_order_stats);
     $order_stats = $result_order_stats->fetch(PDO::FETCH_ASSOC);
 
     // 訂單轉換率統計
     $sql_conversion = "SELECT 
-        COUNT(DISTINCT po.user_id) as total_buyers,
-        (COUNT(DISTINCT po.user_id) * 100.0 / (SELECT COUNT(*) FROM users)) as conversion_rate,
-        AVG(po.total_amount) as avg_order_amount,
-        COUNT(CASE WHEN DATE(po.created_at) = CURDATE() THEN 1 END) as orders_today
-    FROM product_orders po
-    WHERE po.payment_status = 1";
+        COUNT(DISTINCT member_id) as total_buyers,
+        ROUND((COUNT(DISTINCT member_id) * 100.0 / (SELECT COUNT(*) FROM users)), 2) as conversion_rate,
+        COALESCE(AVG(CASE WHEN payment_status = 1 THEN total_amount END), 0) as avg_order_amount,
+        COUNT(CASE WHEN DATE(created_at) = CURDATE() THEN 1 END) as orders_today
+    FROM product_orders";
 
     $result_conversion = $db->query($sql_conversion);
     $conversion_stats = $result_conversion->fetch(PDO::FETCH_ASSOC);
 
     // 會員活躍度統計
     $sql_activity = "SELECT 
-        COUNT(DISTINCT ua.user_id) as active_users_month,
-        (COUNT(DISTINCT ua.user_id) * 100.0 / (SELECT COUNT(*) FROM users)) as active_rate,
-        COUNT(DISTINCT CASE WHEN DATE(ua.created_at) = CURDATE() THEN ua.user_id END) as active_users_today,
-        COUNT(DISTINCT CASE WHEN DATE(ua.created_at) >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) THEN ua.user_id END) as active_users_week
-    FROM (
-        SELECT user_id, created_at FROM product_orders
-        UNION ALL
-        SELECT user_id, created_at FROM discussions
-        UNION ALL
-        SELECT user_id, created_at FROM favorites
-    ) as ua
-    WHERE ua.created_at >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)";
+        COUNT(DISTINCT CASE WHEN DATE(last_login) = CURDATE() THEN user_id END) as active_users_today,
+        COUNT(DISTINCT CASE WHEN last_login >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) THEN user_id END) as active_users_week,
+        COUNT(DISTINCT CASE WHEN last_login >= DATE_SUB(CURDATE(), INTERVAL 30 DAY) THEN user_id END) as active_users_month,
+        ROUND(
+            (COUNT(DISTINCT CASE WHEN last_login >= DATE_SUB(CURDATE(), INTERVAL 30 DAY) THEN user_id END) * 100.0 / 
+            (SELECT COUNT(*) FROM users)), 
+        2) as active_rate
+    FROM user_activities";
 
     $result_activity = $db->query($sql_activity);
     $activity_stats = $result_activity->fetch(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     // 添加錯誤處理，設置預設值
-    $conversion_stats = [
-        'total_buyers' => 0,
-        'conversion_rate' => 0,
-        'avg_order_amount' => 0,
-        'orders_today' => 0
-    ];
-    
     $activity_stats = [
-        'active_users_month' => 0,
-        'active_rate' => 0,
         'active_users_today' => 0,
-        'active_users_week' => 0
+        'active_users_week' => 0,
+        'active_users_month' => 0,
+        'active_rate' => 0
     ];
-    
+
     error_log("Dashboard Stats Error: " . $e->getMessage());
 }
 ?>
+
+<!-- Font Awesome 6 CDN -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"></script>
 
 <!-- Dashboard UI -->
 <div class="container-fluid px-4">
     <!-- 頁面標題與工具列 -->
     <div class="d-flex justify-content-between align-items-center mt-4 mb-4">
         <div>
-            <h1 class="h3 mb-0">營運分析中心</h1>
+            <h1 class="h3 mb-0"> 營運分析中心</h1>
             <small class="text-muted">CampExplorer 營運數據即時監控</small>
         </div>
         <div class="dashboard-tools">
@@ -232,7 +233,7 @@ try {
                             <i class="fas fa-users me-1"></i> 會員管理
                         </a>
                         <a href="index.php?page=coupons_list" class="btn btn-monofondi-purple btn-sm">
-                            <i class="fas fa-ticket-alt me-1"></i> 優券
+                            <i class="fas fa-ticket-alt me-1"></i> 優惠券
                         </a>
                         <a href="index.php?page=articles_list" class="btn btn-monofondi-blue-gray btn-sm">
                             <i class="fas fa-newspaper me-1"></i> 文章管理
@@ -247,30 +248,28 @@ try {
     <div class="row g-4 mb-4">
         <!-- 會員統計卡片 -->
         <div class="col-xl-3 col-md-6">
-            <div class="card h-100 bg-morandi-blue-gradient">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="card-title mb-3">
-                                <i class="fas fa-users me-2"></i>會員統計
-                            </h6>
-                            <h2 class="mb-0"><?= number_format($users_stats['total_users']) ?></h2>
-                            <small>總會員數</small>
-                        </div>
-                        <div class="icon-circle">
-                            <i class="fas fa-user-friends fa-2x"></i>
-                        </div>
+            <div class="card stats-card bg-morandi-blue-gradient">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title">
+                            <i class="fas fa-users me-2"></i>會員統計
+                        </h6>
+                        <h2 class="main-number"><?= number_format($users_stats['total_users']) ?></h2>
+                        <div class="stats-label">總會員數</div>
                     </div>
-                    <hr>
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h4 class="mb-0"><?= $users_stats['new_users_today'] ?></h4>
-                            <small>今日新增</small>
-                        </div>
-                        <div>
-                            <h4 class="mb-0"><?= $users_stats['new_users_month'] ?></h4>
-                            <small>本月新增</small>
-                        </div>
+                    <div class="icon-circle">
+                        <i class="fas fa-user-chart fa-2x"></i>
+                    </div>
+                </div>
+                <hr>
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <div class="sub-number"><?= number_format($users_stats['new_users_today']) ?></div>
+                        <div class="stats-label">今日新增</div>
+                    </div>
+                    <div>
+                        <div class="sub-number"><?= number_format($users_stats['new_users_month']) ?></div>
+                        <div class="stats-label">本月新增</div>
                     </div>
                 </div>
             </div>
@@ -282,25 +281,25 @@ try {
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h6 class="card-title mb-3 text-morandi-sage">
+                            <h6 class="card-title mb-3">
                                 <i class="fas fa-campground me-2"></i>營地統計
                             </h6>
-                            <h2 class="mb-0 text-dark"><?= number_format($camps_stats['total_camps']) ?></h2>
-                            <small class="text-muted">營地數</small>
+                            <h2 class="m-0" data-stat="total_camps"><?= number_format($camps_stats['total_camps']) ?></h2>
+                            <small>總營地數</small>
                         </div>
-                        <div class="icon-circle bg-morandi-sage">
-                            <i class="fas fa-mountain text-white fa-2x"></i>
+                        <div class="icon-circle">
+                            <i class="fas fa-mountain-sun fa-2x text-morandi-sage"></i>
                         </div>
                     </div>
-                    <hr class="my-3">
+                    <hr>
                     <div class="d-flex justify-content-between">
                         <div>
                             <h4 class="mb-0 text-morandi-sage"><?= $camps_stats['pending_camps'] ?></h4>
-                            <small class="text-muted">待審核</small>
+                            <small class="">待審核</small>
                         </div>
                         <div>
                             <h4 class="mb-0 text-morandi-sage"><?= $camps_stats['operating_camps'] ?></h4>
-                            <small class="text-muted">營業中</small>
+                            <small class="">營業中</small>
                         </div>
                     </div>
                 </div>
@@ -316,8 +315,8 @@ try {
                             <h6 class="card-title mb-3 text-morandi-rose">
                                 <i class="fas fa-newspaper me-2"></i>文章統計
                             </h6>
-                            <h2 class="mb-0 text-dark"><?= number_format($articles_stats['total_articles']) ?></h2>
-                            <small class="text-muted">總文章數</small>
+                            <h2 class="mb-0"><?= number_format($articles_stats['total_articles']) ?></h2>
+                            <small class="">總文章數</small>
                         </div>
                         <div class="icon-circle bg-morandi-rose">
                             <i class="fas fa-newspaper text-white fa-2x"></i>
@@ -327,11 +326,11 @@ try {
                     <div class="d-flex justify-content-between">
                         <div>
                             <h4 class="mb-0 text-morandi-rose"><?= number_format($articles_stats['total_views']) ?></h4>
-                            <small class="text-muted">總瀏覽</small>
+                            <small class="">總瀏覽</small>
                         </div>
                         <div>
                             <h4 class="mb-0 text-morandi-rose"><?= $articles_stats['new_articles_month'] ?></h4>
-                            <small class="text-muted">本月新增</small>
+                            <small class="">本月新增</small>
                         </div>
                     </div>
                 </div>
@@ -347,8 +346,8 @@ try {
                             <h6 class="card-title mb-3 text-morandi-mauve">
                                 <i class="fas fa-box me-2"></i>商品統計
                             </h6>
-                            <h2 class="mb-0 text-dark"><?= number_format($products_stats['total_products']) ?></h2>
-                            <small class="text-muted">總商品數</small>
+                            <h2 class="mb-0"><?= number_format($products_stats['total_products']) ?></h2>
+                            <small class="">總商品數</small>
                         </div>
                         <div class="icon-circle bg-morandi-mauve">
                             <i class="fas fa-box text-white fa-2x"></i>
@@ -358,11 +357,11 @@ try {
                     <div class="d-flex justify-content-between">
                         <div>
                             <h4 class="mb-0 text-morandi-mauve"><?= $products_stats['low_stock'] ?></h4>
-                            <small class="text-muted">庫存不足</small>
+                            <small class="">庫存不足</small>
                         </div>
                         <div>
                             <h4 class="mb-0 text-morandi-mauve">$<?= number_format($products_stats['avg_price']) ?></h4>
-                            <small class="text-muted">平均單價</small>
+                            <small class="">平均單價</small>
                         </div>
                     </div>
                 </div>
@@ -378,8 +377,8 @@ try {
                             <h6 class="card-title mb-3 text-morandi-mint">
                                 <i class="fas fa-dollar-sign me-2"></i>營收統計
                             </h6>
-                            <h2 class="mb-0 text-dark">$<?= number_format($revenue_stats['total_revenue'] ?? 0) ?></h2>
-                            <small class="text-muted">總營收</small>
+                            <h2 class="mb-0">$<?= number_format($revenue_stats['total_revenue'] ?? 0) ?></h2>
+                            <small class="">總營收</small>
                         </div>
                         <div class="icon-circle bg-morandi-mint">
                             <i class="fas fa-dollar-sign text-white fa-2x"></i>
@@ -389,11 +388,11 @@ try {
                     <div class="d-flex justify-content-between">
                         <div>
                             <h4 class="mb-0 text-morandi-mint">$<?= number_format($revenue_stats['today_revenue'] ?? 0) ?></h4>
-                            <small class="text-muted">今日營</small>
+                            <small class="">今日營收</small>
                         </div>
                         <div>
                             <h4 class="mb-0 text-morandi-mint"><?= number_format($revenue_stats['growth_rate'] ?? 0, 1) ?>%</h4>
-                            <small class="text-muted"><?= ($revenue_stats['growth_rate'] ?? 0) >= 0 ? '月增長' : '月下降' ?></small>
+                            <small class=""><?= ($revenue_stats['growth_rate'] ?? 0) >= 0 ? '月增長' : '月下降' ?></small>
                         </div>
                     </div>
                 </div>
@@ -409,8 +408,8 @@ try {
                             <h6 class="card-title mb-3 text-morandi-sand">
                                 <i class="fas fa-shopping-cart me-2"></i>訂單統計
                             </h6>
-                            <h2 class="mb-0 text-dark"><?= number_format($order_stats['total_orders']) ?></h2>
-                            <small class="text-muted">總訂單數</small>
+                            <h2 class="mb-0"><?= number_format($order_stats['total_orders']) ?></h2>
+                            <small class="">總訂單數</small>
                         </div>
                         <div class="icon-circle bg-morandi-sand">
                             <i class="fas fa-shopping-cart text-white fa-2x"></i>
@@ -420,11 +419,11 @@ try {
                     <div class="d-flex justify-content-between">
                         <div>
                             <h4 class="mb-0 text-morandi-sand"><?= number_format($order_stats['pending_orders']) ?></h4>
-                            <small class="text-muted">待處理</small>
+                            <small class="">待處理</small>
                         </div>
                         <div>
                             <h4 class="mb-0 text-morandi-sand">$<?= number_format($revenue_stats['today_revenue'], 0) ?></h4>
-                            <small class="text-muted">今日營收</small>
+                            <small class="">今日營收</small>
                         </div>
                     </div>
                 </div>
@@ -440,8 +439,8 @@ try {
                             <h6 class="card-title mb-3 text-morandi-purple">
                                 <i class="fas fa-chart-line me-2"></i>轉換率
                             </h6>
-                            <h2 class="mb-0 text-dark"><?= number_format($conversion_stats['conversion_rate'], 1) ?>%</h2>
-                            <small class="text-muted">購買轉換率</small>
+                            <h2 class="mb-0"><?= number_format($conversion_stats['conversion_rate'], 1) ?>%</h2>
+                            <small class="">購買轉換率</small>
                         </div>
                         <div class="icon-circle bg-morandi-purple">
                             <i class="fas fa-percentage text-white fa-2x"></i>
@@ -451,18 +450,18 @@ try {
                     <div class="d-flex justify-content-between">
                         <div>
                             <h4 class="mb-0 text-morandi-purple"><?= number_format($conversion_stats['total_buyers']) ?></h4>
-                            <small class="text-muted">總購買人數</small>
+                            <small class="">總購買人數</small>
                         </div>
                         <div>
                             <h4 class="mb-0 text-morandi-purple">$<?= number_format($conversion_stats['avg_order_amount']) ?></h4>
-                            <small class="text-muted">平均訂單金額</small>
+                            <small class="">平均訂單金額</small>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- 會員活躍度卡片 -->
+        <!-- 會員活躍卡片 -->
         <div class="col-xl-3 col-md-6">
             <div class="card h-100 bg-morandi-gray-gradient">
                 <div class="card-body">
@@ -471,8 +470,8 @@ try {
                             <h6 class="card-title mb-3 text-morandi-gray">
                                 <i class="fas fa-user-check me-2"></i>活躍度
                             </h6>
-                            <h2 class="mb-0 text-dark"><?= number_format($activity_stats['active_rate'], 1) ?>%</h2>
-                            <small class="text-muted">月活躍率</small>
+                            <h2 class="mb-0"><?= number_format($activity_stats['active_rate'], 1) ?>%</h2>
+                            <small class="">月活躍率</small>
                         </div>
                         <div class="icon-circle bg-morandi-gray">
                             <i class="fas fa-chart-bar text-white fa-2x"></i>
@@ -482,11 +481,11 @@ try {
                     <div class="d-flex justify-content-between">
                         <div>
                             <h4 class="mb-0 text-morandi-gray"><?= number_format($activity_stats['active_users_today']) ?></h4>
-                            <small class="text-muted">今日活動</small>
+                            <small class="">今日活動</small>
                         </div>
                         <div>
                             <h4 class="mb-0 text-morandi-gray"><?= number_format($activity_stats['active_users_week']) ?></h4>
-                            <small class="text-muted">週活躍</small>
+                            <small class="">週活躍</small>
                         </div>
                     </div>
                 </div>
@@ -530,9 +529,6 @@ try {
                 <div class="card-header bg-light d-flex justify-content-between align-items-center">
                     <h6 class="mb-0">近期活動紀錄</h6>
                     <div class="d-flex gap-2">
-                        <button class="timeline-collapse-btn" id="collapseAllBtn">
-                            <i class="fas fa-compress-alt"></i> 全部折疊
-                        </button>
                         <select class="form-select form-select-sm" style="width: auto;" id="activityFilter">
                             <option value="all">全部活動</option>
                             <option value="camp_review">營地審核</option>
@@ -541,34 +537,35 @@ try {
                     </div>
                 </div>
                 <div class="card-body p-0">
-                    <div class="timeline" id="activityTimeline">
+                    <div class="timeline">
                         <?php while ($activity = $result_activities->fetch(PDO::FETCH_ASSOC)): ?>
                             <div class="timeline-item" data-type="<?= $activity['type'] ?>">
-                                <div class="timeline-icon bg-<?= $activity['type'] === 'camp_review' ? 'primary' : 'success' ?>">
-                                    <i class="fas fa-<?= $activity['type'] === 'camp_review' ? 'check' : 'pen' ?>"></i>
+                                <div class="timeline-marker">
+                                    <div class="timeline-icon bg-<?= $activity['type'] === 'camp_review' ? 'morandi-blue' : 'morandi-sage' ?>">
+                                        <i class="fas fa-<?= $activity['type'] === 'camp_review' ? 'campground' : 'newspaper' ?>"></i>
+                                    </div>
                                 </div>
                                 <div class="timeline-content">
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <div>
-                                            <span class="activity-badge <?= $activity['type'] ?>">
-                                                <?= $activity['type'] === 'camp_review' ? '營地審核' : '文章管理' ?>
-                                            </span>
-                                            <h6><?= htmlspecialchars($activity['description']) ?></h6>
+                                    <div class="timeline-header p-3 border-bottom">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <span class="badge bg-<?= $activity['type'] === 'camp_review' ? 'info' : 'success' ?> rounded-pill">
+                                                    <?= $activity['type'] === 'camp_review' ? '營地審核' : '文章管理' ?>
+                                                </span>
+                                                <small class="text-muted ms-2">
+                                                    <time datetime="<?= $activity['time'] ?>"><?= date('F j, Y g:i A', strtotime($activity['time'])) ?></time>
+                                                </small>
+                                            </div>
+                                            <small class="text-muted">
+                                                <i class="fas fa-user-edit me-1"></i><?= htmlspecialchars($activity['admin_name']) ?>
+                                            </small>
                                         </div>
-                                        <button class="timeline-collapse-btn" onclick="toggleTimelineItem(this)">
-                                            <i class="fas fa-chevron-up"></i>
-                                        </button>
                                     </div>
-                                    <div class="timeline-content-body">
-                                        <p><?= htmlspecialchars($activity['detail']) ?></p>
-                                        <small>
-                                            <i class="far fa-clock"></i>
-                                            <time datetime="<?= date('Y-m-d\TH:i:s', strtotime($activity['time'])) ?>">
-                                                <?= date('Y-m-d H:i', strtotime($activity['time'])) ?>
-                                            </time>
-                                            <i class="far fa-user"></i>
-                                            <?= htmlspecialchars($activity['admin_name']) ?>
-                                        </small>
+                                    <div class="timeline-body p-3">
+                                        <h6 class="mb-2"><?= htmlspecialchars($activity['description']) ?></h6>
+                                        <div class="activity-detail p-2 bg-light rounded">
+                                            <?= htmlspecialchars($activity['detail']) ?>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -578,24 +575,39 @@ try {
             </div>
         </div>
         <div class="col-xl-4">
-            <div class="card">
-                <div class="card-header bg-light">
+            <!-- 商品分類統計卡片 -->
+            <div class="card mb-4">
+                <div class="card-header bg-morandi-teal d-flex justify-content-between align-items-center">
                     <h6 class="mb-0">商品分類統計</h6>
+                    <span class="badge bg-morandi-teal-light"><?= $result_categories->rowCount() ?> 個分類</span>
                 </div>
                 <div class="card-body">
-                    <?php while ($category = $result_categories->fetch(PDO::FETCH_ASSOC)): ?>
-                        <div class="mb-3">
-                            <div class="d-flex justify-content-between mb-1">
-                                <span><?= htmlspecialchars($category['category_name']) ?></span>
-                                <span class="text-primary"><?= $category['product_count'] ?></span>
-                            </div>
-                            <div class="progress" style="height: 10px;">
-                                <div class="progress-bar" role="progressbar"
-                                    style="width: <?= ($category['product_count'] / $products_stats['total_products']) * 100 ?>%">
-                                </div>
-                            </div>
-                        </div>
-                    <?php endwhile; ?>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="bg-morandi-gray-light">
+                                <tr>
+                                    <th>分類名稱</th>
+                                    <th class="text-center">商品數量</th>
+                                    <th class="text-end">平均單價</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php while ($category = $result_categories->fetch(PDO::FETCH_ASSOC)): ?>
+                                    <tr>
+                                        <td>
+                                            <span class="category-name"><?= htmlspecialchars($category['category_name']) ?></span>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge bg-morandi-teal"><?= number_format($category['total_products']) ?></span>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="text-morandi-teal">$<?= number_format($category['avg_price']) ?></span>
+                                        </td>
+                                    </tr>
+                                <?php endwhile; ?>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -604,10 +616,10 @@ try {
     <!-- 新增快速篩選器 -->
     <div class="mb-4">
         <div class="btn-group">
-            <button class="btn btn-outline-primary active" data-filter="all">全部</button>
-            <button class="btn btn-outline-primary" data-filter="today">今日</button>
-            <button class="btn btn-outline-primary" data-filter="week">本週</button>
-            <button class="btn btn-outline-primary" data-filter="month">本月</button>
+            <button class="btn btn-outline-morandi-teal active" data-filter="all">全部</button>
+            <button class="btn btn-outline-morandi-teal" data-filter="today">今日</button>
+            <button class="btn btn-outline-morandi-teal" data-filter="week">本週</button>
+            <button class="btn btn-outline-morandi-teal" data-filter="month">本月</button>
         </div>
     </div>
 
@@ -617,7 +629,7 @@ try {
             <div class="toast-header">
                 <i class="fas fa-bell me-2"></i>
                 <strong class="me-auto">系統通知</strong>
-                <small>剛剛</small>
+                <small>剛</small>
                 <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
             </div>
             <div class="toast-body">
@@ -666,7 +678,7 @@ try {
         background: linear-gradient(135deg, #9D91A9 0%, #AEA3B9 100%);
     }
 
-    /* 圖標圓圈樣式優化 */
+    /* 圖標圓圈樣��優化 */
     .icon-circle {
         height: 60px;
         width: 60px;
@@ -817,11 +829,113 @@ try {
     /* 時間軸樣式 */
     .timeline {
         position: relative;
-        max-height: 600px; /* 增加最大高度 */
-        min-height: 400px; /* 設定最小高度 */
+        padding: 1.5rem;
+        max-height: 600px;
         overflow-y: auto;
+    }
+
+    /* 時間軸項目 */
+    .timeline-item {
+        position: relative;
+        padding-left: 3rem;
+        margin-bottom: 1.5rem;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    /* 時間軸標記 */
+    .timeline-marker {
+        position: absolute;
+        left: -20px;
+        top: 0;
+    }
+
+    .timeline-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    /* 活動內容 */
+    .timeline-content {
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .timeline-header {
+        background-color: rgba(248, 249, 250, 0.5);
+    }
+
+    .timeline-body {
+        background-color: white;
+    }
+
+    .activity-detail {
+        font-size: 0.9rem;
+        color: #666;
+        background-color: #f8f9fa;
+        border-left: 3px solid #dee2e6;
+    }
+
+    /* 滾動條美化 */
+    .timeline::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .timeline::-webkit-scrollbar-thumb {
+        background-color: rgba(0, 0, 0, 0.1);
+        border-radius: 3px;
+    }
+
+    /* 活動標籤樣式 */
+    .activity-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+
+    .activity-badge.camp_review {
+        background-color: #E8F4F8;
+        color: #4A90A0;
+    }
+
+    .activity-badge.article {
+        background-color: #E8F6E8;
+        color: #5B8A5B;
+    }
+
+    /* 活���內容樣式 */
+    .timeline-content {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        margin-left: 1rem;
         transition: all 0.3s ease;
-        padding: 1rem 1.5rem;
+    }
+
+    /* 活動詳情樣式 */
+    .activity-detail {
+        padding: 0.5rem 1rem;
+        background: #f8f9fa;
+        border-radius: 4px;
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+
+    /* 莫蘭迪配��� */
+    .bg-morandi-blue {
+        background: linear-gradient(135deg, #6B7A8F 0%, #8299B5 100%);
+    }
+
+    .bg-morandi-sage {
+        background: linear-gradient(135deg, #7FA18C 0%, #8DAB9B 100%);
     }
 
     /* 收合狀態的高度 */
@@ -854,7 +968,7 @@ try {
         box-shadow: 0 0 0 2px var(--morandi-blue-light);
     }
 
-    /* 活動內容容器 */
+    /* 活動內容��器 */
     .timeline-content {
         background: rgba(255, 255, 255, 0.5);
         border-radius: 8px;
@@ -896,7 +1010,7 @@ try {
         background: var(--morandi-blue);
     }
 
-    /* 活動圖標樣式 */
+    /* 活動��標樣式 */
     .activity-icon {
         width: 32px;
         height: 32px;
@@ -992,7 +1106,7 @@ try {
         border-color: #6B7A8F;
     }
 
-    /* 動畫效果 */
+    /* 動畫��果 */
     @keyframes fadeInUp {
         from {
             opacity: 0;
@@ -1066,6 +1180,7 @@ try {
         }
     }
 
+
     /* 新增顏色變量 */
     :root {
         --indigo: #6610f2;
@@ -1094,19 +1209,28 @@ try {
     /* 莫蘭迪色系按鈕 */
     :root {
         /* 莫蘭迪主色系 */
-        --monofondi-sage: #9CAF88;      /* 鼠尾草綠 */
-        --monofondi-blue: #8E9EAB;      /* 莫蘭迪藍 */
-        --monofondi-gray: #A2A9B0;      /* 莫蘭迪灰 */
-        --monofondi-green: #A5B5A3;     /* 莫蘭迪綠 */
-        --monofondi-sand: #B5A898;      /* 莫蘭迪沙 */
-        --monofondi-rose: #B5A3A1;      /* 莫蘭迪玫瑰 */
-        --monofondi-purple: #A499B3;    /* 莫蘭迪紫 */
-        --monofondi-blue-gray: #8B97A5; /* 莫蘭迪藍灰 */
+        --monofondi-sage: #9CAF88;
+        /* 鼠尾草綠 */
+        --monofondi-blue: #8E9EAB;
+        /* 莫蘭迪藍 */
+        --monofondi-gray: #A2A9B0;
+        /* 莫蘭迪灰 */
+        --monofondi-green: #A5B5A3;
+        /* 莫蘭迪綠 */
+        --monofondi-sand: #B5A898;
+        /* 莫蘭迪沙 */
+        --monofondi-rose: #B5A3A1;
+        /* 莫蘭迪玫瑰 */
+        --monofondi-purple: #A499B3;
+        /* 莫蘭迪紫 */
+        --monofondi-blue-gray: #8B97A5;
+        /* 莫蘭迪藍灰 */
     }
 
     /* 按鈕基本樣式 */
     .btn-sm {
-        padding: 0.5rem 1rem;
+        /* padding: 0.5rem 1rem; */
+        padding: 0.5rem 1.2rem 0.5rem 1rem;
         font-size: 0.875rem;
         border-radius: 8px;
         transition: all 0.3s ease;
@@ -1114,7 +1238,7 @@ try {
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     }
 
-    /* 莫蘭迪按鈕樣式 */
+    /* 莫蘭���按鈕樣式 */
     .btn-monofondi-sage {
         background-color: var(--monofondi-sage);
         color: white;
@@ -1272,7 +1396,8 @@ try {
     }
 
     /* 數字動畫效果 */
-    .card h2, .card h4 {
+    .card h2,
+    .card h4 {
         transition: all 0.3s ease;
     }
 
@@ -1318,7 +1443,7 @@ try {
         right: 0;
         width: 100px;
         height: 100px;
-        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 70%);
         transform: translate(50%, -50%);
         border-radius: 50%;
         opacity: 0;
@@ -1332,14 +1457,22 @@ try {
     /* 莫蘭迪進階色系 - 更鮮明的配色 */
     :root {
         /* 主色調 */
-        --morandi-blue: #7A90A8;      /* 更深的莫蘭迪藍 */
-        --morandi-sage: #8FA977;      /* 更鮮豔的鼠尾草綠 */
-        --morandi-rose: #C69B97;      /* 更溫暖的莫蘭迪玫瑰 */
-        --morandi-purple: #9B8AA6;    /* 更深的莫蘭迪紫 */
-        --morandi-sand: #C4A687;      /* 更溫暖的莫蘭迪沙 */
-        --morandi-mint: #89B0A3;      /* 更清新的莫蘭迪薄荷 */
-        --morandi-mauve: #A68E9B;     /* 更深的莫蘭迪紫灰 */
-        --morandi-gray: #8E9CAA;      /* 更深的莫蘭迪灰 */
+        --morandi-blue: #7A90A8;
+        /* 更深的莫蘭迪藍 */
+        --morandi-sage: #8FA977;
+        /* 更鮮豔的鼠尾草綠 */
+        --morandi-rose: #C69B97;
+        /* 更溫暖的莫蘭迪玫瑰 */
+        --morandi-purple: #9B8AA6;
+        /* 更深的莫蘭迪紫 */
+        --morandi-sand: #C4A687;
+        /* 更溫暖的莫蘭迪沙 */
+        --morandi-mint: #89B0A3;
+        /* 更清新的莫蘭迪薄荷 */
+        --morandi-mauve: #A68E9B;
+        /* 更深的莫蘭迪紫灰 */
+        --morandi-gray: #8E9CAA;
+        /* 更深的莫蘭迪灰 */
     }
 
     /* 卡片漸層背景 - 更強的視覺效果 */
@@ -1447,7 +1580,7 @@ try {
         right: 0;
         width: 150px;
         height: 150px;
-        background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 70%);
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 70%);
         transform: translate(30%, -30%);
         border-radius: 50%;
         pointer-events: none;
@@ -1455,9 +1588,17 @@ try {
 
     /* 動畫效果 */
     @keyframes pulse {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.05); }
-        100% { transform: scale(1); }
+        0% {
+            transform: scale(1);
+        }
+
+        50% {
+            transform: scale(1.05);
+        }
+
+        100% {
+            transform: scale(1);
+        }
     }
 
     .card:hover .icon-circle {
@@ -1510,6 +1651,554 @@ try {
     .timeline-collapse-btn i {
         transition: transform 0.3s ease;
     }
+
+    .timeline-container .timeline-item {
+        opacity: 1;
+        transition: none;
+    }
+
+    .timeline-item .timeline-content {
+        max-height: 1000px;
+        opacity: 1;
+        overflow: hidden;
+        transition: all 0.3s ease-in-out;
+    }
+
+    .timeline-item.collapsed .timeline-content {
+        max-height: 0;
+        opacity: 0;
+        padding: 0;
+    }
+
+    #collapseAllBtn {
+        transition: all 0.3s ease;
+    }
+
+    #collapseAllBtn i {
+        transition: transform 0.3s ease;
+    }
+
+    /* 莫蘭迪色系 */
+    .bg-morandi-sand {
+        background-color: #E6D5C1;
+    }
+
+    .bg-morandi-sage {
+        background-color: #C8D1C2;
+    }
+
+    .bg-morandi-rose {
+        background-color: #E6D0D0;
+    }
+
+    .bg-morandi-blue {
+        background-color: #D0DDE6;
+    }
+
+    .bg-morandi-mauve {
+        background-color: #E1D0E6;
+    }
+
+    .bg-morandi-gray-light {
+        background-color: #F5F5F5;
+    }
+
+    .text-morandi-gray {
+        color: #8E8E8E;
+    }
+
+    /* 表格樣式優化 */
+    .table {
+        margin-bottom: 0;
+    }
+
+    .table th {
+        font-weight: 500;
+        border-bottom-width: 1px;
+    }
+
+    .table td {
+        vertical-align: middle;
+        padding: 0.75rem;
+    }
+
+    .category-name {
+        font-weight: 500;
+        color: #555;
+    }
+
+    .badge {
+        font-weight: 500;
+        padding: 0.5em 0.75em;
+    }
+
+    /* 統計卡片文字顏色變量 */
+    :root {
+        --stats-title-color: #4A5568;
+        /* 標題文字顏色 */
+        --stats-number-color: #2D3748;
+        /* 主要數字顏色 */
+        --stats-label-color: #718096;
+        /* 標籤文字顏色 */
+        --stats-secondary-color: #A0AEC0;
+        /* 次要數字顏色 */
+    }
+
+    /* 統計卡片樣式 */
+    .stats-card {
+        padding: 1.5rem;
+        height: 100%;
+        transition: all 0.3s ease;
+    }
+
+    .stats-card .card-title {
+        color: var(--stats-title-color);
+        font-size: 0.875rem;
+        font-weight: 500;
+        margin-bottom: 1rem;
+    }
+
+    .stats-card .stats-number {
+        color: var(--stats-number-color);
+        font-size: 1.75rem;
+        font-weight: 600;
+        line-height: 1.2;
+        margin-bottom: 0.5rem;
+    }
+
+    .stats-card .stats-label {
+        color: var(--stats-label-color);
+        font-size: 0.875rem;
+        font-weight: 400;
+    }
+
+    .stats-card .stats-secondary {
+        color: var(--stats-secondary-color);
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+
+    .stats-card .stats-icon {
+        color: var(--stats-title-color);
+        opacity: 0.8;
+    }
+
+    /* 統一顏色變量 */
+    :root {
+        --stats-primary: #2D3748;
+        /* 主要數字顏色 */
+        --stats-secondary: #718096;
+        /* 次要文字顏色 */
+        --stats-label: #A0AEC0;
+        /* 標籤文字顏色 */
+        --stats-title: #4A5568;
+        /* 標題文字顏色 */
+
+        /* 莫蘭迪色系 */
+        --morandi-blue: #A8C0D3;
+        --morandi-green: #B8C4B8;
+        --morandi-rose: #D4B9B9;
+        --morandi-teal: #A3C5C9;  /* 新增藍綠色 */
+        --morandi-sand: #D3C1B1;
+        --morandi-mint: #B5C7C0;
+    }
+
+    /* 統一卡片樣式 */
+    .stats-card {
+        padding: 1.5rem;
+        border-radius: 0.5rem;
+    }
+
+    .stats-card .main-number {
+        color: var(--stats-primary);
+        font-size: 2rem;
+        font-weight: 600;
+        line-height: 1.2;
+    }
+
+    .stats-card .sub-number {
+        color: var(--stats-primary);
+        font-size: 1.25rem;
+        font-weight: 500;
+    }
+
+    .stats-card .stats-label {
+        color: var(--stats-label);
+        font-size: 0.875rem;
+        font-weight: 400;
+    }
+
+    .stats-card .stats-title {
+        color: var(--stats-title);
+        font-size: 1rem;
+        font-weight: 500;
+        margin-bottom: 1rem;
+    }
+
+    /* 統一顏色變量 */
+    :root {
+        --stats-text-white: rgba(255, 255, 255, 0.95);
+        /* 主要文字白色 */
+        --stats-text-light: rgba(255, 255, 255, 0.85);
+        /* 次要文字白色 */
+        --stats-text-muted: rgba(255, 255, 255, 0.7);
+        /* 標籤文字白色 */
+    }
+
+    /* 統計卡片基本樣式 */
+    .stats-card {
+        padding: 1.5rem;
+        border-radius: 0.75rem;
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+        backdrop-filter: blur(10px);
+    }
+
+    .stats-card .card-title {
+        color: var(--stats-text-white);
+        font-size: 1rem;
+        font-weight: 500;
+        margin-bottom: 1rem;
+    }
+
+    .stats-card .main-number {
+        color: var(--stats-text-white);
+        font-size: 2rem;
+        font-weight: 600;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .stats-card .sub-number {
+        color: var(--stats-text-light);
+        font-size: 1.25rem;
+        font-weight: 500;
+    }
+
+    .stats-card .stats-label {
+        color: var(--stats-text-muted);
+        font-size: 0.875rem;
+        font-weight: 400;
+    }
+
+    .stats-card .icon-circle {
+        color: var(--stats-text-white);
+        opacity: 0.9;
+    }
+
+    /* 分隔線樣式 */
+    .stats-card hr {
+        border-color: rgba(255, 255, 255, 0.2);
+        margin: 1rem 0;
+    }
+
+    /* 統一背景漸層 */
+    .bg-morandi-blue-gradient {
+        background: linear-gradient(135deg, #A8C0D3 0%, #8DA5B8 100%);
+    }
+
+    .bg-morandi-sage-gradient {
+        background: linear-gradient(135deg, #B8C4B8 0%, #9DAA9D 100%);
+    }
+
+    .bg-morandi-rose-gradient {
+        background: linear-gradient(135deg, #D4B9B9 0%, #B99E9E 100%);
+    }
+
+    .bg-morandi-mauve-gradient {
+        background: linear-gradient(135deg, var(--morandi-teal) 0%, #8FADB3 100%);
+    }
+
+    .bg-morandi-sand-gradient {
+        background: linear-gradient(135deg, #D3C1B1 0%, #B8A696 100%);
+    }
+
+    .bg-morandi-mint-gradient {
+        background: linear-gradient(135deg, #B5C7C0 0%, #9AACA5 100%);
+    }
+
+    .bg-morandi-purple-gradient {
+        background: linear-gradient(135deg, #C5B8CC 0%, #AA9DB1 100%);
+    }
+
+    .bg-morandi-gray-gradient {
+        background: linear-gradient(135deg, #B8C0C8 0%, #9DA5AD 100%);
+    }
+
+    /* 圖標樣式 */
+    .icon-circle {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.2);
+        color: var(--stats-text-white);
+    }
+
+    /* 分隔線樣式 */
+    .stats-card hr {
+        border-color: rgba(255, 255, 255, 0.2);
+        margin: 1rem 0;
+    }
+
+    /* 卡片內文字間距 */
+    .stats-card .d-flex {
+        gap: 1rem;
+    }
+
+    /* 統一顏色變量 */
+    :root {
+        /* 文字顏色 */
+        --stats-text-white: rgba(255, 255, 255, 0.95);
+        /* 主要文字白色 */
+        --stats-text-light: rgba(255, 255, 255, 0.85);
+        /* 次要文字白色 */
+        --stats-text-muted: rgba(255, 255, 255, 0.7);
+        /* 標籤文字白色 */
+
+        /* 莫蘭迪色系 */
+        --morandi-blue: #A8C0D3;
+        --morandi-green: #B8C4B8;
+        --morandi-rose: #D4B9B9;
+        --morandi-teal: #A3C5C9;  /* 新增藍綠色 */
+        --morandi-sand: #D3C1B1;
+        --morandi-mint: #B5C7C0;
+        --morandi-purple: #C5B8CC;
+        --morandi-gray: #B8C0C8;
+    }
+
+    /* 卡片基本樣式 */
+    .stats-card {
+        padding: 1.75rem;
+        border-radius: 0.75rem;
+        border: none;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+    }
+
+    /* 卡片文字樣式 */
+    .stats-card .card-title {
+        color: var(--stats-text-white);
+        font-size: 1rem;
+        font-weight: 500;
+        margin-bottom: 1rem;
+    }
+
+    .stats-card .main-number {
+        color: var(--stats-text-white);
+        font-size: 2.2rem;
+        font-weight: 600;
+        line-height: 1.2;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .stats-card .sub-number {
+        color: var(--stats-text-light);
+        font-size: 1.25rem;
+        font-weight: 500;
+    }
+
+    .stats-card .stats-label {
+        color: var(--stats-text-muted);
+        font-size: 0.875rem;
+        font-weight: 400;
+        letter-spacing: 0.5px;
+    }
+
+    /* 背景漸層 */
+    .bg-morandi-blue-gradient {
+        background: linear-gradient(135deg, var(--morandi-blue) 0%, #8DA5B8 100%);
+    }
+
+    .bg-morandi-sage-gradient {
+        background: linear-gradient(135deg, var(--morandi-green) 0%, #9DAA9D 100%);
+    }
+
+    .bg-morandi-rose-gradient {
+        background: linear-gradient(135deg, var(--morandi-rose) 0%, #B99E9E 100%);
+    }
+
+    .bg-morandi-mauve-gradient {
+        background: linear-gradient(135deg, var(--morandi-mauve) 0%, #AC9AAB 100%);
+    }
+
+    .bg-morandi-sand-gradient {
+        background: linear-gradient(135deg, var(--morandi-sand) 0%, #B8A696 100%);
+    }
+
+    .bg-morandi-mint-gradient {
+        background: linear-gradient(135deg, var(--morandi-mint) 0%, #9AACA5 100%);
+    }
+
+    .bg-morandi-purple-gradient {
+        background: linear-gradient(135deg, var(--morandi-purple) 0%, #AA9DB1 100%);
+    }
+
+    .bg-morandi-gray-gradient {
+        background: linear-gradient(135deg, var(--morandi-gray) 0%, #9DA5AD 100%);
+    }
+
+    /* 圖標樣式 */
+    .icon-circle {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.2);
+        color: var(--stats-text-white);
+        transition: transform 0.3s ease;
+    }
+
+    .icon-circle:hover {
+        transform: scale(1.05);
+    }
+
+    /* 分隔線樣式 */
+    .stats-card hr {
+        border-color: rgba(255, 255, 255, 0.2);
+        margin: 1rem 0;
+    }
+
+    /* 動畫效果 */
+    .stats-card {
+        animation: fadeInUp 0.5s ease-out;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* 統一顏色變量 */
+    :root {
+        /* 文字顏色層級 */
+        --text-primary: rgba(255, 255, 255, 0.95);    /* 主標題、大數字 */
+        --text-secondary: rgba(255, 255, 255, 0.85);  /* 次要數字 */
+        --text-tertiary: rgba(255, 255, 255, 0.75);   /* 小標題 */
+        --text-quaternary: rgba(255, 255, 255, 0.65); /* 說明文字 */
+        --text-muted: rgba(255, 255, 255, 0.55);      /* 最淺層文字 */
+        
+        /* 圖標顏色 */
+        --icon-primary: rgba(255, 255, 255, 0.9);     /* 主要圖標 */
+        --icon-secondary: rgba(255, 255, 255, 0.7);   /* 次要圖標 */
+    }
+
+    /* 文字層級樣式 */
+    .stats-card .card-title {
+        color: var(--text-tertiary);
+        font-size: 1rem;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+    }
+
+    .stats-card .main-number {
+        color: var(--text-primary);
+        font-size: 2.2rem;
+        font-weight: 600;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .stats-card .sub-number {
+        color: var(--text-secondary);
+        font-size: 1.25rem;
+        font-weight: 500;
+    }
+
+    .stats-card .stats-label {
+        color: var(--text-quaternary);
+        font-size: 0.875rem;
+        font-weight: 400;
+    }
+
+    .stats-card small {
+        color: var(--text-muted);
+        font-size: 0.75rem;
+    }
+
+    .stats-card .icon-circle {
+        color: var(--icon-primary);
+    }
+
+    .stats-card .icon-circle i {
+        opacity: 0.9;
+    }
+
+    :root {
+        /* 莫蘭迪藍綠色系 */
+        --morandi-blue: #A8C0D3;      /* 主色調：柔和藍 */
+        --morandi-sage: #B8C4B8;      /* 灰綠色 */
+        --morandi-mint: #B5C7C0;      /* 薄荷綠 */
+        --morandi-teal: #A3C5C9;      /* 藍綠色 取代紫色 */
+        --morandi-gray: #B8C0C8;      /* 灰藍色 */
+        --morandi-sand: #D3C1B1;      /* 沙色 */
+    }
+
+    /* 文字顏色類 */
+    .text-morandi-teal {
+        color: var(--morandi-teal);
+    }
+
+    /* 背景色類 */
+    .bg-morandi-teal {
+        background-color: var(--morandi-teal);
+    }
+
+    /* 背景漸層 */
+    .bg-morandi-teal-gradient {
+        background: linear-gradient(135deg, var(--morandi-teal) 0%, #8DADB3 100%);
+    }
+
+    /* 莫蘭迪按鈕樣式 */
+    .btn-outline-morandi-teal {
+        color: var(--morandi-teal);
+        border-color: var(--morandi-teal);
+        background-color: transparent;
+        transition: all 0.3s ease;
+    }
+
+    .btn-outline-morandi-teal:hover,
+    .btn-outline-morandi-teal:active,
+    .btn-outline-morandi-teal.active {
+        color: #fff;
+        background-color: var(--morandi-teal);
+        border-color: var(--morandi-teal);
+    }
+
+    .btn-outline-morandi-teal:focus {
+        box-shadow: 0 0 0 0.2rem rgba(163, 197, 201, 0.25);
+    }
+
+    /* Toast 通知樣式 */
+    .toast {
+        background: rgba(255, 255, 255, 0.98);
+        border: none;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        border-radius: 12px;
+    }
+
+    .toast-header {
+        background: var(--morandi-teal);
+        color: white;
+        border-radius: 12px 12px 0 0;
+    }
+
+    .toast-header .btn-close {
+        filter: brightness(0) invert(1);
+    }
+
+    .toast-body {
+        color: var(--morandi-gray);
+        padding: 1rem;
+    }
 </style>
 
 <!-- Chart.js -->
@@ -1519,7 +2208,7 @@ try {
 
 <!-- 自定義 JavaScript -->
 <script>
-    // 匯出 CSV 功能
+    // 匯出 CSV ���能
     function exportTableToCSV(tableId) {
         const table = document.getElementById(tableId);
         let csv = [];
@@ -1552,20 +2241,93 @@ try {
 
     // 定時更新時間顯示
     setInterval(() => {
-        const now = new Date();
-        const dateStr = now.toLocaleString('zh-TW', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-        document.querySelector('.date-display').firstChild.textContent = dateStr;
+        const dateDisplay = document.querySelector('.date-display');
+        if (dateDisplay) {
+            const now = new Date();
+            const dateStr = now.toLocaleString('zh-TW', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            // 使用 i 標籤來顯示圖標
+            dateDisplay.innerHTML = `<i class="far fa-clock me-1"></i>${dateStr}`;
+        }
     }, 1000);
 
-    // 新增出儀表板數據功能
+    // 匯出功能的基本框架
     function exportDashboardData() {
-        // 實作匯出功能
+        try {
+            // 收集���有統計數據
+            const statsData = {
+                '用戶統計': {
+                    '總用戶數': document.querySelector('.bg-morandi-blue-gradient h2')?.textContent,
+                    '本月新增': document.querySelector('.bg-morandi-blue-gradient .text-morandi-blue')?.textContent,
+                    '今日新增': document.querySelector('.bg-morandi-blue-gradient .text-morandi-blue:last-child')?.textContent
+                },
+                '營地統計': {
+                    '總營地數': document.querySelector('.bg-morandi-rose-gradient h2')?.textContent,
+                    '營運中': document.querySelector('.bg-morandi-rose-gradient .text-morandi-rose')?.textContent,
+                    '待審核': document.querySelector('.bg-morandi-rose-gradient .text-morandi-rose:last-child')?.textContent
+                },
+                '商品統計': {
+                    '總商品數': document.querySelector('.bg-morandi-mauve-gradient h2')?.textContent,
+                    '庫存不足': document.querySelector('.text-morandi-mauve')?.textContent,
+                    '平均單價': document.querySelector('.text-morandi-mauve:last-child')?.textContent
+                },
+                '營收統計': {
+                    '總營收': document.querySelector('.bg-morandi-mint-gradient h2')?.textContent,
+                    '今日營收': document.querySelector('.text-morandi-mint')?.textContent,
+                    '月增長率': document.querySelector('.text-morandi-mint:last-child')?.textContent
+                }
+            };
+
+            // 轉換為 CSV 格式
+            let csv = '統計類別,項目,數值\n';
+
+            for (const category in statsData) {
+                for (const item in statsData[category]) {
+                    const value = statsData[category][item]?.trim() || 'N/A';
+                    csv += `${category},${item},${value}\n`;
+                }
+            }
+
+            // 檢查是否有數據
+            const hasData = Object.values(statsData).some(category =>
+                Object.values(category).some(value => value && value !== 'N/A')
+            );
+
+            if (!hasData) {
+                throw new Error('無法獲取統計數據');
+            }
+
+            // 下載檔���
+            const blob = new Blob(['\ufeff' + csv], {
+                type: 'text/csv;charset=utf-8;'
+            });
+            const link = document.createElement('a');
+            const date = new Date().toLocaleDateString('zh-TW').replace(/\//g, '');
+            link.href = URL.createObjectURL(blob);
+            link.download = `營運報表_${date}.csv`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            Swal.fire({
+                icon: 'success',
+                title: '匯出成功',
+                text: '報表已成功下載',
+                timer: 1500
+            });
+        } catch (error) {
+            console.error('匯出失敗:', error);
+            Swal.fire({
+                icon: 'error',
+                title: '匯出失敗',
+                text: error.message || '請稍後再試'
+            });
+        }
     }
 
     // 修改圖表初始化代碼
@@ -1699,7 +2461,7 @@ try {
                 });
             }
 
-            // 營地分布圖
+            // 營地���布圖
             const distributionCtx = document.getElementById('campDistributionChart');
             if (distributionCtx) {
                 charts.distribution = new Chart(distributionCtx.getContext('2d'), {
@@ -1740,7 +2502,7 @@ try {
                                         const value = context.raw;
                                         const total = context.dataset.data.reduce((a, b) => a + b, 0);
                                         const percentage = ((value / total) * 100).toFixed(1);
-                                        return `${context.label}: ${value} (${percentage}%)`;
+                                        return `${context.label}: ${value} (${percentage}%`;
                                     }
                                 }
                             },
@@ -1819,10 +2581,10 @@ try {
 
     // 新增 SPA 路由處理
     document.addEventListener('DOMContentLoaded', function() {
-        // 移除原有的 preventDefault 和 AJAX 載入
+        // 移原有的 preventDefault AJAX 
         document.querySelectorAll('.quick-action').forEach(button => {
             button.addEventListener('click', function(e) {
-                // 不阻止默認行為，讓連結正常跳轉
+                // 不阻止默認行為��讓連結正常跳轉
                 const url = this.getAttribute('href');
                 window.location.href = url;
             });
@@ -1867,7 +2629,7 @@ try {
         element.classList.remove('loading');
     }
 
-    // 新增資料更新通知
+    // 新增資���更新通知
     function showUpdateNotification(message) {
         const toast = new bootstrap.Toast(document.getElementById('liveToast'));
         document.querySelector('#liveToast .toast-body').textContent = message;
@@ -1929,7 +2691,7 @@ try {
         animateTimeline();
     });
 
-    // 過濾活動
+    // 過濾活��
     function filterActivities(type) {
         const items = document.querySelectorAll('.timeline-item');
         items.forEach(item => {
@@ -1952,7 +2714,7 @@ try {
         timelineItems.forEach(item => {
             const content = item.querySelector('.timeline-content-body');
             const itemBtn = item.querySelector('.timeline-collapse-btn i');
-            
+
             if (isCollapsed) {
                 // 展開
                 content.style.maxHeight = `${content.scrollHeight}px`;
@@ -1987,7 +2749,7 @@ try {
         const isCollapsed = content.style.maxHeight === '0px' || !content.style.maxHeight;
 
         if (isCollapsed) {
-            // 展開
+            // 展���
             content.style.maxHeight = `${content.scrollHeight}px`;
             content.style.opacity = '1';
             icon.classList.replace('fa-chevron-up', 'fa-chevron-down');
@@ -2002,12 +2764,12 @@ try {
         updateMainButtonState();
     }
 
-    // 新增：更新主按鈕狀態的函數
+    // 新增：更新主按鈕狀��的函數
     function updateMainButtonState() {
         const allContents = document.querySelectorAll('.timeline-content-body');
         const mainButton = document.getElementById('collapseAllBtn');
         const mainIcon = mainButton.querySelector('i');
-        
+
         const allCollapsed = Array.from(allContents)
             .every(content => content.style.maxHeight === '0px' || !content.style.maxHeight);
         const allExpanded = Array.from(allContents)
@@ -2018,7 +2780,7 @@ try {
             mainButton.title = '全部展開';
         } else if (allExpanded) {
             mainIcon.classList.replace('fa-expand-alt', 'fa-compress-alt');
-            mainButton.title = '全部折疊';
+            mainButton.title = '全部��疊';
         }
     }
 
@@ -2062,7 +2824,7 @@ try {
             button.addEventListener('click', function() {
                 // 移除所有按鈕的 active 狀態
                 filterButtons.forEach(btn => btn.classList.remove('active'));
-                // 添加當前按鈕的 active 狀態
+                // 添加當前按鈕的 active ���態
                 this.classList.add('active');
 
                 // 執行篩選
@@ -2108,7 +2870,7 @@ try {
             }
         });
 
-        // 如果沒有顯示的項目，顯示提示訊息
+        // 如果沒有顯示的項目，顯示��示訊息
         const visibleActivities = document.querySelectorAll('.timeline-item[style="display: none;"]');
         const timelineContainer = document.querySelector('.timeline');
         const noDataMessage = timelineContainer.querySelector('.no-data-message');
@@ -2126,9 +2888,9 @@ try {
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-        // 修改：添加元素存在性检查
+        // 修改：添��元素存在性检查
         const timeline = document.querySelector('.timeline');
-        const toggleBtn = document.getElementById('collapseAllBtn');  // 更正ID名称
+        const toggleBtn = document.getElementById('collapseAllBtn'); // 更正ID名称
         const filterBtns = document.querySelectorAll('[data-filter]');
 
         // 只在元素存在时执行相关代码
@@ -2154,14 +2916,14 @@ try {
         }
     });
 
-    // 修改：移除重复的事件监听器
+    // 修��：移除重复��事件监听器
     // 删除或合并重复的 DOMContentLoaded 事件处理程序
-    
+
     // 将所有辅助函数移到全局作用域
     function isSameDay(d1, d2) {
         return d1.getDate() === d2.getDate() &&
-               d1.getMonth() === d2.getMonth() &&
-               d1.getFullYear() === d2.getFullYear();
+            d1.getMonth() === d2.getMonth() &&
+            d1.getFullYear() === d2.getFullYear();
     }
 
     function isThisWeek(d1, d2) {
@@ -2173,14 +2935,14 @@ try {
 
     function isSameMonth(d1, d2) {
         return d1.getMonth() === d2.getMonth() &&
-               d1.getFullYear() === d2.getFullYear();
+            d1.getFullYear() === d2.getFullYear();
     }
 
     function showNoDataMessage(container) {
         if (!container.querySelector('.no-data-message')) {
             const message = document.createElement('div');
             message.className = 'no-data-message text-center py-4 text-muted';
-            message.innerHTML = '此时间范围内无活动记录';
+            message.innerHTML = '此时间范���内���活动记录';
             container.appendChild(message);
         }
     }
@@ -2191,4 +2953,183 @@ try {
             message.remove();
         }
     }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const filterBtns = document.querySelectorAll('[data-filter]');
+        const timeline = document.querySelector('.timeline-container');
+
+        // 日期篩選功能
+        if (filterBtns.length && timeline) {
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    filterActivitiesByDate(this.dataset.filter);
+                });
+            });
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const timeline = document.querySelector('.timeline');
+        const collapseBtn = document.getElementById('collapseAllBtn');
+
+        if (collapseBtn && timeline) {
+            let isCollapsed = false;
+
+            collapseBtn.addEventListener('click', function() {
+                isCollapsed = !isCollapsed;
+                const timelineItems = timeline.querySelectorAll('.timeline-item');
+                const icon = this.querySelector('i');
+
+                timelineItems.forEach(item => {
+                    const content = item.querySelector('.timeline-content');
+                    if (content) {
+                        if (isCollapsed) {
+                            content.style.maxHeight = '0';
+                            content.style.opacity = '0';
+                        } else {
+                            content.style.maxHeight = content.scrollHeight + 'px';
+                            content.style.opacity = '1';
+                        }
+                    }
+                });
+
+                // 更新按鈕圖標和文字
+                icon.className = isCollapsed ? 'fas fa-chevron-down' : 'fas fa-chevron-up';
+                this.innerHTML = `<i class="${icon.className}"></i> ${isCollapsed ? '展開全部' : '全部折疊'}`;
+            });
+        }
+    });
+
+    // 顯示通知的函數
+    function showNotification(title, message) {
+        const toast = document.getElementById('liveToast');
+        const toastTitle = toast.querySelector('strong');
+        const toastBody = toast.querySelector('.toast-body');
+        const time = toast.querySelector('small');
+        
+        // 更新內容
+        toastTitle.textContent = title;
+        toastBody.textContent = message;
+        time.textContent = new Date().toLocaleTimeString();
+        
+        // 顯示通知
+        const bsToast = new bootstrap.Toast(toast);
+        bsToast.show();
+    }
+
+    // 使用範例
+    showNotification('系統通知', '新訂單已送達！');
+
+
+    // 檢查待處理事項
+    async function checkPendingItems() {
+        try {
+            const response = await axios.get('/CampExplorer/admin/api/dashboard/stats.php');
+            const stats = response.data;
+            
+            // 檢查營地審核
+            if (stats.pending_camps > 0) {
+                showToastNotification(
+                    '待審核營地', 
+                    `有 ${stats.pending_camps} 個營地待審核`
+                );
+            }
+            
+            // 檢查庫存
+            if (stats.low_stock_products > 0) {
+                showToastNotification(
+                    '庫存警告', 
+                    `有 ${stats.low_stock_products} 個商品庫存不足`
+                );
+            }
+            
+            // 檢查評論
+            if (stats.pending_discussions > 0) {
+                showToastNotification(
+                    '待回覆評論', 
+                    `有 ${stats.pending_discussions} 則評論待回覆`
+                );
+            }
+        } catch (error) {
+            console.error('檢查待處理事項失敗:', error);
+        }
+    }
+
+    // 使用 SweetAlert2 顯示通知
+    function showToastNotification(title, message) {
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+        });
+
+        Toast.fire({
+            icon: 'info',
+            title: title,
+            text: message
+        });
+    }
+
+    // 每分鐘檢查一次待處理事項
+    setInterval(checkPendingItems, 60000);
+
+    // 頁面載入時先檢查一次
+    document.addEventListener('DOMContentLoaded', checkPendingItems);
+
+    // 初始化先前的統計數據
+    let previousStats = {
+        pending_camps: <?= $pending_stats['pending_camps'] ?>,
+        low_stock_products: <?= $pending_stats['low_stock_products'] ?>,
+        pending_discussions: <?= $pending_stats['pending_discussions'] ?>
+    };
+
+    // 檢查待處理事項變化
+    async function checkPendingChanges() {
+        try {
+            const response = await axios.get('/CampExplorer/admin/api/dashboard/check-pending.php');
+            const currentStats = response.data;
+            
+            // 檢查營地審核變化
+            if (currentStats.pending_camps > previousStats.pending_camps) {
+                showNotification(
+                    '新待審核營地', 
+                    `新增 ${currentStats.pending_camps - previousStats.pending_camps} 個待審核營地`
+                );
+            }
+            
+            // 檢查庫存變化
+            if (currentStats.low_stock_products > previousStats.low_stock_products) {
+                showNotification(
+                    '庫存警告', 
+                    `新增 ${currentStats.low_stock_products - previousStats.low_stock_products} 個庫存不足商品`
+                );
+            }
+            
+            // 檢查評論變化
+            if (currentStats.pending_discussions > previousStats.pending_discussions) {
+                showNotification(
+                    '新待回覆評論', 
+                    `新增 ${currentStats.pending_discussions - previousStats.pending_discussions} 則評論待回覆`
+                );
+            }
+            
+            // 更新先前狀態
+            previousStats = currentStats;
+            
+        } catch (error) {
+            console.error('檢查更新失敗:', error);
+        }
+    }
+
+    // 每 30 秒檢查一次
+    setInterval(checkPendingChanges, 30000);
+
+    // 頁面載入時先執行一次
+    document.addEventListener('DOMContentLoaded', checkPendingChanges);
 </script>
