@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header('Content-Type: application/json; charset=utf-8');
 
     try {
-        $stmt = $pdo->prepare("UPDATE products SET name = ?, price = ?, stock = ?, status = ? ,category_id = ?,subcategory_id = ? WHERE id = ?");
+        $stmt = $db->prepare("UPDATE products SET name = ?, price = ?, stock = ?, status = ? ,category_id = ?,subcategory_id = ? WHERE id = ?");
         $stmt->execute([$name, $price, $stock, $status, $category_id, $subcategory_id, $id]);
 
         echo json_encode(["success" => true, "message" => "更新成功"]);

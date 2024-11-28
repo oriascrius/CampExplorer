@@ -10,7 +10,7 @@ if (!$product_id) {
 }
 
 try {
-    $stmt = $pdo->prepare("SELECT id, image_path, is_main FROM product_images WHERE product_id = ?");
+    $stmt = $db->prepare("SELECT id, image_path, is_main FROM product_images WHERE product_id = ?");
     $stmt->execute([$product_id]);
     $images = $stmt->fetchAll(PDO::FETCH_ASSOC);
     echo json_encode(['success' => true, 'images' => $images]);

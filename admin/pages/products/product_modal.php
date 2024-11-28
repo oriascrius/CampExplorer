@@ -113,6 +113,7 @@
                                     <option value="<?= htmlspecialchars($subcategory['id']) ?>">
                                         <?= htmlspecialchars($subcategory['name']) ?>
                                     </option>
+
                                 <?php endforeach; ?>
                             </select>
                         </div>

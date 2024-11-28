@@ -39,7 +39,7 @@ try {
     }
 
     // 新增商品到 products 表
-    $stmt = $pdo->prepare("
+    $stmt = $db->prepare("
         INSERT INTO products (name, category_id, subcategory_id, description, price, stock, status, created_at)
         VALUES (:name, :category_id, :subcategory_id, :description, :price, :stock, :status, NOW())
     ");
@@ -52,7 +52,7 @@ try {
         ':stock' => $stock,
         ':status' => $status
     ]);
-    $product_id = $pdo->lastInsertId();
+    $product_id = $db->lastInsertId();
 
     // 處理主圖片上傳
     if (isset($_FILES['main_image']) && $_FILES['main_image']['error'] === UPLOAD_ERR_OK) {
@@ -62,7 +62,7 @@ try {
         $mainImagePath = $uploadDir . '/' . $mainImageName;
         if (move_uploaded_file($mainImage['tmp_name'], $mainImagePath)) {
             // 新增主圖片到 product_images 表
-            $stmt = $pdo->prepare("
+            $stmt = $db->prepare("
                 INSERT INTO product_images (product_id, image_path, is_main, status, created_at)
                 VALUES (:product_id, :image_path, 1, 1, NOW())
             ");
@@ -92,7 +92,7 @@ try {
                 // 移動檔案到指定目錄
                 if (move_uploaded_file($_FILES['additional_images']['tmp_name'][$index], $uploadPath)) {
                     // 新增附加圖片資料到 product_images 表
-                    $stmt = $pdo->prepare("
+                    $stmt = $db->prepare("
                         INSERT INTO product_images (product_id, image_path, is_main, status, created_at)
                         VALUES (:product_id, :image_path, 0, 1, NOW())
                     ");

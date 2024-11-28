@@ -51,6 +51,7 @@ if (isset($_GET["search"])) {
 //獲取category表內有的類別
 try {
     $stmt = $db->query("SELECT id, name ,status FROM categories");
+    $stmt = $db->query("SELECT id, name ,status FROM categories");
     $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     die("無法取得類別資料：" . $e->getMessage());
@@ -80,6 +81,7 @@ $countQuery = "SELECT COUNT(*) FROM products
                 $whereClause"; // 加上篩選條件
 
 try {
+    $stmt = $db->query($countQuery);
     $stmt = $db->query($countQuery);
     $totalItems = $stmt->fetchColumn();
 } catch (PDOException $e) {
@@ -425,7 +427,9 @@ try {
     <!-- 圖片編輯功能的JS -->
     <?php include("img_js.php") ?>
     <!-- 圖片編輯功能的JS -->
-
+    <!-- 測試 -->
+    <script src="../test.js"></script>
+    <!-- 測試 -->
 </body>
 
 </html>

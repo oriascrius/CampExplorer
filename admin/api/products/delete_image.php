@@ -12,7 +12,7 @@ if (!$imageId) {
 }
 
 // 獲取圖片路徑
-$stmt = $pdo->prepare("SELECT image_path FROM product_images WHERE id = :id");
+$stmt = $db->prepare("SELECT image_path FROM product_images WHERE id = :id");
 $stmt->execute([':id' => $imageId]);
 $image = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -40,11 +40,11 @@ if (file_exists($filePath)) {
 }
 
 // 從資料庫刪除圖片資料
-$stmt = $pdo->prepare("DELETE FROM product_images WHERE id = :id");
+$stmt = $db->prepare("DELETE FROM product_images WHERE id = :id");
 $stmt->execute([':id' => $imageId]);
 
 // 手動檢查圖片是否已經被刪除
-$stmt = $pdo->prepare("SELECT * FROM product_images WHERE id = :id");
+$stmt = $db->prepare("SELECT * FROM product_images WHERE id = :id");
 $stmt->execute([':id' => $imageId]);
 $image = $stmt->fetch(PDO::FETCH_ASSOC);
 
