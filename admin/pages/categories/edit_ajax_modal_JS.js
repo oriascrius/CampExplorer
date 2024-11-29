@@ -1,5 +1,3 @@
-// Edit Modal JS 包含 AJax請求
-
 // 監聽編輯按鈕點擊事件
 
 document.querySelectorAll(".edit-category-btn").forEach((button) => {
@@ -12,7 +10,7 @@ document.querySelectorAll(".edit-category-btn").forEach((button) => {
     document.getElementById("editCategoryName").value = categoryName;
     document.getElementById("editCategoryStatus").value = categoryStatus;
     document.getElementById("editCategoryForm").dataset.categoryId = categoryId;
-    console.log("TEST");
+    // console.log("TEST");
     const editCategoryModal = new bootstrap.Modal(
       document.getElementById("editCategoryModal")
     );
@@ -24,7 +22,7 @@ document.querySelectorAll(".edit-category-btn").forEach((button) => {
 const editCategoryForm = document.getElementById("editCategoryForm");
 editCategoryForm.addEventListener("submit", function (event) {
   event.preventDefault(); // 阻止表單默認提交行為
-  console.log("click");
+  // console.log("click");
   const formData = new FormData(editCategoryForm);
   formData.append("category_id", editCategoryForm.dataset.categoryId);
 
@@ -81,7 +79,7 @@ document.querySelectorAll(".edit-subcategory-btn").forEach((button) => {
     document.getElementById("editSubcategoryStatus").value = subcategoryStatus;
     document.getElementById("editSubcategoryForm").dataset.subcategoryId =
       subcategoryId;
-    console.log("填充了子類別名稱和狀態");
+    // console.log("填充了子類別名稱和狀態");
     const editSubcategoryModal = new bootstrap.Modal(
       document.getElementById("editSubcategoryModal")
     );
@@ -91,7 +89,7 @@ document.querySelectorAll(".edit-subcategory-btn").forEach((button) => {
 // 監聽表單提交事件
 document.getElementById("editSubcategoryForm").addEventListener("submit", function (event) {
   event.preventDefault(); // 阻止表單的默認提交行為
-  console.log("表單提交");
+  // console.log("表單提交");
 
   const formData = new FormData(this);
   const subcategoryId = this.dataset.subcategoryId;

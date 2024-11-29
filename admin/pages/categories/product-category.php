@@ -132,8 +132,10 @@ foreach ($categories as $category) {
 
 
 
-
         <script src="pages/categories/edit_ajax_modal_JS.js"></script>
+
+
+
 
 
 </body>
