@@ -146,9 +146,10 @@ $end_page = min($total_pages, $start_page + 4); // 最多顯示5頁
 $start_page = max(1, $end_page - 4); // 保證始終有5頁（若可能）
 
 //限制文章標題文字顯示字數 = 10
-function truncateText($text, $length = 10) {
-    return mb_strlen($text, 'UTF-8') > $length 
-        ? mb_substr($text, 0, $length, 'UTF-8') . '...' 
+function truncateText($text, $length = 10)
+{
+    return mb_strlen($text, 'UTF-8') > $length
+        ? mb_substr($text, 0, $length, 'UTF-8') . '...'
         : $text;
 }
 ?>
@@ -172,7 +173,7 @@ function truncateText($text, $length = 10) {
             <div class=" border-0">
                 <h1 class="mb-5 text-center font-weight-bold pt-5">官方文章管理</h1>
                 <div class="d-flex justify-content-end align-items-center py-3">
-                    
+
                     <div class="d-flex align-items-center">
 
                         <!-- 搜尋框 -->
@@ -1201,8 +1202,9 @@ function truncateText($text, $length = 10) {
 
 <style>
     #searchBar {
-        width: 220px;        
+        width: 220px;
     }
+
     #filterForm {
         select {
             z-index: 1;
