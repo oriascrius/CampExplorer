@@ -132,13 +132,10 @@ foreach ($categories as $category) {
 
 
 
-<<<<<<< HEAD
         <script src="pages/categories/edit_ajax_modal_JS.js"></script>
-        <!-- Bootstrap JS -->
-=======
->>>>>>> origin/feature/hankBass
 
-        <script src="pages/categories/edit_ajax_modal_JS.js"></script>
+
+
 
 
 </body>

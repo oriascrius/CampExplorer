@@ -58,7 +58,7 @@ try {
 }
 
 try {
-    $stmt = $db->query("SELECT id, name ,category_id AS subcategory_category FROM subcategories");
+    $stmt = $db->query("SELECT id, name ,category_id AS subcategory_category ,status FROM subcategories");
     $subcategories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     die("無法取得類別資料：" . $e->getMessage());
