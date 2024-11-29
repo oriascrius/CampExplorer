@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,9 +17,17 @@
         }
 
         @keyframes gradient {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
         }
 
         .portal-container {
@@ -130,7 +139,7 @@
 
         .copyright {
             text-align: center;
-            color: rgba(255, 255, 255, 0.8);
+            color: #2c3e50;
             margin-top: 30px;
             font-size: 0.9rem;
         }
@@ -145,13 +154,14 @@
             .portal-cards {
                 grid-template-columns: 1fr;
             }
-            
+
             .portal-card {
                 max-width: 100%;
             }
         }
     </style>
 </head>
+
 <body>
     <div class="portal-container">
         <div class="portal-content">
@@ -159,7 +169,7 @@
                 <h1>露營趣 CampingFun</h1>
                 <p>選擇您要進入的平台</p>
             </div>
-            
+
             <div class="portal-cards">
                 <!-- 前台入口 -->
                 <a href="member/index.php" class="portal-card">
@@ -200,4 +210,5 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>
