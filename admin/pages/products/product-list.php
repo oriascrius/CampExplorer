@@ -418,7 +418,7 @@ try {
 
         <!-- 分頁按鈕End -->
     </div>
-    <?php include("js.php") ?>
+
 
     <!-- 新增編輯功能的JS (AJAX PRIMASE) -->
     <?php include("add_edit_ajax_JS.php") ?>
