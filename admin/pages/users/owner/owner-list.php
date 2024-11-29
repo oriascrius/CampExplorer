@@ -82,9 +82,9 @@ function getFieldLabel($field) {
 
     <!-- 頁面標題和新增按鈕 -->
     <div class="d-flex justify-content-center align-items-center mb-4">
-        <h1 class=" mt-5 fw-bold text-center">營主管理</h1>
+        <h1 class=" mt-5 fw-bold text-center me-5">營主管理</h1>
     </div>
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+    <div class="d-flex justify-content-between align-items-end m-3 flex-wrap">
         <button type="button" class="btn btn-success mb-2 mb-md-0" data-action="add">
             <i class="bi bi-plus-lg"></i> 新增營主
         </button>
@@ -588,6 +588,6 @@ th.name, td.name {
     }
 
     .pagedata{
-        margin: 20px 131px;
+        margin: 30px 131px;
     }
 </style>

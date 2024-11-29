@@ -28,6 +28,7 @@ try {
     $p = isset($_GET['p']) ? (int)$_GET['p'] : 1;
     $perPage = 7; // 每頁顯示的會員數量
     $offset = max(0, ($p - 1) * $perPage);
+    $search = isset($_GET['search']) ? $_GET['search'] : '';
     // 修改 SQL 查詢，處理不同欄位的排序
     $orderBy = in_array($sort_field, $allowed_fields) ? "u.{$sort_field} {$sort_order}" : "u.created_at ASC";
 
@@ -35,6 +36,10 @@ try {
     $sql = "SELECT u.*
             FROM users u
             WHERE 1=1";
+    
+    if (!empty($search)) {
+        $sql .= " AND (u.name LIKE :search OR u.email LIKE :search OR u.phone LIKE :search)";
+    }
     
     if (isset($_GET['hideStatusZero']) && $_GET['hideStatusZero'] == '1') {
         $sql .= " AND u.status != 0";
@@ -44,6 +49,9 @@ try {
               LIMIT :perPage OFFSET :offset";
 
     $stmt = $db->prepare($sql);
+    if (!empty($search)) {
+        $stmt->bindValue(':search', '%' . $search . '%', PDO::PARAM_STR);
+    }
     $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
     $stmt->bindValue(':perPage', $perPage, PDO::PARAM_INT);
     $stmt->execute();
@@ -88,45 +96,64 @@ function translateGender($gender)
 
     <!-- 頁面標題和新增按鈕 -->
     <div class="d-flex justify-content-center align-items-center mb-4">
-        <h2 class="h1 mt-4 fw-bold">會員管理</h2>
+        <h2 class="h1 mt-4 fw-bold me-5">會員管理</h2>
     </div>
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+    <div class="d-flex justify-content-between align-items-end m-3 flex-wrap">
         
         <button type="button" class="btn btn-success " data-action="add">
             <i class="bi bi-plus-lg"></i> 新增會員
         </button>
 
+     
 
         <div class="d-flex flex-column align-items-start">
+            
             <!-- 勾選框 -->
-<div class="form-check">
-    <input class="form-check-input" type="checkbox" value="" id="hideStatusZero" <?= isset($_GET['hideStatusZero']) ? 'checked' : '' ?>>
-    <label class="form-check-label" for="hideStatusZero">
-        隱藏 停用 <?= $statusZeroCount ?>名會員
-    </label>
-</div>
-            <label for="fieldSelect" class="mb-2 fw-bold ">排序方式：</label>
-            <div class="d-flex">
-                <select id="fieldSelect" class="form-select me-2 mb-2 mb-md-0 ">
-
-                    <option value="">--未選擇--</option>
-                    <option value="id">編號</option>
-                    <option value="name">姓名</option>
-                    <option value="birthday">生日</option>
-                    <option value="gender">性別</option>
-                    <option value="last_login">最後登入</option>
-                    <option value="status">狀態</option>
-                    <option value="created_at">建立時間</option>
-                    <option value="updated_at">更新日期</option>
-                </select>
-                <select id="orderSelect" class="form-select">
-                    <option value="">--未選擇--</option>
-                    <option value="asc">升序</option>
-                    <option value="desc">降序</option>
-                </select>
-            </div>
-        </div>
+            <div class="d-flex align-items-center mb-2">
+    <div class="form-check me-3">
+    <label for="fieldSelect" class="fw-bold mb-0">排序方式：</label>
+        <input class="form-check-input" type="checkbox" value="" id="hideStatusZero" <?= isset($_GET['hideStatusZero']) ? 'checked' : '' ?>>
+        <label class="form-check-label" for="hideStatusZero">
+            隱藏 停用 <?= $statusZeroCount ?>名會員
+        </label>
     </div>
+    
+</div>
+<div class="d-flex flex-wrap">
+    <div class="mb-2 mb-md-0">
+        <select id="fieldSelect" class="form-select fixed-width">
+            <option value="">--未選擇--</option>
+            <option value="id">編號</option>
+            <option value="name">姓名</option>
+            <option value="birthday">生日</option>
+            <option value="gender">性別</option>
+            <option value="last_login">最後登入</option>
+            <option value="status">狀態</option>
+            <option value="created_at">建立時間</option>
+            <option value="updated_at">更新日期</option>
+        </select>
+    </div>
+    <div class="mb-2 mb-md-0">
+        <select id="orderSelect" class="form-select fixed-width">
+            <option value="">--未選擇--</option>
+            <option value="asc">升序</option>
+            <option value="desc">降序</option>
+        </select>
+    </div>
+    <div class="mb-2 mb-md-0">
+        <form class="d-flex" method="GET" action="http://localhost/CampExplorer/admin/index.php">
+            <input type="hidden" name="page" value="members_list">
+            <input type="text" class="form-control fixed-width me-1" name="search" placeholder="搜尋會員" value="<?= htmlspecialchars($search) ?>">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-search"></i>
+            </button>
+        </form>
+    </div>
+</div>
+
+        
+    </div>
+</div>
 
     <!-- 會員列表 -->
     <div class="card">
@@ -267,6 +294,20 @@ function translateGender($gender)
             urlParams.set('order', direction);
             window.location.search = urlParams.toString();
         }
+
+        document.getElementById('hideStatusZero').addEventListener('change', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (this.checked) {
+                urlParams.set('hideStatusZero', '1');
+            } else {
+                urlParams.delete('hideStatusZero');
+            }
+            window.location.search = urlParams.toString();
+        });
+
+        document.querySelectorAll('.email').forEach(function (element) {
+            element.innerHTML = element.innerHTML.replace('@', '<wbr>@');
+        });
 
         document.querySelectorAll('[data-action="edit"]').forEach(button => {
             button.addEventListener('click', async function() {
@@ -730,8 +771,10 @@ document.querySelectorAll('.email').forEach(function (element) {
         border-radius: 10px; /* 調整圓角半徑 */
         overflow: hidden; /* 確保內容不會超出圓角邊界 */
     }
-    
+    .fixed-width {
+    width: 9.1rem; /* 設置寬度為 5 個字元大小 */
+}
     .pagedata{
-        margin: 48px 131px;
+        margin: 54px 131px;
     }
 </style>
