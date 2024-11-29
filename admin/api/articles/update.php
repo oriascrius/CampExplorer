@@ -4,7 +4,8 @@ header('Content-Type: application/json');
 
 try {
     $id = $_POST['id'] ?? null;
-    if (!$id) throw new Exception('缺少文章ID');
+    if (!$id) throw new Exception('缺少文章ID'); 
+
 
     $cover_image_path = null;
     if (isset($_FILES['cover_image']) && $_FILES['cover_image']['error'] === UPLOAD_ERR_OK) {
@@ -52,7 +53,8 @@ try {
 
         if (move_uploaded_file($file['tmp_name'], $filepath)) {
             chmod($filepath, 0644);
-            $cover_image_path = '/CampExplorer/uploads/articles/' . $filename;
+            // $cover_image_path = '/CampExplorer/uploads/articles/' . $filename;
+            $cover_image_path = $filename;
         } else {
             throw new Exception('圖片上傳失敗');
         }
@@ -60,11 +62,11 @@ try {
 
     // 根據是否有新圖片來構建 SQL
     if ($cover_image_path) {
-        $sql = "UPDATE articles SET title = ?, content = ?, cover_image = ?, status = ?, updated_at = NOW() WHERE id = ?";
-        $params = [$_POST['title'], $_POST['content'], $cover_image_path, $_POST['status'] ?? 1, $id];
+        $sql = "UPDATE articles SET title = ?, subtitle = ?, content = ?, image_name = ?, status = ?, article_category = ?, updated_at = NOW() WHERE id = ?";
+        $params = [$_POST['title'], $_POST['subtitle'], $_POST['content'], $cover_image_path, $_POST['status'], $_POST['article_category'] ?? 1, $id];
     } else {
-        $sql = "UPDATE articles SET title = ?, content = ?, status = ?, updated_at = NOW() WHERE id = ?";
-        $params = [$_POST['title'], $_POST['content'], $_POST['status'] ?? 1, $id];
+        $sql = "UPDATE articles SET title = ?, subtitle = ?, content = ?, status = ?, article_category = ?, updated_at = NOW() WHERE id = ?";
+        $params = [$_POST['title'], $_POST['subtitle'], $_POST['content'], $_POST['status'], $_POST['article_category'] ?? 1, $id];
     }
 
     $stmt = $db->prepare($sql);
