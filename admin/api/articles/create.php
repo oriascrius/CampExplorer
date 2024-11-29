@@ -1,6 +1,19 @@
 <?php
+//啟動SESSION，以取得管理員資訊
+session_start();
+
 require_once __DIR__ . '/../../../camping_db.php';
 header('Content-Type: application/json');
+
+// 查詢文章排序最大 sort_order
+$sql = "SELECT MAX(sort_order) AS max_sort_order FROM articles";
+$stmt = $db->prepare($sql);
+$stmt->execute();
+$result = $stmt->fetch(PDO::FETCH_ASSOC);
+$maxSortOrder = $result['max_sort_order'] ?? 0;
+
+// 為新文章設置 sort_order 文章之間保留空號方便未來調整排序
+$newSortOrder = $maxSortOrder + 5;
 
 try {
     // 處理圖片上傳
@@ -50,18 +63,24 @@ try {
 
         if (move_uploaded_file($file_tmp, $filepath)) {
             chmod($filepath, 0644);
-            $cover_image_path = '/CampExplorer/uploads/articles/' . $filename;
+            // $cover_image_path = '/CampExplorer/uploads/articles/' . $filename;
+            $cover_image_path = $filename;
         } else {
             throw new Exception('圖片上傳失敗');
         }
     }
 
-    $sql = "INSERT INTO articles (title, content, cover_image, status, views, created_at, updated_at) 
-            VALUES (?, ?, ?, ?, 0, NOW(), NOW())";
+    $sql = "INSERT INTO articles (sort_order, created_by, updated_by, article_category, title, subtitle, content, image_name, status, views, created_at, updated_at) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, NOW(), NOW())";
     
     $stmt = $db->prepare($sql);
     $result = $stmt->execute([
+        $newSortOrder,
+        $_SESSION['admin_id'],
+        $_SESSION['admin_id'],
+        $_POST['article_category'],
         $_POST['title'],
+        $_POST['subtitle'],
         $_POST['content'],
         $cover_image_path,
         $_POST['status'] ?? 1
