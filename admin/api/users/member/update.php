@@ -43,9 +43,11 @@ function updateMember()
         $params = [];
 
         // 檢查並設置各個欄位的更新
-        if (isset($data['name']) && mb_strlen($data['name']) <= 50) {
+        if (isset($data['name']) && !empty(trim($data['name'])) && mb_strlen($data['name']) <= 50 && preg_match('/^[\p{L}\s]+$/u', $data['name'])) {
             $updates[] = "name = ?";
             $params[] = trim($data['name']);
+        } else {
+            throw new Exception('姓名不得為空且必須為有效的字符');
         }
 
         if (isset($data['email']) && filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
@@ -61,6 +63,9 @@ function updateMember()
         }
 
         if (isset($data['phone'])) {
+            if (!preg_match('/^\+?[0-9]{10,15}$/', trim($data['phone']))) {
+                throw new Exception('無效的電話號碼');
+            }
             $updates[] = "phone = ?";
             $params[] = trim($data['phone']);
         }
