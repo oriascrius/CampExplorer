@@ -62,7 +62,8 @@ $db = null;
 <style>
     h1{
         position: relative;
-        left: -30px;
+        font-weight: 700;
+        color: #767676;
     }
     .form-label {
         font-size: 14px;
@@ -100,6 +101,29 @@ $db = null;
         text-align: center;
         border-radius: 5px;
     }
+    .status-style.bg-success{
+        background-color: transparent !important;
+        border: 1px solid #0080005c;
+        color: #008000 !important;
+    }
+    .status-style.bg-danger{
+        background-color: transparent !important;
+        border: 1px solid #ff000040;
+        color: red !important;
+    }
+    .btn-warning{
+        color: #8b6a09;
+        background-color: #ffc1076e;
+        border: 0;
+    }
+    .bg-danger{
+        background-color: #f5000029!important;
+        color: #db0000 !important;
+    }
+    .bg-success{
+        background-color: #0080003b!important;
+        color: green !important;
+    }
 
     .edit-button {
         font-size: 14px;
@@ -108,13 +132,95 @@ $db = null;
         border-radius: 5px!important;
 
     }
+    /* ************************************* */
+    body{
+        background-color: #f8f9fa;
+    }
+    .px-0.sidebar{
+        margin: 25px;
+        min-height: auto;
+        background: #fff;
+        padding: 0;
+        border-radius: 30px;
+    }
+    .px-0.sidebar {
+        overflow: hidden;
+        .text-center.mb-3{
+            background-image: linear-gradient(to top, #0ba360 0%, #3cba92 100%);
+            padding-bottom: 20px;
+            padding-top: 20px;
+        }
+        .nav-link{
+            margin: 4px 0;
+        }
+        .nav-link.active{
+            background: #f8f9fa;
+            border-radius: 50px 0 0 50px;
+            color: #fff !important;
+            background-image: linear-gradient(to top, #0ba360 0%, #3cba92 100%);
+        }
+        .nav-link.active:hover{
+            color: #fff !important;
+        }
+        .nav-link:hover{
+            color: #a8b2c1 !important;
+        }
+        .nav.flex-column{
+            padding-left: 15px;
+        }
+    }
+    .container.py-4{
+        padding: 4rem;
+        max-width: 100%;
+    }
+    .card{
+        border-radius: 0px;
+    }
+    .card-header{
+        background: #fff;
+        border-radius: 30px 30px 0 0;
+        border: 0;
+        box-shadow: 0px 18px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    tr th{
+        border: 0;
+    }
+    tbody td{
+        border: 0;
+        padding: 20px 0 !important;
+        color: #767676 !important;
+    }
+    .table thead{
+        background-image: linear-gradient(to top, #0ba360 0%, #3cba92 100%);
+    }
+    .card-body{
+        padding: 0 15px;
+    }
+    .card.border-0{
+        background: #fff;
+        box-shadow: 0px 7px 10px rgba(0, 0, 0, 0.1);
+    }
+    .btn-primary{
+        background-color: #ecba82;
+        border: 0;
+    }
+    .page-item.active .page-link{
+        background-color: #ecba82;
+        border: 1px solid #ecba82;
+    }
+    .page-item .page-link{
+        color: #ecba82;
+    }
+
+    /* ************************************* */
 </style>
 <!-- 主要內容 -->
-<div class="container py-4 mt-5">
+<div class="container py-4">
     <div class="row">
         <div class="col-12">
-            <h1 class="mb-5 text-center font-weight-bold">優惠券管理</h1>
-            <div class="card-header bg-transparent d-flex justify-content-between align-items-center py-3">
+            <h1 class="mb-5 font-weight-bold">優惠券管理</h1>
+            <div class="card-header d-flex justify-content-between align-items-center py-3">
                 <button type="button" class="btn btn-primary left-btn" data-bs-toggle="modal" data-bs-target="#exampleModal_2">
                     <i class="bi bi-plus-lg me-1"></i>新增優惠券
                 </button>
@@ -144,10 +250,10 @@ $db = null;
             </div>
 
             <div class="card border-0">
-                <div class="card-body p-0">
+                <div class="card-body">
                     <div class="table-responsive">
                         <?php if ($rowCount > 0): ?>
-                            <table class="table table-bordered table-striped">
+                            <table class="table table-bordered">
                                 <thead>
                                     <tr>
                                         <th scope="col">優惠券代碼</th>
@@ -191,7 +297,7 @@ $db = null;
                                 </nav>
                             <?php endif; ?>
                         <?php else: ?>
-                            目前沒有符合條件的優惠券
+                            <img class="w-100 m-auto" src="../../../../CampExplorer/images/1732783571139.jpg" alt="no data" class="no-data-img">
                         <?php endif; ?>
 
                     </div>
@@ -390,6 +496,10 @@ $db = null;
         // 点击按钮时触发
         document.getElementById("button-addon22").addEventListener("click", function() {
             const inputField = document.getElementById("code-input2");
+            inputField.value = generateRandomCode();
+        });
+        document.getElementById("button-addon2").addEventListener("click", function() {
+            const inputField = document.getElementById("code-input");
             inputField.value = generateRandomCode();
         });
 

@@ -6,6 +6,7 @@ require_once __DIR__ . '/order_status.php';
 $sort_field = $_GET['sort'] ?? 'created_at';
 $sort_order = $_GET['order'] ?? 'desc';
 
+
 // 獲取訂單數據
 try {
     // 先測試基本查詢
@@ -47,47 +48,51 @@ if (isset($error_message)): ?>
         <?= htmlspecialchars($error_message) ?>
     </div>
 <?php endif; ?>
-
-<div class="container-fluid py-4">
+<style>
+    .header-style {
+        background-color: #212529;
+        color: #fff;
+    }
+</style>
+<div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="h4 mb-0">商品訂單管理</h2>
+        <h1 class="m-auto mb-5">商品訂單管理</h1>
     </div>
-
     <div class="card">
-        <div class="card-body">
-            <table class="table table-hover align-middle">
-                <thead>
+        <div class="card-body p-0">
+            <table class="table table-bordered table-striped m-0">
+                <thead class="header-style">
                     <tr>
                         <th>
-                            <button class="btn btn-link text-dark p-0" data-sort="order_id">
-                                訂單編號 <i class="bi bi-arrow-down-up"></i>
-                            </button>
+
+                            訂單編號
+
                         </th>
                         <th>
-                            <button class="btn btn-link text-dark p-0" data-sort="username">
-                                會員名稱 <i class="bi bi-arrow-down-up"></i>
-                            </button>
+
+                            會員名稱
+
                         </th>
                         <th>商品數量</th>
                         <th>
-                            <button class="btn btn-link text-dark p-0" data-sort="total_amount">
-                                總金額 <i class="bi bi-arrow-down-up"></i>
-                            </button>
+
+                            總金額
+
                         </th>
                         <th>
-                            <button class="btn btn-link text-dark p-0" data-sort="payment_status">
-                                付款狀態 <i class="bi bi-arrow-down-up"></i>
-                            </button>
+
+                            付款狀態
+
                         </th>
                         <th>
-                            <button class="btn btn-link text-dark p-0" data-sort="order_status">
-                                訂單狀態 <i class="bi bi-arrow-down-up"></i>
-                            </button>
+
+                            訂單狀態
+
                         </th>
                         <th>
-                            <button class="btn btn-link text-dark p-0" data-sort="created_at">
-                                建立時間 <i class="bi bi-arrow-down-up"></i>
-                            </button>
+
+                            建立時間
+
                         </th>
                         <th>操作</th>
                     </tr>
