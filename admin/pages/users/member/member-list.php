@@ -95,10 +95,10 @@ function translateGender($gender)
     <?php endif; ?>
 
     <!-- 頁面標題和新增按鈕 -->
-    <div class="d-flex justify-content-center align-items-center mb-4">
+    <div class="d-flex justify-content-start align-items-center mb-4">
         <h2 class="h1 mt-4 fw-bold me-5">會員管理</h2>
     </div>
-    <div class="d-flex justify-content-between align-items-end m-3 flex-wrap">
+    <div class="d-flex justify-content-between align-items-end flex-wrap">
         
         <button type="button" class="btn btn-success " data-action="add">
             <i class="bi bi-plus-lg"></i> 新增會員
@@ -159,8 +159,8 @@ function translateGender($gender)
     <div class="card">
         <div class="" id="userTableContainer">
             <div class="table-responsive ">
-                <table class="table table-striped table-bordered ">
-                    <thead class="table-dark">
+                <table class="table table-bordered ">
+                    <thead class="">
                         <tr>
                             <?php
                             $headers = [
@@ -182,7 +182,7 @@ function translateGender($gender)
                                     <h6 class="m-0 p-0 fw-bold <?= $field === 'gender' || $field === 'status' || $field === 'actions' ? 'text-center' : '' ?>" data-sort="<?= $field ?>">
                                         <?= $label ?>
                                         <?php if ($field !== 'email'): ?>
-                                        <i class="bi bi-arrow-<?= $sort_field === $field ? ($sort_order === 'ASC' ? 'up' : 'down') : 'down-up' ?> sort-icon"></i>
+                                        <!-- <i class="bi bi-arrow-<?= $sort_field === $field ? ($sort_order === 'ASC' ? 'up' : 'down') : 'down-up' ?> sort-icon"></i> -->
                                         <?php endif; ?>
                                     </h6>
                                 </th>
@@ -777,4 +777,60 @@ document.querySelectorAll('.email').forEach(function (element) {
     .pagedata{
         margin: 54px 131px;
     }
+    .container{
+        padding: 4rem;
+        padding-top: 1rem;
+        max-width: 100%;
+        margin: 0;
+        padding-bottom: 1rem;
+    }
+    .btn.btn-success{
+        background-color: #ecba82;
+        border: 0;
+    }
+    .d-flex.justify-content-between{
+        background-color: #fff;
+        padding: 15px;
+        border-radius: 30px 30px 0 0;
+    }
+    .card{
+        padding: 0 15px;
+        border: 0;
+        border-radius: 0px 0px 30px 30px;
+    }
+    .table{
+        border-radius: 0;
+        color: #fff;
+    }
+    .btn-outline-primary.btn-sm{
+        color: #8b6a09;
+        background-color: #ffc1076e;
+        border: 0;
+    }
+    .btn-sm.btn-outline-success{
+        background-color: #0080003b !important;
+        color: green !important;
+        border: 0;
+    }
+    .btn-sm.btn-outline-danger{
+        background-color: #f5000029 !important;
+        color: #db0000 !important;
+        border: 0;
+    }
+    .badge.bg-success{
+        background-color: transparent !important;
+        border: 1px solid #0080005c;
+        color: #008000 !important;
+        padding: 7px 23px;
+    }
+    .badge.bg-danger{
+        background-color: transparent !important;
+        border: 1px solid #ff000040;
+        color: #db0000 !important;
+        padding: 7px 23px;
+    }
+    .flex-wrap .mb-2.mb-md-0{
+        
+    }
+
 </style>
