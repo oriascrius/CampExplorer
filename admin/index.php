@@ -48,7 +48,53 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'
     <!-- 先載入所有必要的 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Poppins:wght@400;500;600&family=Montserrat:wght@500;600&display=swap" rel="stylesheet">
+
+    <!-- 自定義樣式 -->
     <style>
+        :root {
+            --font-primary: 'Poppins', 'Noto Sans TC', sans-serif;
+            --font-heading: 'Montserrat', 'Noto Sans TC', sans-serif;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            font-weight: 400;
+            letter-spacing: 0.3px;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: var(--font-heading);
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .card-title {
+            font-family: var(--font-heading);
+            font-weight: 500;
+        }
+
+        .stats-number {
+            font-family: var(--font-heading);
+            font-weight: 600;
+            letter-spacing: -0.5px;
+        }
+
+        .btn {
+            font-family: var(--font-primary);
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+
+        .sidebar-brand {
+            font-family: var(--font-heading);
+            font-weight: 600;
+        }
+
         .main-wrapper {
             margin-left: 250px;
             min-height: 100vh;

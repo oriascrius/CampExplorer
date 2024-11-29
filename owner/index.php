@@ -17,7 +17,8 @@ $pageMap = [
     'camp_status' => 'pages/campStatus/camp-status.php',
     'spot_add' => 'pages/spot/spot-add.php',
     'spot_list' => 'pages/spot/spot-list.php',
-    'activity_list' => 'pages/activity/activity_list.php'
+    'activity_list' => 'pages/activity/activity_list.php',
+    'booking_list' => 'pages/booking/booking-list.php'
 ];
 
 // 檢查頁面是否存在

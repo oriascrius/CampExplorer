@@ -595,8 +595,7 @@
         margin-left: auto;
         transition: transform var(--transition-speed) var(--transition-timing);
     }
-
-    /* 展開時箭頭旋轉 */
+    /* 展開時箭頭懸轉 */
     .dropdown-toggle[aria-expanded="true"] .submenu-icon {
         transform: rotate(180deg);
     }
@@ -640,9 +639,7 @@
     <nav class="nav flex-column mt-4">
         <!-- 數據中心 -->
         <div class="nav-item">
-            <a href="/CampExplorer/owner/index.php?page=dashboard" 
-               class="nav-link nav-async-link" 
-               data-page="dashboard">
+            <a href="/CampExplorer/owner/index.php?page=dashboard" class="nav-link">
                 <i class="bi bi-speedometer2"></i>
                 <span class="nav-text">數據中心</span>
             </a>
@@ -650,9 +647,7 @@
 
         <!-- 營地申請 -->
         <div class="nav-item">
-            <a href="/CampExplorer/owner/index.php?page=camp_add" 
-               class="nav-link nav-async-link" 
-               data-page="camp_add">
+            <a href="/CampExplorer/owner/index.php?page=camp_add" class="nav-link">
                 <i class="bi bi-house-door-fill"></i>
                 <span class="nav-text">營地申請</span>
             </a>
@@ -660,9 +655,7 @@
 
         <!-- 營地狀態 -->
         <div class="nav-item">
-            <a href="/CampExplorer/owner/index.php?page=camp_status" 
-               class="nav-link nav-async-link" 
-               data-page="camp_status">
+            <a href="/CampExplorer/owner/index.php?page=camp_status" class="nav-link">
                 <i class="bi bi-info-circle"></i>
                 <span class="nav-text">營地狀態</span>
             </a>
@@ -670,19 +663,15 @@
 
         <!-- 營位管理 -->
         <div class="nav-item">
-            <a href="/CampExplorer/owner/index.php?page=spot_list" 
-               class="nav-link nav-async-link" 
-               data-page="spot_list">
+            <a href="/CampExplorer/owner/index.php?page=spot_list" class="nav-link">
                 <i class="bi bi-grid"></i>
                 <span class="nav-text">營位管理</span>
             </a>
         </div>
 
-        <!-- 活動管 -->
+        <!-- 活動管理 -->
         <div class="nav-item">
-            <a href="/CampExplorer/owner/index.php?page=activity_list" 
-               class="nav-link nav-async-link" 
-               data-page="activity_list">
+            <a href="/CampExplorer/owner/index.php?page=activity_list" class="nav-link">
                 <i class="bi bi-calendar-event"></i>
                 <span class="nav-text">活動管理</span>
             </a>
@@ -690,11 +679,9 @@
 
         <!-- 營位預訂管理 -->
         <div class="nav-item">
-            <a href="/CampExplorer/owner/index.php?page=order_management" 
-               class="nav-link nav-async-link" 
-               data-page="order_management">
+            <a href="/CampExplorer/owner/index.php?page=booking_list" class="nav-link">
                 <i class="bi bi-calculator"></i>
-                <span class="nav-text">營位預訂管理</span>
+                <span class="nav-text">訂單管理</span>
             </a>
         </div>
 
