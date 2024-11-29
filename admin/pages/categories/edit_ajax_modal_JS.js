@@ -1,4 +1,4 @@
-// <!-- Edit Modal JS 包含 AJax請求 -->
+// Edit Modal JS 包含 AJax請求
 
 // 監聽編輯按鈕點擊事件
 
@@ -89,13 +89,12 @@ document.querySelectorAll(".edit-subcategory-btn").forEach((button) => {
   });
 });
 // 監聽表單提交事件
-const editSubcategoryForm = document.getElementById("editSubcategoryForm");
-editSubcategoryForm.addEventListener("submit", function (event) {
+document.getElementById("editSubcategoryForm").addEventListener("submit", function (event) {
   event.preventDefault(); // 阻止表單的默認提交行為
   console.log("表單提交");
 
-  const formData = new FormData(editSubcategoryForm);
-  const subcategoryId = editSubcategoryForm.dataset.subcategoryId;
+  const formData = new FormData(this);
+  const subcategoryId = this.dataset.subcategoryId;
 
   if (!subcategoryId) {
     alert("次類別 ID 錯誤，無法提交更新！");
