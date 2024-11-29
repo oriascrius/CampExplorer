@@ -80,8 +80,11 @@ foreach ($categories as $category) {
                                             編輯
                                         </button>
                                     </div>
+
                                 </div>
                             </div>
+
+
                             <hr>
                             <ul class="list-unstyled">
                                 <?php foreach ($categories as $subCategory): ?>
@@ -118,6 +121,7 @@ foreach ($categories as $category) {
                                 <button class="btn btn-outline-primary btn-sm add-subcategory-btn"
                                     data-category-id="<?= $category['id'] ?>">新增次類別</button>
                             </div>
+
                         </div>
                     </div>
 
@@ -128,12 +132,14 @@ foreach ($categories as $category) {
 
 
 
+<<<<<<< HEAD
         <script src="pages/categories/edit_ajax_modal_JS.js"></script>
         <!-- Bootstrap JS -->
+=======
+>>>>>>> origin/feature/hankBass
 
-        <!-- BS & sweetalert2 -->
-        <?php include("pages/products/js.php"); ?>
-        <!-- BS & sweetalert2 -->
+        <script src="pages/categories/edit_ajax_modal_JS.js"></script>
+
 
 </body>
 
