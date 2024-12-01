@@ -53,14 +53,68 @@ if (isset($error_message)): ?>
         background-color: #212529;
         color: #fff;
     }
+    .card{
+        padding: 15px;
+        border-radius: 30px;
+    }
+    .bg-success{
+        background-color: transparent !important;
+        border: 1px solid #0080005c;
+        color: #008000 !important;
+        padding: 7px 23px;
+    }
+    .badge.bg-danger{
+        background-color: transparent !important;
+        border: 1px solid #ff000040;
+        color: #db0000 !important;
+        padding: 7px 23px;
+    }
+    .badge.bg-warning{
+        background-color: transparent !important;
+        border: 1px solid #ffc107;
+        color: #efb300 !important;
+        padding: 7px 23px;
+    }
+    .badge.bg-primary{
+        background-color: transparent!important;
+        border: 1px solid #007bff;
+        color: #007bff!important;
+        padding: 7px 23px;
+    }
+    .bg-danger{
+        background-color: transparent !important;
+        border: 1px solid #ff000040;
+        color: #db0000 !important;
+        padding: 7px 23px;
+    }
+    .bg-info{
+        background-color: transparent !important;
+        border: 1px solid #0dcaf0;
+        color: #0dcaf0 !important;
+        padding: 7px 23px;
+    }
+    .btn-outline-primary{
+        color: #8b6a09;
+        background-color: #ffc1076e;
+        border: 0;
+        margin-right: 30px;
+    }
+    .btn-outline-secondary{
+        color: #6c757d;
+        background-color: #6c757d38;
+        border: 0;
+    }
+    tbody tr{
+            border-bottom-width: 1px;
+        }
 </style>
 <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="m-auto mb-5">商品訂單管理</h1>
+        <h1 class="mb-5">商品訂單管理</h1>
     </div>
     <div class="card">
         <div class="card-body p-0">
-            <table class="table table-bordered table-striped m-0">
+            <table class="table">
                 <thead class="header-style">
                     <tr>
                         <th>

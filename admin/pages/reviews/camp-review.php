@@ -35,10 +35,74 @@ try {
     $applications = [];
 }
 ?>
+<style>
 
+.card.shadow-sm{
+    border-radius:30px;
+    padding-top: 15px;
+}
+.table thead{
+    color:#fff;
+    
+}
+.badge.bg-primary{
+    background-color: transparent !important;
+    border: 1px solid #007bff;
+    color: #007bff !important;
+    padding: 7px 23px;
+}
+.badge.bg-info{
+    background-color: transparent !important;
+    border: 1px solid #ffc107;
+    color: #efb300 !important;
+    padding: 7px 23px;
+}
+.d-flex.justify-content-between{
+    margin: 0 75px;
+}
+.card.shadow-sm{
+    margin: 0 75px;
+}
+tr{
+    border-bottom-width: 1px;
+}
+.table thead th{
+    
+    background-color: transparent!important;
+    color: #fff!important;
+    padding: .5rem!important;
+}
+.text-center .badge.bg-primary{
+    background-color: transparent !important;
+    border-radius: .25rem;
+}
+.text-center .badge.bg-info{
+    background-color: transparent !important;
+    border-radius: .25rem;
+}
+.text-center .badge.bg-warning{
+    background-color: transparent !important;
+    border: 1px solid #0dcaf0;
+    color: #0dcaf0 !important;
+    padding: 7px 23px;
+    border-radius: .25rem;
+}
+.text-center .badge.bg-success{
+    background-color: transparent !important;
+    border: 1px solid #0080005c;
+    color: #008000 !important;
+    padding: 7px 23px;
+    border-radius: .25rem;
+}
+.text-center .btn.btn-primary{
+    color: #8b6a09;
+    background-color: #ffc1076e;
+    border: 0;
+}
+</style>
 <!-- 只保留內容部分，移除所有 JavaScript -->
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-    <h1 class="h2">待審核營地列表</h1>
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3">
+    <h1>待審核營地列表</h1>
 </div>
 
 <?php if (isset($_SESSION['error_message'])): ?>
@@ -53,7 +117,7 @@ try {
     <div class="card-body">
         <div class="table-responsive">
             <table class="table table-hover align-middle">
-                <thead class="table-light">
+                <thead class="">
                     <tr>
                         <th scope="col" class="text-nowrap">申請編號</th>
                         <th scope="col" style="min-width: 200px;">營地資訊</th>
@@ -76,9 +140,9 @@ try {
                         <?php foreach ($applications as $app): ?>
                             <tr>
                                 <td class="text-nowrap">
-                                    <span class="badge bg-secondary">
-                                        #<?= htmlspecialchars($app['application_id']) ?>
-                                    </span>
+                               
+                                        <?= htmlspecialchars($app['application_id']) ?>
+                       
                                 </td>
                                 <td>
                                     <div class="fw-bold mb-1"><?= htmlspecialchars($app['camp_name']) ?></div>

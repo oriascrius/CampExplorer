@@ -216,6 +216,10 @@
         background-color: #0080003b!important;
         color: green !important;
     }
+    /* .container-fluid{
+        padding: 4rem;
+        max-width: 100%;
+    } */
     .container.py-4{
         padding: 4rem;
         max-width: 100%;
@@ -224,7 +228,7 @@
         border-radius: 0px;
     }
     .card-header{
-        background: #fff;
+        background: #fefefe;
         border-radius: 30px 30px 0 0;
         border: 0;
         box-shadow: 0px 18px 10px rgba(0, 0, 0, 0.1);
@@ -245,7 +249,7 @@
         padding: 0 15px;
     }
     .card.border-0{
-        background: #fff;
+        background: #fefefe;
         box-shadow: 0px 7px 10px rgba(0, 0, 0, 0.1);
     }
     .btn-primary{
@@ -299,6 +303,28 @@
     .container.py-4{
         padding: 4rem;
         max-width: 100%;
+    }
+    .sub-menu{
+        background: rgb(155 254 144 / 10%);
+    }
+    .modal-header{
+        background-image: linear-gradient(to top, #0ba360 0%, #3cba92 100%);
+        color: #fff;
+    }
+    .swal2-title{
+        background-image: linear-gradient(to top, #0ba360 0%, #3cba92 100%);
+        color: #fff;
+        padding-bottom: 1rem;
+        border-radius: 15px 15px 0 0;
+    }
+    .swal2-html-container .table thead{
+        background-image: none;
+    }
+    .swal2-confirm.swal2-styled{
+        background-color: #ecba82;
+    }
+    .swal2-popup {
+        border-radius: 15px;
     }
 </style>
 
