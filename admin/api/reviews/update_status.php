@@ -55,6 +55,16 @@ try {
         ]);
     }
 
+    if ($status == 2) {  // 如果營地狀態更新為未通過
+        // 將該營地下所有營位狀態更新為未通過
+        $updateSpotsStmt = $db->prepare("
+            UPDATE camp_spot_applications 
+            SET status = 2 
+            WHERE application_id = ?
+        ");
+        $updateSpotsStmt->execute([$applicationId]);
+    }
+
     echo json_encode([
         'success' => true,
         'message' => '狀態更新成功'

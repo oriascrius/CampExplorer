@@ -322,6 +322,7 @@ if (session_status() === PHP_SESSION_NONE) {
                             <th>價格</th>
                             <th>申請時間</th>
                             <th>狀態</th>
+                            <th>營地狀態</th>
                             <th>操作</th>
                         </tr>
                     </thead>
@@ -336,10 +337,15 @@ if (session_status() === PHP_SESSION_NONE) {
                                     csa.capacity,
                                     csa.price,
                                     csa.description,
-                                    csa.status,
+                                    CASE 
+                                        WHEN ca.status = 2 THEN 2  -- 如果營地未通過，營位狀態也是未通過
+                                        WHEN ca.status = 0 THEN 0  -- 如果營地待審核，營位狀態也是待審核
+                                        ELSE csa.status            -- 其他情況（營地通過）才使用營位本身的狀態
+                                    END AS status,
                                     csa.created_at,
                                     ca.name AS camp_name,
                                     ca.owner_name,
+                                    ca.status AS camp_status,
                                     ca.description AS camp_description
                                 FROM camp_spot_applications csa
                                 JOIN camp_applications ca 
@@ -360,6 +366,12 @@ if (session_status() === PHP_SESSION_NONE) {
                                         2 => '<span class="badge bg-danger">已退回</span>',
                                         default => '<span class="badge bg-secondary">未知</span>'
                                     };
+                                    $campStatusBadge = match ($spot['camp_status']) {
+                                        0 => '<span class="badge bg-warning">營地待審核</span>',
+                                        1 => '<span class="badge bg-success">營地已通過</span>',
+                                        2 => '<span class="badge bg-danger">營地未通過</span>',
+                                        default => '<span class="badge bg-secondary">未知</span>'
+                                    };
                         ?>
                                     <tr>
                                         <td><span><?= htmlspecialchars($spot['application_id']) ?></span></td>
@@ -370,6 +382,7 @@ if (session_status() === PHP_SESSION_NONE) {
                                         <td><span>NT$ <?= number_format($spot['price']) ?></span></td>
                                         <td><span><?= date('Y-m-d H:i', strtotime($spot['created_at'])) ?></span></td>
                                         <td><?= $statusBadge ?></td>
+                                        <td><?= $campStatusBadge ?></td>
                                         <td>
                                             <button class="btn btn-sm btn-primary"
                                                 onclick="viewSpotDetails(<?= $spot['spot_id'] ?>)">

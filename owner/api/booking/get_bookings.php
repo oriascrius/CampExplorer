@@ -3,9 +3,8 @@
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
-// 引入資料庫連接
 require_once __DIR__ . '/../../../camping_db.php';
-global $db; // 使用正確的變數名稱
+global $db;
 
 header('Content-Type: application/json');
 
@@ -23,7 +22,7 @@ try {
     $owner_id = $_SESSION['owner_id'];
     error_log('Current owner_id: ' . $owner_id);
     
-    // 修改為 LEFT JOIN 的查詢
+    // 修改 SQL 查詢，加入 WHERE 條件
     $sql = "SELECT 
                 b.booking_id,
                 b.quantity,
@@ -37,49 +36,52 @@ try {
                 csa.name as spot_name,
                 aso.price as unit_price
             FROM bookings b
-            LEFT JOIN activity_spot_options aso ON b.option_id = aso.option_id
-            LEFT JOIN spot_activities sa ON aso.activity_id = sa.activity_id
-            LEFT JOIN users u ON b.user_id = u.id
-            LEFT JOIN camp_spot_applications csa ON aso.spot_id = csa.spot_id
-            LEFT JOIN camp_applications ca ON csa.application_id = ca.application_id";
-            // 暫時註釋掉 WHERE 條件，看看是否有數據
-            // WHERE ca.owner_id = :owner_id
+            JOIN activity_spot_options aso ON b.option_id = aso.option_id
+            JOIN spot_activities sa ON aso.activity_id = sa.activity_id
+            JOIN users u ON b.user_id = u.id
+            JOIN camp_spot_applications csa ON aso.spot_id = csa.spot_id
+            JOIN camp_applications ca ON csa.application_id = ca.application_id
+            WHERE sa.owner_id = :owner_id
+            ORDER BY b.created_at DESC";
 
     $stmt = $db->prepare($sql);
-    $stmt->execute();
+    $stmt->execute(['owner_id' => $owner_id]);
     $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
-    error_log('Found bookings: ' . print_r($bookings, true));
+    error_log('Found bookings: ' . count($bookings));
 
-    // 統計數據的查詢也要相應修改
+    // 統計數據查詢
     $stats_sql = "SELECT 
-                    COUNT(DISTINCT b.booking_id) as total_bookings,
-                    SUM(CASE WHEN b.status = 'pending' THEN 1 ELSE 0 END) as pending_bookings,
+                    COUNT(*) as total,
+                    SUM(CASE WHEN b.status = 'pending' THEN 1 ELSE 0 END) as pending,
+                    SUM(CASE WHEN b.status = 'confirmed' THEN 1 ELSE 0 END) as confirmed,
+                    SUM(CASE WHEN b.status = 'cancelled' THEN 1 ELSE 0 END) as cancelled,
                     COALESCE(SUM(b.total_price), 0) as total_revenue
                 FROM bookings b
-                LEFT JOIN activity_spot_options aso ON b.option_id = aso.option_id
-                LEFT JOIN spot_activities sa ON aso.activity_id = sa.activity_id
-                LEFT JOIN camp_applications ca ON sa.application_id = ca.application_id
-                WHERE ca.owner_id = :owner_id";
+                JOIN activity_spot_options aso ON b.option_id = aso.option_id
+                JOIN spot_activities sa ON aso.activity_id = sa.activity_id
+                WHERE sa.owner_id = :owner_id";
 
     $stats_stmt = $db->prepare($stats_sql);
     $stats_stmt->execute(['owner_id' => $owner_id]);
     $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
 
-    // 在前端顯示時處理 null 值
+    // 格式化數據
     foreach ($bookings as &$booking) {
-        $booking['activity_name'] = $booking['activity_name'] ?? '未指定活動';
-        $booking['spot_name'] = $booking['spot_name'] ?? '未指定營位';
-        $booking['user_name'] = $booking['user_name'] ?? '未知用戶';
-        $booking['unit_price'] = $booking['unit_price'] ?? 0;
+        $booking['booking_date'] = date('Y-m-d H:i', strtotime($booking['booking_date']));
+        $booking['created_at'] = date('Y-m-d H:i', strtotime($booking['created_at']));
+        $booking['total_price'] = number_format($booking['total_price'], 0);
+        $booking['unit_price'] = number_format($booking['unit_price'], 0);
     }
 
     $response = [
         'success' => true,
         'bookings' => $bookings,
         'stats' => [
-            'total_bookings' => (int)$stats['total_bookings'],
-            'pending_bookings' => (int)$stats['pending_bookings'],
+            'total' => (int)$stats['total'],
+            'pending' => (int)$stats['pending'],
+            'confirmed' => (int)$stats['confirmed'],
+            'cancelled' => (int)$stats['cancelled'],
             'total_revenue' => number_format($stats['total_revenue'], 0)
         ]
     ];
@@ -98,7 +100,7 @@ try {
             'time' => date('Y-m-d H:i:s'),
             'session_status' => session_status(),
             'session_id' => session_id(),
-            'db_status' => isset($db) ? 'connected' : 'not connected'
+            'owner_id' => $_SESSION['owner_id'] ?? 'not set'
         ]
     ]);
 }

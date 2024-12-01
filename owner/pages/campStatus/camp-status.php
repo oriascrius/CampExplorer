@@ -9,9 +9,7 @@ if (!isset($_SESSION['owner_id'])) {
 $owner_id = $_SESSION['owner_id'];
 $camps = [];
 
-// 獲取營地列表
 try {
-    // 查詢所有營地狀態
     $stmt = $db->prepare("
         SELECT 
             ca.application_id,
@@ -38,30 +36,30 @@ try {
 
     $stmt->execute([$owner_id]);
     $camps = $stmt->fetchAll(PDO::FETCH_ASSOC);
-} catch (PDOException $e) {
-    $error = "查詢敗：" . $e->getMessage();
-}
 
-// 計算不同狀態的營地數量
-$stats = [
-    'total' => count($camps),
-    'pending' => 0,
-    'approved' => 0,
-    'rejected' => 0
-];
+    // 計算不同狀態的營地數量
+    $stats = [
+        'total' => count($camps),
+        'pending' => 0,
+        'approved' => 0,
+        'rejected' => 0
+    ];
 
-foreach ($camps as $camp) {
-    switch ($camp['status']) {
-        case 0:
-            $stats['pending']++;
-            break;
-        case 1:
-            $stats['approved']++;
-            break;
-        case 2:
-            $stats['rejected']++;
-            break;
+    foreach ($camps as $camp) {
+        switch ($camp['status']) {
+            case 0:
+                $stats['pending']++;
+                break;
+            case 1:
+                $stats['approved']++;
+                break;
+            case 2:
+                $stats['rejected']++;
+                break;
+        }
     }
+} catch (PDOException $e) {
+    $error = "查詢失敗：" . $e->getMessage();
 }
 ?>
 
@@ -77,45 +75,45 @@ foreach ($camps as $camp) {
     <div class="stats-container mb-4">
         <div class="row g-4">
             <div class="col-md-3">
-                <div class="stat-card" onclick="filterCamps('all')">
+                <div class="stat-card all" onclick="filterCamps('all')">
                     <div class="stat-icon">
-                        <i class="bi bi-grid-fill"></i>
+                        <i class="fas fa-campground"></i>
                     </div>
                     <div class="stat-content">
-                        <h3 class="stat-number"><?= $stats['total'] ?></h3>
-                        <p class="stat-label">總營地數</p>
+                        <div class="stat-number"><?= $stats['total'] ?></div>
+                        <div class="stat-label">總營地數</div>
                     </div>
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="stat-card" onclick="filterCamps('pending')">
+                <div class="stat-card pending" onclick="filterCamps('pending')">
                     <div class="stat-icon">
                         <i class="bi bi-hourglass-split"></i>
                     </div>
                     <div class="stat-content">
-                        <h3 class="stat-number"><?= $stats['pending'] ?></h3>
+                        <div class="stat-number"><?= $stats['pending'] ?></div>
                         <p class="stat-label">審核中</p>
                     </div>
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="stat-card" onclick="filterCamps('approved')">
+                <div class="stat-card approved" onclick="filterCamps('approved')">
                     <div class="stat-icon">
                         <i class="bi bi-check-circle-fill"></i>
                     </div>
                     <div class="stat-content">
-                        <h3 class="stat-number"><?= $stats['approved'] ?></h3>
+                        <div class="stat-number"><?= $stats['approved'] ?></div>
                         <p class="stat-label">已通過</p>
                     </div>
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="stat-card" onclick="filterCamps('rejected')">
+                <div class="stat-card rejected" onclick="filterCamps('rejected')">
                     <div class="stat-icon">
                         <i class="bi bi-x-circle-fill"></i>
                     </div>
                     <div class="stat-content">
-                        <h3 class="stat-number"><?= $stats['rejected'] ?></h3>
+                        <div class="stat-number"><?= $stats['rejected'] ?></div>
                         <p class="stat-label">已退回</p>
                     </div>
                 </div>
@@ -149,12 +147,25 @@ foreach ($camps as $camp) {
                                 <tr>
                                     <td><?= htmlspecialchars($camp['name']) ?></td>
                                     <td>
-                                        <span class="status-badge status-<?= $camp['status'] ?>"><?= $camp['status_text'] ?></span>
+                                        <span class="status-badge <?= match ($camp['status']) {
+                                                                        0 => 'pending',
+                                                                        1 => 'approved',
+                                                                        2 => 'rejected',
+                                                                        default => 'pending'
+                                                                    } ?>">
+                                            <i class="bi <?= match ($camp['status']) {
+                                                                0 => 'bi-hourglass-split',
+                                                                1 => 'bi-check-circle-fill',
+                                                                2 => 'bi-x-circle-fill',
+                                                                default => 'bi-hourglass-split'
+                                                            } ?>"></i>
+                                            <?= $camp['status_text'] ?>
+                                        </span>
                                     </td>
                                     <td><?= date('Y-m-d H:i', strtotime($camp['created_at'])) ?></td>
                                     <td><?= date('Y-m-d H:i', strtotime($camp['updated_at'])) ?></td>
                                     <td>
-                                        <button type="button" class="btn btn-primary btn-sm"
+                                        <button type="button" class="btn btn-outline-info btn-sm"
                                             data-bs-toggle="modal"
                                             data-bs-target="#campDetailModal"
                                             data-camp-name="<?= htmlspecialchars($camp['name']) ?>"
@@ -182,20 +193,20 @@ foreach ($camps as $camp) {
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js"></script>
 
 <!-- Modal -->
-<div class="modal fade" 
-     id="campDetailModal" 
-     tabindex="-1" 
-     role="dialog"
-     aria-modal="true"
-     aria-labelledby="campDetailModalLabel">
+<div class="modal fade"
+    id="campDetailModal"
+    tabindex="-1"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="campDetailModalLabel">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="campDetailModalLabel">營地詳細資訊</h5>
-                <button type="button" 
-                        class="btn-close" 
-                        data-bs-dismiss="modal" 
-                        aria-label="關閉">
+                <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="關閉">
                 </button>
             </div>
             <div class="modal-body">
@@ -227,10 +238,10 @@ foreach ($camps as $camp) {
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" 
-                        class="btn btn-secondary" 
-                        data-bs-dismiss="modal"
-                        aria-label="關閉對話框">關閉</button>
+                <button type="button"
+                    class="btn btn-outline-info"
+                    data-bs-dismiss="modal"
+                    aria-label="關閉對話框">關閉</button>
             </div>
         </div>
     </div>
@@ -238,10 +249,10 @@ foreach ($camps as $camp) {
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // 表格行點擊事件
+        // 表格行點件
         document.querySelectorAll('table tbody tr').forEach(row => {
             row.addEventListener('click', function(e) {
-                // 如果點擊的是按鈕本身，不需要觸發行點擊事件
+                // 如果點擊的是按鈕本身，不需要發行點擊事件
                 if (e.target.closest('.btn')) {
                     return;
                 }
@@ -281,9 +292,9 @@ foreach ($camps as $camp) {
             campDetailModal.addEventListener('show.bs.modal', function(event) {
                 // 移除 aria-hidden 屬性
                 this.removeAttribute('aria-hidden');
-                
+
                 const button = event.relatedTarget;
-                
+
                 // 更新 Modal 內容
                 document.getElementById('modalCampName').textContent = button.dataset.campName || '無資料';
                 document.getElementById('modalCampAddress').textContent = button.dataset.campAddress || '無資料';
@@ -293,7 +304,7 @@ foreach ($camps as $camp) {
                 document.getElementById('modalCampDescription').textContent = button.dataset.campDescription || '無資料';
                 document.getElementById('modalCampRules').textContent = button.dataset.campRules || '無資料';
                 document.getElementById('modalCampNotice').textContent = button.dataset.campNotice || '無資料';
-                document.getElementById('modalCampComment').textContent = button.dataset.campComment || '無審核意見';
+                document.getElementById('modalCampComment').textContent = button.dataset.campComment || '無核意見';
             });
 
             // Modal 關閉時的處理
@@ -302,7 +313,7 @@ foreach ($camps as $camp) {
                 this.setAttribute('inert', '');
             });
 
-            // Modal 完全關閉後的處理
+            // Modal 完全關後的處理
             campDetailModal.addEventListener('hidden.bs.modal', function() {
                 // 移除 inert 屬性
                 this.removeAttribute('inert');
@@ -313,6 +324,8 @@ foreach ($camps as $camp) {
                 }
             });
         }
+
+        animateStatNumbers();
     });
 
     // 添加篩選功能
@@ -335,6 +348,30 @@ foreach ($camps as $camp) {
                 default:
                     row.style.display = '';
             }
+        });
+    }
+
+    // 數字動畫效果
+    function animateValue(element, start, end, duration) {
+        let startTimestamp = null;
+        const step = (timestamp) => {
+            if (!startTimestamp) startTimestamp = timestamp;
+            const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+            const value = Math.floor(progress * (end - start) + start);
+            element.textContent = value.toLocaleString();
+            if (progress < 1) {
+                window.requestAnimationFrame(step);
+            }
+        };
+        window.requestAnimationFrame(step);
+    }
+
+    // 數字動畫效果
+    function animateStatNumbers() {
+        const elements = document.querySelectorAll('.stat-number');
+        elements.forEach(element => {
+            const endValue = parseInt(element.textContent);
+            animateValue(element, 0, endValue, 1000);
         });
     }
 </script>
@@ -410,57 +447,70 @@ foreach ($camps as $camp) {
         margin-bottom: 2rem;
     }
 
-    /* 狀態標籤樣式 */
+    /* 狀態標籤基本樣式 */
     .status-badge {
-        padding: 0.6rem 1rem;
-        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
         font-size: 0.875rem;
         font-weight: 500;
-        display: inline-block;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
         transition: all 0.3s ease;
+        color: white;
     }
 
-    /* 審核中 - 使用明顯的藍灰色系 */
-    .status-0 {
-        background-color: #94A7AE;  /* 使用原本的 --camp-secondary */
-        color: white;
-        border: none;
+    /* 審核中 - 莫蘭迪黃 */
+    .status-badge.pending {
+        background-color: #D4C5A9;
     }
 
-    /* 已通過 - 使用明顯的藍綠色系 */
-    .status-1 {
-        background-color: #4C6B74;  /* 使用原本的 --camp-primary */
-        color: white;
-        border: none;
+    /* 已通過 - 莫蘭迪綠 */
+    .status-badge.approved {
+        background-color: #A8C2B3;
     }
 
-    /* 已退回 - 使用明顯的磚紅色系 */
-    .status-2 {
-        background-color: #B47B84;  /* 使用原本的 --camp-danger */
-        color: white;
-        border: none;
+    /* 已退回 - 莫蘭迪粉 */
+    .status-badge.rejected {
+        background-color: #D4B5B5;
+    }
+
+    /* hover 效果 */
+    .status-badge:hover {
+        transform: translateY(-2px);
+        filter: brightness(1.05);
+    }
+
+    /* 狀態圖標 */
+    .status-badge i {
+        font-size: 1rem;
     }
 
     /* 狀態卡片樣式對應更新 */
     .stat-card[onclick="filterCamps('pending')"] .stat-icon {
-        color: white;
-        background-color: #94A7AE;
+        background-color: #FFF4E6;
+        color: #F76707;
     }
 
     .stat-card[onclick="filterCamps('approved')"] .stat-icon {
-        color: white;
-        background-color: #4C6B74;
+        background-color: #E6FCF5;
+        color: #0CA678;
     }
 
     .stat-card[onclick="filterCamps('rejected')"] .stat-icon {
-        color: white;
-        background-color: #B47B84;
+        background-color: #FFF5F5;
+        color: #FA5252;
     }
 
     /* hover 效果加強 */
-    .stat-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    .stat-card:hover .stat-icon {
+        background-color: transparent;
+        color: white;
+    }
+
+    .stat-card:hover .stat-number,
+    .stat-card:hover .stat-label {
+        color: white;
     }
 
     /* 狀態標籤 hover 效果 */
@@ -470,28 +520,66 @@ foreach ($camps as $camp) {
     }
 
     .status-0:hover {
-        background-color: #7B8E95;  /* 深一點的藍灰色 */
+        background-color: #7B8E95;
+        /* 深一點的藍灰色 */
     }
 
     .status-1:hover {
-        background-color: #3A545C;  /* 深一點的藍綠色 */
+        background-color: #3A545C;
+        /* 深一點的藍綠色 */
     }
 
     .status-2:hover {
-        background-color: #9B6A72;  /* 深一點的磚紅色 */
+        background-color: #9B6A72;
+        /* 深一點的磚紅色 */
     }
 
-    /* 按鈕樣式 */
+    /* 操作按鈕基本樣式 */
+    .btn-action {
+        padding: 0.4rem 1rem;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        transition: all 0.3s ease;
+        background-color: white;
+    }
+
+    /* 編輯按鈕 - 莫蘭迪藍 */
     .btn-edit {
-        background-color: var(--camp-primary);
-        color: white;
-        width: 100%;
-        margin-bottom: 0.25rem;
+        border: 1px solid var(--camp-primary);
+        color: var(--camp-primary);
     }
 
     .btn-edit:hover {
-        background-color: var(--camp-primary-dark);
+        background-color: var(--camp-primary);
         color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(76, 107, 116, 0.2);
+    }
+
+    /* 啟用按鈕 - 莫蘭迪綠 */
+    .btn-activate {
+        border: 1px solid #A8C2B3;
+        color: #A8C2B3;
+    }
+
+    .btn-activate:hover {
+        background-color: #A8C2B3;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(168, 194, 179, 0.2);
+    }
+
+    /* 停用按鈕 - 莫蘭迪粉 */
+    .btn-deactivate {
+        border: 1px solid #B47B84;
+        color: #B47B84;
+    }
+
+    .btn-deactivate:hover {
+        background-color: #B47B84;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(180, 123, 132, 0.2);
     }
 
     /* 页面标题样式 */
@@ -509,12 +597,14 @@ foreach ($camps as $camp) {
     .modal-content {
         border-radius: 16px;
         border: none;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     }
 
     .modal-header {
-        background-color: var(--camp-primary);
+        background: linear-gradient(135deg, var(--camp-primary) 0%, var(--camp-primary-dark) 100%);
         color: white;
-        border-bottom: none;
+        border-radius: 16px 16px 0 0;
+        padding: 1.5rem;
     }
 
     .modal-title {
@@ -551,121 +641,291 @@ foreach ($camps as $camp) {
 
     /* 統計卡片樣式 */
     .stats-container {
+        display: grid;
+        gap: 1rem;
+        padding: 1.5rem;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
         margin-bottom: 2rem;
     }
 
+    /* 統計卡片基本樣式 */
     .stat-card {
         background: white;
         border-radius: 16px;
         padding: 0.5rem;
-        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+        border: 1px solid #E8E8E8;
         transition: all 0.3s ease;
         cursor: pointer;
         display: flex;
         align-items: center;
-        gap: 1rem;
-        border: 1px solid var(--camp-border);
+        gap: 1.8rem;
+        position: relative;
+        overflow: hidden;
     }
 
-    .stat-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-        border-color: var(--camp-primary);
+    /* 總營地數 - 莫蘭迪藍 */
+    .stat-card.all {
+        border-left: 4px solid #A8B9C7;
     }
 
+    .stat-card.all .stat-icon {
+        background-color: #EDF2F7;
+        color: #A8B9C7;
+    }
+
+    .stat-card.all:hover {
+        background: linear-gradient(135deg, #A8B9C7 0%, #C4D3DF 100%);
+    }
+
+    /* 審核中 - 莫蘭迪黃 */
+    .stat-card.pending {
+        border-left: 4px solid #D4C5A9;
+    }
+
+    .stat-card.pending .stat-icon {
+        background-color: #F7F4ED;
+        color: #D4C5A9;
+    }
+
+    .stat-card.pending:hover {
+        background: linear-gradient(135deg, #D4C5A9 0%, #E5DBC8 100%);
+    }
+
+    /* 已通過 - 莫蘭迪綠 */
+    .stat-card.approved {
+        border-left: 4px solid #A8C2B3;
+    }
+
+    .stat-card.approved .stat-icon {
+        background-color: #EDF5F1;
+        color: #A8C2B3;
+    }
+
+    .stat-card.approved:hover {
+        background: linear-gradient(135deg, #A8C2B3 0%, #C4D8CD 100%);
+    }
+
+    /* 已退回 - 莫蘭迪粉 */
+    .stat-card.rejected {
+        border-left: 4px solid #D4B5B5;
+    }
+
+    .stat-card.rejected .stat-icon {
+        background-color: #F7EDED;
+        color: #D4B5B5;
+    }
+
+    .stat-card.rejected:hover {
+        background: linear-gradient(135deg, #D4B5B5 0%, #E5CDCD 100%);
+    }
+
+    /* 圖標樣式 */
     .stat-icon {
-        width: 48px;
-        height: 48px;
+        width: 52px;
+        height: 52px;
         border-radius: 12px;
-        background: var(--camp-light);
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.5rem;
-        color: var(--camp-primary);
-    }
-
-    .stat-content {
-        flex-grow: 1;
-    }
-
-    .stat-number {
-        font-size: 1.75rem;
-        font-weight: 600;
-        color: var(--camp-primary);
-        margin: 0;
-    }
-
-    .stat-label {
-        color: var(--camp-secondary);
-        margin: 0;
-        font-size: 0.875rem;
-    }
-
-    /* 添加動畫效果 */
-    @keyframes countUp {
-        from {
-            opacity: 0;
-            transform: translateY(10px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    .stat-number {
-        animation: countUp 0.5s ease-out forwards;
-    }
-
-    /* 按鈕基本樣式 */
-    .btn-primary {
-        background-color: var(--camp-primary);
-        border-color: var(--camp-primary);
-        color: white;
+        font-size: 1.6rem;
+        flex-shrink: 0;
         transition: all 0.3s ease;
     }
 
-    .btn-primary:hover {
+    /* 文字內容樣式 */
+    .stat-content {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+    }
+
+    .stat-number {
+        font-size: 1.8rem;
+        font-weight: 600;
+        margin: 0;
+        line-height: 1;
+    }
+
+    .stat-label {
+        color: #94A3B8;
+        margin: 0;
+        font-size: 0.9rem;
+    }
+
+    /* Hover 效果 */
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    }
+
+    .stat-card:hover .stat-icon {
+        background-color: rgba(255, 255, 255, 0.2);
+        color: white;
+    }
+
+    .stat-card:hover .stat-number,
+    .stat-card:hover .stat-label {
+        color: white;
+    }
+
+    .stat-card:hover::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.1);
+        pointer-events: none;
+    }
+
+    /* 查看詳情按鈕樣式 */
+    .btn-outline-primary {
+        color: #94A7AE;
+        /* 莫蘭迪灰藍色 */
+        background-color: transparent;
+        border: 1px solid #94A7AE;
+        transition: all 0.3s ease;
+    }
+
+    .btn-outline-primary:hover {
+        color: white;
+        background: linear-gradient(135deg, #94A7AE 0%, #B5C4CA 100%);
+        border-color: transparent;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(148, 167, 174, 0.2);
+    }
+
+    .btn-outline-primary:focus {
+        color: white;
+        background-color: #94A7AE;
+        border-color: #94A7AE;
+        box-shadow: 0 0 0 0.25rem rgba(148, 167, 174, 0.25);
+    }
+
+    .btn-outline-primary:active {
+        color: white;
+        background-color: #7B8E95;
+        /* 深一點的莫蘭迪灰藍 */
+        border-color: #7B8E95;
+    }
+
+    /* 查看詳情按鈕 - 莫蘭迪藍色系 */
+    .btn-outline-info {
+        color: #94A7AE;
+        background-color: transparent;
+        border: 1px solid #94A7AE;
+        transition: all 0.3s ease;
+    }
+
+    .btn-outline-info:hover {
+        color: white;
+        background: linear-gradient(135deg, #94A7AE 0%, #B5C4CA 100%);
+        border-color: transparent;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(148, 167, 174, 0.2);
+    }
+
+    .btn-outline-info:focus {
+        box-shadow: 0 0 0 0.25rem rgba(148, 167, 174, 0.25);
+    }
+
+    /* Modal 內容區塊樣式 */
+    .modal-body {
+        padding: 2rem;
+    }
+
+    /* 資訊組樣式 */
+    .info-group {
+        margin-bottom: 1.5rem;
+        padding: 1.2rem;
+        border-radius: 12px;
+        background-color: var(--camp-light);
+        transition: all 0.3s ease;
+    }
+
+    .info-group:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(76, 107, 116, 0.1);
+    }
+
+    /* 資訊標籤樣式 */
+    .info-label {
+        color: var(--camp-primary);
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    /* 資訊內容樣式 */
+    .info-content {
+        color: var(--camp-text);
+        font-size: 1rem;
+        line-height: 1.6;
+        padding: 0.5rem;
+        border-radius: 8px;
+        background-color: white;
+    }
+
+    /* 特殊資訊樣式 */
+    .info-highlight {
+        background: linear-gradient(135deg, #EDF5F1 0%, #F7F4ED 100%);
+        border-left: 4px solid var(--camp-primary);
+    }
+
+    /* 互動按鈕樣式 */
+    .btn-action {
+        color: var(--camp-primary);
+        background-color: transparent;
+        border: 1px solid var(--camp-primary);
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        margin-right: 0.5rem;
+    }
+
+    .btn-action:hover {
         background-color: var(--camp-primary);
-        border-color: var(--camp-primary);
         color: white;
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(76, 107, 116, 0.2);
     }
 
-    .btn-primary:focus,
-    .btn-primary:active {
-        background-color: var(--camp-primary-dark) !important;
-        border-color: var(--camp-primary-dark) !important;
-        color: white !important;
-        transform: translateY(0);
-        box-shadow: 0 2px 6px rgba(76, 107, 116, 0.15) !important;
+    /* 統計卡片標籤文字顏色 */
+    .stat-card.all .stat-label {
+        color: #A8B9C7;
     }
 
-    .btn-secondary {
-        background-color: var(--camp-secondary);
-        border-color: var(--camp-secondary);
+    .stat-card.pending .stat-label {
+        color: #D4C5A9;
+    }
+
+    .stat-card.approved .stat-label {
+        color: #A8C2B3;
+    }
+
+    .stat-card.rejected .stat-label {
+        color: #D4B5B5;
+    }
+
+    /* 數字顏色保持原色 */
+    .stat-number {
+        color: var(--camp-text);
+    }
+
+    /* Hover 時文字變白 */
+    .stat-card:hover .stat-number,
+    .stat-card:hover .stat-label {
         color: white;
-        transition: all 0.3s ease;
     }
 
-    .btn-secondary:hover {
-        background-color: var(--camp-secondary);
-        border-color: var(--camp-secondary);
-        color: white;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(148, 167, 174, 0.2);
-    }
-
-    .btn-secondary:focus,
-    .btn-secondary:active {
-        background-color: #7B8E95 !important;
-        border-color: #7B8E95 !important;
-        color: white !important;
-        transform: translateY(0);
-        box-shadow: 0 2px 6px rgba(148, 167, 174, 0.15) !important;
+    /* 移除原本的顏色設定 */
+    .stat-label {
+        font-size: 0.85rem;
+        margin: 0;
     }
 </style>
 

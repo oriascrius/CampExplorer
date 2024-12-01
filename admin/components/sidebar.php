@@ -49,8 +49,6 @@
         overflow: hidden;
         transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         padding-left: 2rem;
-        background: rgba(0, 0, 0, 0.1);
-        border-left: 2px solid rgba(52, 152, 219, 0.5);
     }
 
     .sub-menu.show {
@@ -327,16 +325,11 @@
             </div>
         </div>
 
-        <!-- 類別管理 -->
+        <!-- 商品類別管理 -->
         <div class="nav-item">
-            <div class="nav-link menu-toggle" data-bs-toggle="collapse" data-bs-target="#categoryMenu">
-                <div><i class="bi bi-tags me-2"></i>類別管理</div>
-                <i class="bi bi-chevron-down toggle-icon"></i>
-            </div>
-            <div class="sub-menu" id="categoryMenu">
-                <a href="/CampExplorer/admin/index.php?page=spot_category" class="nav-link">營位類別管理</a>
-                <a href="/CampExplorer/admin/index.php?page=product_category" class="nav-link">商品類別管理</a>
-            </div>
+            <a href="/CampExplorer/admin/index.php?page=product_category" class="nav-link">
+                <i class="bi bi-tags me-2"></i>商品類別管理
+            </a>
         </div>
 
         <!-- 營區管理 -->
@@ -436,12 +429,35 @@
 
         highlightCurrentPage() {
             const currentPath = window.location.pathname + window.location.search;
+            
+            // 先移除所有active狀態
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            // 找到當前頁面對應的連結並設置active
             document.querySelectorAll('.nav-link').forEach(link => {
                 const href = link.getAttribute('href');
-                if (href && href.includes(currentPath)) {
+                if (href && currentPath.includes(href)) {
                     link.classList.add('active');
+                    
+                    // 如果active的連結在子選單中，只打開該子選單
                     const parentMenu = link.closest('.sub-menu');
                     if (parentMenu) {
+                        // 先關閉所有子選單
+                        document.querySelectorAll('.sub-menu').forEach(menu => {
+                            menu.classList.remove('show');
+                            const toggle = menu.previousElementSibling;
+                            if (toggle) {
+                                toggle.classList.remove('active');
+                                const icon = toggle.querySelector('.toggle-icon');
+                                if (icon) {
+                                    icon.style.transform = 'rotate(0deg)';
+                                }
+                            }
+                        });
+                        
+                        // 只打開當前連結所在的子選單
                         parentMenu.classList.add('show');
                         const menuToggle = parentMenu.previousElementSibling;
                         if (menuToggle) {
@@ -452,8 +468,6 @@
                             }
                         }
                     }
-                } else {
-                    link.classList.remove('active');
                 }
             });
         }
