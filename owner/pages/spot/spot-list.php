@@ -304,7 +304,7 @@ require_once __DIR__ . '/../../../camping_db.php';
             background-color: var(--camp-primary);
             color: white;
             width: 100%;
-            margin-bottom: 0.25rem;
+            /* margin-bottom: 0.25rem; */
         }
 
         .btn-edit:hover:not(:disabled) {
@@ -1025,7 +1025,8 @@ require_once __DIR__ . '/../../../camping_db.php';
             padding: 0.4rem 1rem;
             border-radius: 20px;
             font-size: 0.875rem;
-            margin: 0 auto;
+            /* margin: 0 auto; */
+            margin:0 3px;
         }
 
         /* 確保資訊項目內容置中 */

@@ -279,10 +279,12 @@ try {
 
         .table thead th:first-child {
             border-top-left-radius: 8px;
+            border-bottom-left-radius: 8px;
         }
 
         .table thead th:last-child {
             border-top-right-radius: 8px;
+            border-bottom-right-radius: 8px;
         }
 
         /* 表格內容樣 */
@@ -956,12 +958,6 @@ try {
             max-width: 800px;
         }
 
-        /* 狀標籤樣式 */
-        .badge {
-            padding: 0.5em 0.8em;
-            font-size: 0.9em;
-        }
-
         /* 表格樣式 */
         .table-borderless td {
             padding: 0.5rem;
@@ -980,7 +976,8 @@ try {
             padding: 0.5em 0.8em;
             font-size: 0.9em;
             color: white;
-        }
+            border-radius: 12px;
+       }
 
         /* Modal 按鈕樣式 */
         .btn-outline-secondary {
@@ -1155,7 +1152,7 @@ try {
             padding: 0.5rem;
         }
 
-        /* 狀態卡片基本樣式 */
+        /* 狀態卡片基���樣��� */
         .status-card {
             position: relative;
             display: block;
@@ -1559,6 +1556,132 @@ try {
             background-color: #C4A4A4;
             color: white;
         }
+
+        /* 搜尋框樣式 */
+        .search-box {
+            position: relative;
+            width: 450px; /* 增加寬度 */
+        }
+
+        .search-box input {
+            padding-right: 35px;
+            padding-left: 15px; /* 增加左邊內距 */
+            border-radius: 20px;
+            border: 1px solid var(--camp-border);
+            height: 42px; /* 適當增加高度 */
+            font-size: 0.95rem; /* 調整字體大小 */
+        }
+
+        .search-box .bi-search {
+            position: absolute;
+            right: 15px; /* 調整圖示位置 */
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--camp-secondary);
+            font-size: 1.1rem; /* 調整圖示大小 */
+        }
+
+        /* 響應式設計 */
+        @media (max-width: 768px) {
+            .search-box {
+                width: 300px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .search-box {
+                width: 100%;
+                margin-top: 1rem;
+            }
+            
+            /* 在手機版將標題和搜尋框改為垂直排列 */
+            .d-flex.justify-content-between.align-items-center {
+                flex-direction: column;
+                align-items: stretch !important;
+            }
+            
+            .page-title {
+                text-align: center;
+                margin-bottom: 1rem;
+            }
+        }
+
+        /* 排序圖示樣式 */
+        .sort-icon {
+            font-size: 0.8em;
+            margin-left: 5px;
+            opacity: 0.5;
+            cursor: pointer;
+        }
+
+        th {
+            cursor: pointer;
+        }
+
+        th:hover .sort-icon {
+            opacity: 1;
+        }
+
+        /* 分頁樣式 */
+        .pagination-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            padding: 10px;
+            min-height: 60px; /* 設定最小高度 */
+        }
+
+        .pagination-info {
+            color: var(--camp-secondary);
+        }
+
+        .pagination {
+            margin: 0;
+            user-select: none; /* 防止文字被選中 */
+        }
+
+        .pagination .page-link {
+            cursor: pointer;
+            user-select: none;
+            -webkit-user-drag: none; /* 防止拖曳 */
+            color: var(--camp-primary);
+            border-color: var(--camp-border);
+            padding: 0.5rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            background-color: white;
+            transition: all 0.2s ease;
+        }
+
+        .pagination .page-item.disabled .page-link {
+            background-color: #e9ecef; /* 更明顯的禁用背景色 */
+            border-color: #dee2e6;
+            color: #adb5bd; /* 更淡的文字顏色 */
+            cursor: not-allowed;
+            opacity: 0.8; /* 增加透明度效果 */
+            pointer-events: none; /* 確保完全禁用點擊 */
+        }
+
+        .pagination .page-item.active .page-link {
+            background-color: var(--camp-primary);
+            border-color: var(--camp-primary);
+            color: white;
+            font-weight: 500;
+        }
+
+        .pagination .page-link:hover:not(.disabled) {
+            background-color: var(--camp-light);
+            border-color: var(--camp-primary);
+            color: var(--camp-primary);
+        }
+
+        /* 省略號樣式 */
+        .pagination .page-item.disabled span.page-link {
+            background-color: transparent;
+            border: none;
+        }
     </style>
 </head>
 
@@ -1600,7 +1723,7 @@ try {
                         </div>
                         <div class="stat-content">
                             <div class="stat-number" id="confirmedBookings"><?= $stats['confirmed'] ?></div>
-                            <div class="stat-label">確認</div>
+                            <div class="stat-label">已確認</div>
                         </div>
 
                     </div>
@@ -1612,7 +1735,7 @@ try {
                         </div>
                         <div class="stat-content">
                             <div class="stat-number" id="cancelledBookings"><?= $stats['cancelled'] ?></div>
-                            <div class="stat-label">取消</div>
+                            <div class="stat-label">已取消</div>
                         </div>
 
                     </div>
@@ -1623,10 +1746,16 @@ try {
         <!-- 主要內容區 -->
         <div class="content-wrapper">
             <!-- 標題列 -->
-            <div class="d-flex justify-content-between align-items-center" style="
-                padding-bottom: 1rem;
-                border-bottom: 3px solid var(--camp-border);">
+            <div class="d-flex justify-content-between align-items-center mb-4">
                 <h1 class="page-title">訂單管理</h1>
+                <div class="search-box">
+                    <input type="text" 
+                        id="searchInput" 
+                        class="form-control" 
+                        placeholder="搜尋訂單編號、活動名稱、價格..."
+                        onkeyup="handleSearch()">
+                    <i class="bi bi-search"></i>
+                </div>
             </div>
 
             <!-- 單列表 -->
@@ -1634,19 +1763,43 @@ try {
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>訂單編號</th>
-                            <th>活動名稱</th>
-                            <th>營位名稱</th>
-                            <th>預訂者</th>
-                            <th>數量</th>
-                            <th>單價</th>
-                            <th>總價格</th>
-                            <th>狀態</th>
+                            <th onclick="sortTable('booking_id')">
+                                訂單編號 <i class="bi bi-arrow-down-up sort-icon"></i>
+                            </th>
+                            <th onclick="sortTable('activity_name')">
+                                活動名稱 <i class="bi bi-arrow-down-up sort-icon"></i>
+                            </th>
+                            <th onclick="sortTable('spot_name')">
+                                營位名稱 <i class="bi bi-arrow-down-up sort-icon"></i>
+                            </th>
+                            <th onclick="sortTable('user_name')">
+                                預訂者 <i class="bi bi-arrow-down-up sort-icon"></i>
+                            </th>
+                            <th onclick="sortTable('quantity')">
+                                數量 <i class="bi bi-arrow-down-up sort-icon"></i>
+                            </th>
+                            <th onclick="sortTable('unit_price')">
+                                單價 <i class="bi bi-arrow-down-up sort-icon"></i>
+                            </th>
+                            <th onclick="sortTable('total_price')">
+                                總價格 <i class="bi bi-arrow-down-up sort-icon"></i>
+                            </th>
+                            <th onclick="sortTable('status')">
+                                狀態 <i class="bi bi-arrow-down-up sort-icon"></i>
+                            </th>
                             <th>操作</th>
                         </tr>
                     </thead>
                     <tbody id="bookingsList"></tbody>
                 </table>
+            </div>
+
+            <!-- 加入分頁控制項 -->
+            <div class="pagination-container">
+                <div class="pagination-info">
+                    顯示第 <span id="startIndex">1</span> 到第 <span id="endIndex">10</span> 筆，共 <span id="totalItems">0</span> 筆資料
+                </div>
+                <ul class="pagination" id="pagination"></ul>
             </div>
         </div>
     </div>
@@ -1793,6 +1946,13 @@ try {
         let currentBookingId = null;
         let allBookings = [];
 
+        // 分頁相關變數
+        let currentPage = 1;
+        const itemsPerPage = 10;
+        let sortField = 'booking_id';
+        let sortDirection = 'asc';
+        let filteredBookings = [];
+
         // 初始化所有 Modal
         function initializeModals() {
             console.log('Initializing modals...'); // 除錯用
@@ -1906,13 +2066,11 @@ try {
                 const response = await axios.get('/CampExplorer/owner/api/booking/get_bookings.php');
                 if (response.data.success) {
                     allBookings = response.data.bookings;
+                    filteredBookings = [...allBookings];
                     currentBookingData = {};
-                    
-                    // 更新統計數據
                     updateTotalStats();
-                    
-                    // 渲染訂單列表
-                    renderBookings(allBookings);
+                    updatePagination();
+                    renderBookings(getCurrentPageBookings());
                 }
             } catch (error) {
                 console.error('Error loading bookings:', error);
@@ -2088,6 +2246,204 @@ try {
                     card.classList.add('active');
                 }
             });
+        }
+
+        // 搜尋功能增強
+        function handleSearch() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+            
+            filteredBookings = allBookings.filter(booking => {
+                // 移除價格中的所有非數字字符（包括 NT$ 和逗號）
+                const unitPrice = parseFloat(booking.unit_price.toString().replace(/[^0-9.-]+/g, ''));
+                const totalPrice = parseFloat(booking.total_price.toString().replace(/[^0-9.-]+/g, ''));
+                
+                // 將搜尋詞也清理為純數字（如果是數字的話）
+                const searchNumber = parseFloat(searchTerm.replace(/[^0-9.-]+/g, ''));
+                const isNumericSearch = !isNaN(searchNumber);
+
+                // 價格範圍搜尋（支援大於、小於、等於）
+                let priceMatch = false;
+                if (isNumericSearch) {
+                    if (searchTerm.startsWith('>=')) {
+                        priceMatch = unitPrice >= searchNumber || totalPrice >= searchNumber;
+                    } else if (searchTerm.startsWith('<=')) {
+                        priceMatch = unitPrice <= searchNumber || totalPrice <= searchNumber;
+                    } else if (searchTerm.startsWith('>')) {
+                        priceMatch = unitPrice > searchNumber || totalPrice > searchNumber;
+                    } else if (searchTerm.startsWith('<')) {
+                        priceMatch = unitPrice < searchNumber || totalPrice < searchNumber;
+                    } else {
+                        // 精確匹配或包含匹配
+                        priceMatch = 
+                            unitPrice === searchNumber || 
+                            totalPrice === searchNumber ||
+                            unitPrice.toString().includes(searchTerm) || 
+                            totalPrice.toString().includes(searchTerm);
+                    }
+                }
+
+                // 狀態搜尋轉換（支援中文搜尋）
+                const statusMap = {
+                    '待確認': 'pending',
+                    '已確認': 'confirmed',
+                    '已取消': 'cancelled'
+                };
+                const searchStatus = statusMap[searchTerm] || searchTerm;
+
+                // 一般文字搜尋
+                const textMatch = 
+                    booking.booking_id.toString().includes(searchTerm) ||
+                    booking.activity_name.toLowerCase().includes(searchTerm) ||
+                    booking.spot_name.toLowerCase().includes(searchTerm) ||
+                    booking.user_name.toLowerCase().includes(searchTerm) ||
+                    booking.status.toLowerCase().includes(searchStatus) ||
+                    booking.quantity.toString().includes(searchTerm);
+
+                return textMatch || priceMatch;
+            });
+            
+            currentPage = 1;
+            updatePagination();
+            renderBookings(getCurrentPageBookings());
+        }
+
+        // 更新搜尋框提示文字
+
+        // 排序功能
+        function sortTable(field) {
+            if (sortField === field) {
+                sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortField = field;
+                sortDirection = 'asc';
+            }
+            
+            filteredBookings.sort((a, b) => {
+                let valueA = a[field];
+                let valueB = b[field];
+                
+                // 數字類型特殊處理
+                if (field === 'unit_price' || field === 'total_price' || field === 'quantity') {
+                    valueA = parseFloat(valueA);
+                    valueB = parseFloat(valueB);
+                }
+                
+                if (valueA < valueB) return sortDirection === 'asc' ? -1 : 1;
+                if (valueA > valueB) return sortDirection === 'asc' ? 1 : -1;
+                return 0;
+            });
+            
+            renderBookings(getCurrentPageBookings());
+        }
+
+        // 獲取當前頁面的訂單
+        function getCurrentPageBookings() {
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            return filteredBookings.slice(startIndex, endIndex);
+        }
+
+        // 更新分頁控制項
+        function updatePagination() {
+            const totalPages = Math.ceil(filteredBookings.length / itemsPerPage);
+            const startIndex = (currentPage - 1) * itemsPerPage + 1;
+            const endIndex = Math.min(startIndex + itemsPerPage - 1, filteredBookings.length);
+            
+            document.getElementById('startIndex').textContent = startIndex;
+            document.getElementById('endIndex').textContent = endIndex;
+            document.getElementById('totalItems').textContent = filteredBookings.length;
+            
+            const pagination = document.getElementById('pagination');
+            pagination.innerHTML = '';
+            
+            // 上一頁按鈕
+            const prevLi = document.createElement('li');
+            const isFirstPage = currentPage === 1;
+            prevLi.className = `page-item ${isFirstPage ? 'disabled' : ''}`;
+            prevLi.innerHTML = `
+                <a class="page-link ${isFirstPage ? 'text-muted' : ''}" 
+                   href="javascript:void(0)" 
+                   onclick="return changePage(${currentPage - 1}, event)">
+                    <i class="bi bi-chevron-left"></i> 上一頁
+                </a>`;
+            pagination.appendChild(prevLi);
+            
+            // 頁碼按鈕
+            let startPage = Math.max(1, currentPage - 2);
+            let endPage = Math.min(totalPages, startPage + 4);
+            
+            if (endPage - startPage < 4) {
+                startPage = Math.max(1, endPage - 4);
+            }
+            
+            // 第一頁和省略號
+            if (startPage > 1) {
+                pagination.appendChild(createPageItem(1));
+                if (startPage > 2) {
+                    const ellipsis = document.createElement('li');
+                    ellipsis.className = 'page-item disabled';
+                    ellipsis.innerHTML = '<span class="page-link">...</span>';
+                    pagination.appendChild(ellipsis);
+                }
+            }
+            
+            // 中間頁碼
+            for (let i = startPage; i <= endPage; i++) {
+                pagination.appendChild(createPageItem(i));
+            }
+            
+            // 最後頁和省略號
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    const ellipsis = document.createElement('li');
+                    ellipsis.className = 'page-item disabled';
+                    ellipsis.innerHTML = '<span class="page-link">...</span>';
+                    pagination.appendChild(ellipsis);
+                }
+                pagination.appendChild(createPageItem(totalPages));
+            }
+            
+            // 下一頁按鈕
+            const nextLi = document.createElement('li');
+            const isLastPage = currentPage === totalPages;
+            nextLi.className = `page-item ${isLastPage ? 'disabled' : ''}`;
+            nextLi.innerHTML = `
+                <a class="page-link ${isLastPage ? 'text-muted' : ''}" 
+                   href="javascript:void(0)" 
+                   onclick="return changePage(${currentPage + 1}, event)">
+                    下一頁 <i class="bi bi-chevron-right"></i>
+                </a>`;
+            pagination.appendChild(nextLi);
+        }
+
+        // 創建分頁按鈕
+        function createPageItem(pageNumber) {
+            const li = document.createElement('li');
+            li.className = `page-item ${currentPage === pageNumber ? 'active' : ''}`;
+            li.innerHTML = `
+                <a class="page-link" 
+                   href="javascript:void(0)" 
+                   onclick="changePage(${pageNumber}, event)">
+                    ${pageNumber}
+                </a>`;
+            return li;
+        }
+
+        // 切換頁面
+        function changePage(page, event) {
+            // 阻止所有預設行為
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            
+            if (page < 1 || page > Math.ceil(filteredBookings.length / itemsPerPage)) return;
+            
+            currentPage = page;
+            updatePagination();
+            renderBookings(getCurrentPageBookings());
+            
+            return false; // 確保不會觸發任何預設行為
         }
     </script>
 </body>
