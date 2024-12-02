@@ -214,7 +214,7 @@ try {
         background: linear-gradient(135deg, #9D91A9 0%, #AEA3B9 100%);
     }
 
-    /* 圖標圓圈樣式優化 */
+    /* 圖標圓圈樣��優化 */
     .icon-circle {
         height: 60px;
         width: 60px;
@@ -447,7 +447,7 @@ try {
         color: #5B8A5B;
     }
 
-    /* 活動內容樣式 */
+    /* 活���內容樣式 */
     .timeline-content {
         background: white;
         border-radius: 8px;
@@ -504,7 +504,7 @@ try {
         box-shadow: 0 0 0 2px var(--morandi-blue-light);
     }
 
-    /* 活動內容容器 */
+    /* 活動內容��器 */
     .timeline-content {
         background: rgba(255, 255, 255, 0.5);
         border-radius: 8px;
@@ -546,7 +546,7 @@ try {
         background: var(--morandi-blue);
     }
 
-    /* 活動圖標樣式 */
+    /* 活動��標樣式 */
     .activity-icon {
         width: 32px;
         height: 32px;
@@ -637,12 +637,12 @@ try {
     }
 
     .btn-group .btn.active {
-        background-image: linear-gradient(to top, #0ba360 0%, #3cba92 100%);
+        background-color: #6B7A8F;
         color: #ffffff;
-        /* border-color: #6B7A8F; */
+        border-color: #6B7A8F;
     }
 
-    /* 動畫效果 */
+    /* 動畫��果 */
     @keyframes fadeInUp {
         from {
             opacity: 0;
@@ -774,61 +774,45 @@ try {
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     }
 
-    /* 莫蘭迪按鈕樣式 */
+    /* 莫蘭���按鈕樣式 */
     .btn-monofondi-sage {
-        /* background-color: var(--monofondi-sage); */
-        background-image: linear-gradient(to top, #37ecba 0%, #72afd3 100%);
+        background-color: var(--monofondi-sage);
         color: white;
-        text-shadow: 1px 1px 2px rgba(0,0,0,.3);
     }
 
     .btn-monofondi-blue {
-        /* background-color: var(--monofondi-blue); */
-        background-image: linear-gradient(to right, #eea2a2 0%, #bbc1bf 19%, #57c6e1 42%, #b49fda 79%, #7ac5d8 100%);
+        background-color: var(--monofondi-blue);
         color: white;
-        text-shadow: 1px 1px 2px rgba(0,0,0,.3);
     }
 
     .btn-monofondi-gray {
-        /* background-color: var(--monofondi-gray); */
-        background: linear-gradient(to top, #37ecba 0%, #72afd3 100%);
+        background-color: var(--monofondi-gray);
         color: white;
-        text-shadow: 1px 1px 2px rgba(0,0,0,.3);
     }
 
     .btn-monofondi-green {
-        /* background-color: var(--monofondi-green); */
-        background: linear-gradient(to right, #f78ca0 0%, #f9748f 19%, #fd868c 60%, #fe9a8b 100%);
+        background-color: var(--monofondi-green);
         color: white;
-        text-shadow: 1px 1px 2px rgba(0,0,0,.3);
     }
 
     .btn-monofondi-sand {
-        /* background-color: var(--monofondi-sand); */
-        background: linear-gradient(to right, #e4afcb 0%, #b8cbb8 0%, #b8cbb8 0%, #e2c58b 30%, #c2ce9c 64%, #7edbdc 100%);
+        background-color: var(--monofondi-sand);
         color: white;
-        text-shadow: 1px 1px 2px rgba(0,0,0,.3);
     }
 
     .btn-monofondi-rose {
-        /* background-color: var(--monofondi-rose); */
-        background: linear-gradient(to top, #5ee7df 0%, #b490ca 100%);
+        background-color: var(--monofondi-rose);
         color: white;
-        text-shadow: 1px 1px 2px rgba(0,0,0,.3);
     }
 
     .btn-monofondi-purple {
-        /* background-color: var(--monofondi-purple); */
-        background: linear-gradient(to top, #9795f0 0%, #fbc8d4 100%);
+        background-color: var(--monofondi-purple);
         color: white;
-        text-shadow: 1px 1px 2px rgba(0,0,0,.3);
     }
 
     .btn-monofondi-blue-gray {
-        /* background-color: var(--monofondi-blue-gray); */
-        background: linear-gradient(120deg, #a6c0fe 0%, #f68084 100%);
+        background-color: var(--monofondi-blue-gray);
         color: white;
-        text-shadow: 1px 1px 2px rgba(0,0,0,.3);
     }
 
     /* 按鈕懸停效果 */
@@ -1029,50 +1013,42 @@ try {
 
     /* 卡片漸層背景 - 更強的視覺效果 */
     .card.bg-morandi-blue-gradient {
-        /* background: linear-gradient(135deg, #7A90A8 0%, #A8B9CC 100%); */
-        background: linear-gradient(120deg, #a6c0fe 0%, #f68084 100%);
+        background: linear-gradient(135deg, #7A90A8 0%, #A8B9CC 100%);
         color: white;
     }
 
     .card.bg-morandi-sage-gradient {
-        /* background: linear-gradient(135deg, #8FA977 0%, #B3C7A1 100%); */
-        background: linear-gradient(to top, #5ee7df 0%, #b490ca 100%);
+        background: linear-gradient(135deg, #8FA977 0%, #B3C7A1 100%);
         color: white;
     }
 
     .card.bg-morandi-rose-gradient {
-        /* background: linear-gradient(135deg, #C69B97 0%, #E0BDB9 100%); */
-        background: linear-gradient(to right, #e4afcb 0%, #b8cbb8 0%, #b8cbb8 0%, #e2c58b 30%, #c2ce9c 64%, #7edbdc 100%);
+        background: linear-gradient(135deg, #C69B97 0%, #E0BDB9 100%);
         color: white;
     }
 
     .card.bg-morandi-purple-gradient {
-        /* background: linear-gradient(135deg, #9B8AA6 0%, #B8ABC0 100%); */
-        background: linear-gradient(to top, #37ecba 0%, #72afd3 100%);
+        background: linear-gradient(135deg, #9B8AA6 0%, #B8ABC0 100%);
         color: white;
     }
 
     .card.bg-morandi-sand-gradient {
-        /* background: linear-gradient(135deg, #C4A687 0%, #E0CCBA 100%); */
-        background: linear-gradient(to right, #f78ca0 0%, #f9748f 19%, #fd868c 60%, #fe9a8b 100%);
+        background: linear-gradient(135deg, #C4A687 0%, #E0CCBA 100%);
         color: white;
     }
 
     .card.bg-morandi-mint-gradient {
-        /* background: linear-gradient(135deg, #89B0A3 0%, #B1CCC3 100%); */
-        background: linear-gradient(to right, #74ebd5 0%, #9face6 100%);
+        background: linear-gradient(135deg, #89B0A3 0%, #B1CCC3 100%);
         color: white;
     }
 
     .card.bg-morandi-mauve-gradient {
-        /* background: linear-gradient(135deg, #A68E9B 0%, #C7B9C1 100%); */
-        background: linear-gradient(to top, #9795f0 0%, #fbc8d4 100%);
+        background: linear-gradient(135deg, #A68E9B 0%, #C7B9C1 100%);
         color: white;
     }
 
     .card.bg-morandi-gray-gradient {
-        /* background: linear-gradient(135deg, #8E9CAA 0%, #B5BFC9 100%); */
-        background-image: linear-gradient(to right, #eea2a2 0%, #bbc1bf 19%, #57c6e1 42%, #b49fda 79%, #7ac5d8 100%);
+        background: linear-gradient(135deg, #8E9CAA 0%, #B5BFC9 100%);
         color: white;
     }
 
@@ -1097,7 +1073,6 @@ try {
     .card[class*="-gradient"] h6,
     .card[class*="-gradient"] small {
         color: white;
-        text-shadow: 1px 1px 2px rgba(0,0,0,.3);
     }
 
     .card[class*="-gradient"] small {
@@ -1786,21 +1761,6 @@ try {
         border-left: 2px solid rgba(52, 152, 219, 0.3);
         /* 調整邊框透明度 */
     }
-    .bg-morandi-teal{
-        background-image: linear-gradient(to top, #ecba82 0%, #ecba82 100%);
-        color: #fff;
-    }
-    .card-body .table thead{
-        background-image:none;
-    }
-    .card-header{
-        background-image: linear-gradient(to top, #0ba360 0%, #3cba92 100%)!important;
-        color: #fff;
-    }
-    .card-header.d-flex .btn-group .btn.active{
-        background-image: linear-gradient(to top, #fff 0%, #fff 100%);
-        color:green;
-    }
 </style>
 
 
@@ -2329,7 +2289,7 @@ try {
     // 匯出功能的基本框架
     function exportDashboardData() {
         try {
-            // 收集所有統計數據
+            // 收集���有統計數據
             const statsData = {
                 '用戶統計': {
                     '總用戶數': document.querySelector('.bg-morandi-blue-gradient h2')?.textContent,
@@ -2372,7 +2332,7 @@ try {
                 throw new Error('無法獲取統計數據');
             }
 
-            // 下載檔案
+            // 下載檔���
             const blob = new Blob(['\ufeff' + csv], {
                 type: 'text/csv;charset=utf-8;'
             });
@@ -2531,7 +2491,7 @@ try {
                 });
             }
 
-            // 營地分布圖
+            // 營地���布圖
             const distributionCtx = document.getElementById('campDistributionChart');
             if (distributionCtx) {
                 charts.distribution = new Chart(distributionCtx.getContext('2d'), {
@@ -2541,11 +2501,11 @@ try {
                         datasets: [{
                             data: [30, 25, 20, 15, 10],
                             backgroundColor: [
-                                '#72afd3',  // 莫蘭迪藍
-                                '#c2ce9c',  // 莫蘭迪灰綠
-                                '#f78ca0',  // 莫蘭迪玫瑰
-                                '#b490ca',  // 莫蘭迪沙
-                                '#a6c0fe'   // 莫蘭迪藍綠
+                                '#7A90A8',  // 莫蘭迪藍
+                                '#8FA977',  // 莫蘭迪灰綠
+                                '#C69B97',  // 莫蘭迪玫瑰
+                                '#C4A687',  // 莫蘭迪沙
+                                '#A3C5C9'   // 莫蘭迪藍綠
                             ],
                             borderWidth: 2,
                             borderColor: '#ffffff'
@@ -2581,7 +2541,7 @@ try {
                                 color: '#ffffff',
                                 font: {
                                     weight: 'bold',
-                                    size: 14
+                                    size: 12
                                 },
                                 textAlign: 'center',
                                 textStrokeColor: '#000000',
@@ -2701,7 +2661,7 @@ try {
         // 移原有的 preventDefault AJAX 
         document.querySelectorAll('.quick-action').forEach(button => {
             button.addEventListener('click', function(e) {
-                // 不阻止默認行為讓連結正常跳轉
+                // 不阻止默認行為��讓連結正常跳轉
                 const url = this.getAttribute('href');
                 window.location.href = url;
             });
@@ -2746,7 +2706,7 @@ try {
         element.classList.remove('loading');
     }
 
-    // 新增資料更新通知
+    // 新增資���更新通知
     function showUpdateNotification(message) {
         const toast = new bootstrap.Toast(document.getElementById('liveToast'));
         document.querySelector('#liveToast .toast-body').textContent = message;
@@ -2808,7 +2768,7 @@ try {
         animateTimeline();
     });
 
-    // 過濾活動
+    // 過濾活��
     function filterActivities(type) {
         const items = document.querySelectorAll('.timeline-item');
         items.forEach(item => {
@@ -2866,7 +2826,7 @@ try {
         const isCollapsed = content.style.maxHeight === '0px' || !content.style.maxHeight;
 
         if (isCollapsed) {
-            // 展開
+            // 展���
             content.style.maxHeight = `${content.scrollHeight}px`;
             content.style.opacity = '1';
             icon.classList.replace('fa-chevron-up', 'fa-chevron-down');
@@ -2881,7 +2841,7 @@ try {
         updateMainButtonState();
     }
 
-    // 新增：更新主按鈕狀態的函數
+    // 新增：更新主按鈕狀��的函數
     function updateMainButtonState() {
         const allContents = document.querySelectorAll('.timeline-content-body');
         const mainButton = document.getElementById('collapseAllBtn');
@@ -2897,7 +2857,7 @@ try {
             mainButton.title = '全部展開';
         } else if (allExpanded) {
             mainIcon.classList.replace('fa-expand-alt', 'fa-compress-alt');
-            mainButton.title = '全部折疊';
+            mainButton.title = '全部��疊';
         }
     }
 
@@ -2941,7 +2901,7 @@ try {
             button.addEventListener('click', function() {
                 // 移除所有按鈕的 active 狀態
                 filterButtons.forEach(btn => btn.classList.remove('active'));
-                // 添加當前按鈕的 active 狀態
+                // 添加當前按鈕的 active ���態
                 this.classList.add('active');
 
                 // 執行篩選
@@ -2987,7 +2947,7 @@ try {
             }
         });
 
-        // 如果沒有顯示的項目，顯示無資料訊息
+        // 如果沒有顯示的項目，顯示��示訊息
         const visibleActivities = document.querySelectorAll('.timeline-item[style="display: none;"]');
         const timelineContainer = document.querySelector('.timeline');
         const noDataMessage = timelineContainer.querySelector('.no-data-message');
@@ -3005,9 +2965,9 @@ try {
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-        // 修改：添加元素存在性檢查
+        // 修改：添��元素存在性检查
         const timeline = document.querySelector('.timeline');
-        const toggleBtn = document.getElementById('collapseAllBtn'); // 更正ID名稱
+        const toggleBtn = document.getElementById('collapseAllBtn'); // 更正ID名称
         const filterBtns = document.querySelectorAll('[data-filter]');
 
         // 只在元素存在时执行相关代码
@@ -3033,7 +2993,7 @@ try {
         }
     });
 
-    // 修改：移除重複的 DOMContentLoaded 事件監聽器
+    // 修��：移除重复��事件监听器
     // 删除或合并重复的 DOMContentLoaded 事件处理程序
 
     // 将所有辅助函数移到全局作用域
@@ -3247,6 +3207,6 @@ try {
     // 每 30 秒檢查一次
     setInterval(checkPendingChanges, 30000);
 
-    // 頁面載入時先執行一次
+    // 頁面載入��先執行一次
     document.addEventListener('DOMContentLoaded', checkPendingChanges);
 </script>
