@@ -246,6 +246,53 @@ try {
                 object-fit: cover;
             }
         }
+        .header-style{
+            background:#fff;
+            padding: 15px;
+            border-radius: 30px 30px 0 0;
+            box-shadow: 0px 18px 10px rgba(0, 0, 0, 0.1);
+        }
+        table{
+            box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.1);
+        }
+        table thead{
+            color:#fff;
+        }
+        tbody{
+            background:#fff;
+        }
+        .container{
+            padding: 4rem;
+        padding-top: 1rem;
+        max-width: 100%;
+        margin: 0;
+        padding-bottom: 1rem; 
+        }
+        .bg-success{
+            background-color: transparent !important;
+            border: 1px solid #0080005c;
+            color: #008000 !important;
+            padding: 7px 23px;
+        }
+        .btn-secondary{
+            color: #6c757d;
+            background-color: #6c757d38;
+            border: 0;
+        }
+        .btn.btn-primary{
+            background-color: #ecba82;
+            border: 0;
+        }
+        .badge.bg-secondary{
+            background-color: transparent !important;
+            border: 1px solid #ff000040;
+            color: #db0000 !important;
+            padding: 7px 23px;
+        }
+        tbody tr{
+            border-bottom-width: 1px;
+        }
+        
     </style>
 </head>
 
@@ -256,8 +303,8 @@ try {
     <!-- 導入modal -->
 
     <div class="container mt-5">
-        <h1 class="text-center mb-4">商品列表</h1>
-        <div class="d-flex justify-content-between">
+        <h1 class="mb-4">商品列表</h1>
+        <div class="d-flex justify-content-between header-style">
             <div class="my-3">
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addProductModal">
                     新增商品
@@ -320,8 +367,8 @@ try {
             </div>
         </div>
         <!-- 顯示列表內容 -->
-        <table class="table table-striped table-bordered">
-            <thead class="table-dark">
+        <table class="table">
+            <thead class="">
                 <tr>
                     <th>ID</th>
                     <th>名稱</th>
@@ -339,23 +386,23 @@ try {
                 <?php if (!empty($products)): ?>
                     <?php foreach ($products as $product): ?>
                         <tr>
-                            <td><?= htmlspecialchars($product['id']) ?></td>
+                            <td class="px-3"><?= htmlspecialchars($product['id']) ?></td>
                             <td><?= htmlspecialchars($product['product_name']) ?></td>
                             <td><?= htmlspecialchars($product['category_name']) ?></td>
                             <td><?= htmlspecialchars($product['subcategory_name']) ?></td>
                             <td class="text-center smallImg">
                                 <img src="../uploads/products/img/<?= htmlspecialchars($product['img_path']) ?>" alt="">
                             </td>
-                            <td class="text-end">$<?= htmlspecialchars(number_format($product['price'])) ?></td>
-                            <td class="text-end"><?= htmlspecialchars($product['stock']) ?></td>
-                            <td class="text-end"><?= htmlspecialchars($product['created_at']) ?></td>
+                            <td class="px-2">$<?= htmlspecialchars(number_format($product['price'])) ?></td>
+                            <td class="px-2"><?= htmlspecialchars($product['stock']) ?></td>
+                            <td class="px-2"><?= htmlspecialchars($product['created_at']) ?></td>
                             <td class="text-center">
                                 <?= $product['status'] == 1 ? '<span class="badge bg-success">上架</span>' : '<span class="badge bg-secondary">下架</span>' ?>
                             </td>
                             <td class="text-center">
                                 <!-- 編輯按鈕 要傳送data-XX參數給JS -->
                                 <button
-                                    class="btn btn-warning btn-sm edit-btn"
+                                    class="btn btn-warning btn-sm edit-btn mx-3"
                                     data-id="<?= $product['id'] ?>"
                                     data-name="<?= htmlspecialchars($product['product_name']) ?>"
                                     data-price="<?= $product['price'] ?>"

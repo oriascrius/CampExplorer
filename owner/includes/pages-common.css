@@ -117,7 +117,8 @@ body::before {
 }
 
 .btn-primary:hover {
-  background-color: #7a8364;
+  background-color: transparent;
+  color: #546e7a;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(139, 148, 117, 0.3);
 }

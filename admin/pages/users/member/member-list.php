@@ -96,7 +96,7 @@ function translateGender($gender)
 
     <!-- 頁面標題和新增按鈕 -->
     <div class="d-flex justify-content-start align-items-center mb-4">
-        <h2 class="h1 mt-4 fw-bold me-5">會員管理</h2>
+        <h1 class="h1 mt-4 fw-bold me-5">會員管理</h1>
     </div>
     <div class="d-flex justify-content-between align-items-end flex-wrap">
         
@@ -792,11 +792,13 @@ document.querySelectorAll('.email').forEach(function (element) {
         background-color: #fff;
         padding: 15px;
         border-radius: 30px 30px 0 0;
+        box-shadow: 0px 18px 10px rgba(0, 0, 0, 0.1);
     }
     .card{
         padding: 0 15px;
         border: 0;
         border-radius: 0px 0px 30px 30px;
+        box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.1);
     }
     .table{
         border-radius: 0;
@@ -830,7 +832,7 @@ document.querySelectorAll('.email').forEach(function (element) {
         padding: 7px 23px;
     }
     .flex-wrap .mb-2.mb-md-0{
-        
+        margin-right: 15px;
     }
 
 </style>
