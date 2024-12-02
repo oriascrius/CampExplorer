@@ -363,7 +363,7 @@ tr{
 }
 </style>
 <div class="container-fluid">
-    <h1 class="page-title">營位審核管理</h1>
+    <h1 class="page-title">待審核營位管理</h1>
     
     <div class="card shadow-sm">
         <div class="card-body">

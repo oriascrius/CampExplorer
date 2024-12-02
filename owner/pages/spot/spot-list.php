@@ -615,7 +615,7 @@ require_once __DIR__ . '/../../../camping_db.php';
             align-items: center;
         }
 
-        /* 按鈕基本樣式 */
+        /* 按鈕基樣式 */
         .btn-action {
             padding: 0.4rem 1rem;
             border-radius: 6px;
@@ -818,6 +818,226 @@ require_once __DIR__ . '/../../../camping_db.php';
         .stat-card.selected .stat-icon {
             background-color: rgba(255, 255, 255, 0.2);
         }
+
+        /* 營位列表行 hover 效果 */
+        .spot-row {
+            transition: background-color 0.3s ease;
+        }
+
+        .spot-row:hover {
+            background-color: var(--camp-light);
+        }
+
+        /* 詳情彈窗樣式 */
+        .spot-detail-popup {
+            border-radius: 16px;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .spot-detail-header {
+            margin: 0 !important;
+            padding: 0.75rem 1rem !important;
+            background-color: var(--camp-primary);
+            color: white;
+        }
+
+        .spot-detail-title {
+            text-align: center;
+            padding: 0.25rem 0;
+        }
+
+        .spot-detail-title h2 {
+            margin: 0;
+            color: white;
+            font-size: 1.2rem;
+            line-height: 1.2;
+        }
+
+        .spot-id {
+            font-size: 0.8rem;
+            opacity: 0.8;
+            margin-top: 0.15rem;
+        }
+
+        .spot-detail-container {
+            padding: 1rem;
+        }
+
+        .spot-detail-grid {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .spot-image-section {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .spot-detail-image {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .image-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 0.5rem;
+            border-radius: 0 0 12px 12px;
+            text-align: center;
+            font-size: 0.875rem;
+        }
+
+        .info-group {
+            background: white;
+            border-radius: 12px;
+            padding: 1rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .info-title {
+            font-size: 1rem;
+            color: var(--camp-primary);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--camp-border);
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .info-item {
+            background: var(--camp-light);
+            padding: 0.75rem;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .info-item strong {
+            color: var(--camp-primary);
+            font-size: 0.875rem;
+        }
+
+        .info-item span {
+            font-size: 1rem;
+        }
+
+        .price-item {
+            grid-column: 1 / -1;
+        }
+
+        .price-value {
+            font-size: 1.25rem !important;
+            font-weight: bold;
+            color: var(--camp-primary);
+        }
+
+        .spot-description {
+            background: white;
+            border-radius: 12px;
+            padding: 1rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .description-content {
+            background: var(--camp-light);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 0;
+            min-height: 100px;
+            white-space: pre-wrap;
+        }
+
+        .status-container {
+            margin-top: 0.25rem;
+        }
+
+        .spot-detail-close {
+            top: 1.5rem !important;
+            right: 1.5rem !important;
+            color: white !important;
+        }
+
+        .spot-detail-close:hover {
+            color: var(--camp-light) !important;
+            transform: rotate(90deg);
+        }
+
+        /* 更新現有樣式 */
+        .spot-detail-title {
+            text-align: left;
+            padding: 0.25rem 0;
+        }
+
+        .spot-detail-title h2 {
+            margin: 0;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        /* 狀態相關樣式 */
+        .status-item {
+            text-align: center;
+        }
+
+        .status-container {
+            margin-top: 0.5rem;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* 圖片放大相關樣式 */
+        .full-screen-image {
+            max-height: 80vh;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
+        .image-popup {
+            background: transparent !important;
+            padding: 0 !important;
+        }
+
+        /* 移除 SweetAlert2 的預設背景 */
+        .swal2-popup.image-popup {
+            box-shadow: none;
+        }
+
+        /* 調整狀態標籤樣式 */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            margin: 0 auto;
+        }
+
+        /* 確保資訊項目內容置中 */
+        .info-item span {
+            text-align: center;
+            display: block;
+        }
+
+        /* 價格項目特別樣式 */
+        .price-value {
+            text-align: center !important;
+        }
     </style>
 </head>
 
@@ -916,11 +1136,10 @@ require_once __DIR__ . '/../../../camping_db.php';
                 if (response.data.success) {
                     const spots = response.data.spots;
                     spots.forEach(spot => {
-                        console.log('位資料:', {
+                        console.log('營位資料:', {
                             id: spot.spot_id,
                             name: spot.spot_name,
-                            application_status: spot.application_status,
-                            status: spot.status
+                            image_path: spot.image_path,
                         });
                     });
                     updateUI(spots);
@@ -948,24 +1167,32 @@ require_once __DIR__ . '/../../../camping_db.php';
         // 優化 UI 更新邏輯
         function updateUI(spots) {
             const spotList = document.querySelector('.spot-list tbody');
-            spotList.innerHTML = spots.map(spot => `
-                <tr>
-                    <td>
-                        <img src="${spot.image_path || '/CampExplorer/images/default-spot.jpg'}" 
-                             alt="${spot.spot_name}" 
-                             class="spot-image"
-                             onerror="this.src='/CampExplorer/images/default-spot.jpg'">
-                    </td>
-                    <td>
-                        <div class="fw-bold">${spot.spot_name}</div>
-                        <small class="text-muted">${spot.camp_name}</small>
-                    </td>
-                    <td>${spot.capacity} 人</td>
-                    <td>NT$ ${spot.price}</td>
-                    <td>${getStatusText(spot)}</td>
-                    <td>${getActionButtons(spot)}</td>
-                </tr>
-            `).join('');
+            spotList.innerHTML = spots.map(spot => {
+                let imagePath = spot.image_path && spot.image_path.trim() !== '' 
+                    ? (spot.image_path.includes('/CampExplorer/') 
+                        ? spot.image_path 
+                        : `/CampExplorer/${spot.image_path}`)
+                    : '/CampExplorer/images/default-spot.jpg';
+                    
+                return `
+                    <tr class="spot-row" style="cursor: pointer;" onclick="showSpotDetail(${JSON.stringify(spot).replace(/"/g, '&quot;')})">
+                        <td>
+                            <img src="${imagePath}" 
+                                 alt="${spot.spot_name}" 
+                                 class="spot-image"
+                                 onerror="this.onerror=null; this.src='/CampExplorer/images/default-spot.jpg';">
+                        </td>
+                        <td>
+                            <div class="fw-bold">${spot.spot_name}</div>
+                            <small class="text-muted">${spot.camp_name}</small>
+                        </td>
+                        <td>${spot.capacity} 人</td>
+                        <td>NT$ ${spot.price}</td>
+                        <td>${getStatusText(spot)}</td>
+                        <td onclick="event.stopPropagation();">${getActionButtons(spot)}</td>
+                    </tr>
+                `;
+            }).join('');
         }
 
         // 分離統計更新邏輯
@@ -1075,66 +1302,77 @@ require_once __DIR__ . '/../../../camping_db.php';
             }
         }
 
-        // 添加統計卡片點擊事件
-        function initializeStatCards() {
-            const statCards = document.querySelectorAll('.stat-card');
-            let currentFilter = 'total';
-            
-            statCards.forEach(card => {
-                card.addEventListener('click', function() {
-                    // 移除所有卡片的選中狀態
-                    statCards.forEach(c => c.classList.remove('selected'));
-                    
-                    // 獲取過濾類型
-                    const filterType = Array.from(this.classList)
-                        .find(cls => ['total', 'pending', 'approved', 'rejected', 'active', 'inactive']
-                        .includes(cls)) || 'total';
-                    
-                    // 如果點擊當前選中的卡片，重置為總覽
-                    if (currentFilter === filterType) {
-                        currentFilter = 'total';
-                        filterSpots('total');
-                    } else {
-                        // 選擇新的篩選條件
-                        currentFilter = filterType;
-                        this.classList.add('selected');
-                        filterSpots(filterType);
-                    }
-                });
-            });
-        }
-
-        // 修改 filterSpots 函數中的狀態判斷邏輯
+        // 修改 filterSpots 函數
         function filterSpots(filterType) {
+            console.log('Filtering by:', filterType);
+            
             const rows = document.querySelectorAll('#spot-list tbody tr');
             
             rows.forEach(row => {
-                const statusBadges = row.querySelectorAll('.status-badge');
-                const statusTexts = Array.from(statusBadges).map(badge => badge.textContent.trim());
+                const badges = row.querySelectorAll('.status-badge');
                 let show = false;
+
+                // 簡化的狀態檢查函數
+                const hasStatus = (status) => {
+                    return Array.from(badges).some(badge => 
+                        badge.textContent.trim().includes(status)
+                    );
+                };
 
                 switch(filterType) {
                     case 'total':
                         show = true;
                         break;
                     case 'pending':
-                        show = statusTexts.includes('審核中');
+                        show = hasStatus('審核中');
                         break;
                     case 'approved':
-                        show = statusTexts.includes('已通過') && !statusTexts.includes('不通過');
+                        show = hasStatus('已通過');
                         break;
                     case 'rejected':
-                        show = statusTexts.includes('不通過');
+                        show = hasStatus('不通過');
                         break;
                     case 'active':
-                        show = statusTexts.includes('已通過') && statusTexts.includes('使用中');
+                        show = hasStatus('使用中');
                         break;
                     case 'inactive':
-                        show = statusTexts.includes('已通過') && statusTexts.includes('停用中');
+                        show = hasStatus('停用中');
                         break;
                 }
                 
                 row.style.display = show ? '' : 'none';
+            });
+
+            // 更新統計卡片選中狀態
+            updateStatCardSelection(filterType);
+        }
+
+        // 更新統計卡片選中狀態
+        function updateStatCardSelection(filterType) {
+            const statCards = document.querySelectorAll('.stat-card');
+            statCards.forEach(card => {
+                card.classList.remove('selected');
+                if (card.classList.contains(filterType)) {
+                    card.classList.add('selected');
+                }
+            });
+        }
+
+        // 修改統計卡片的點擊事件處理
+        function initializeStatCards() {
+            const statCards = document.querySelectorAll('.stat-card');
+            
+            statCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    console.log('Stat card clicked:', this.className); // 調試用
+                    
+                    // 獲取過濾類型
+                    const filterTypes = ['total', 'pending', 'approved', 'rejected', 'active', 'inactive'];
+                    const filterType = filterTypes.find(type => this.classList.contains(type)) || 'total';
+                    
+                    // 執行過濾
+                    filterSpots(filterType);
+                });
             });
         }
 
@@ -1249,7 +1487,7 @@ require_once __DIR__ . '/../../../camping_db.php';
             }
         }
 
-        // 切換營位狀態（啟用/停用）
+        // 切營位狀態（啟用/停用）
         async function toggleSpotStatus(spotId, isActive) {
             try {
                 // 先顯示確認對話框
@@ -1357,7 +1595,7 @@ require_once __DIR__ . '/../../../camping_db.php';
             return '';
         }
 
-        // 確保狀態標籤生成正確
+        // 確保狀態標籤生成正確的 class
         function getStatusText(spot) {
             let statusHtml = '<div class="status-container">';
             
@@ -1365,25 +1603,23 @@ require_once __DIR__ . '/../../../camping_db.php';
             const appStatus = Number(spot.application_status);
             const opStatus = Number(spot.status);
             
-            // 先添加審核狀態
+            // 添加審核狀態標籤
             switch(appStatus) {
                 case 0:
-                    statusHtml += '<span class="status-badge pending">審核中</span>';
+                    statusHtml += '<span class="status-badge review pending">審核中</span>';
                     break;
                 case 1:
-                    statusHtml += '<span class="status-badge approved">已通過</span>';
-                    // 如果審核通過，明確添加營運狀態標籤
-                    if (opStatus === 1) {
-                        statusHtml += '<span class="status-badge active">使用中</span>';
-                    } else {
-                        statusHtml += '<span class="status-badge inactive">停用中</span>';
-                    }
+                    statusHtml += '<span class="status-badge review approved">已通過</span>';
+                    // 如果審核通過，添加營運狀態標籤
+                    statusHtml += opStatus === 1 
+                        ? '<span class="status-badge operation active">使用中</span>'
+                        : '<span class="status-badge operation inactive">停用中</span>';
                     break;
                 case 2:
-                    statusHtml += '<span class="status-badge rejected">不通過</span>';
+                    statusHtml += '<span class="status-badge review rejected">不通過</span>';
                     break;
                 default:
-                    statusHtml += '<span class="status-badge unknown">未知狀態</span>';
+                    statusHtml += '<span class="status-badge review unknown">未知狀態</span>';
             }
             
             statusHtml += '</div>';
@@ -1442,12 +1678,152 @@ require_once __DIR__ . '/../../../camping_db.php';
                 <button class="btn btn-sm btn-action ${isActive ? 'btn-deactivate' : 'btn-activate'}"
                         onclick="toggleSpotStatus(${spot.spot_id}, ${!isActive})"
                         ${!isApproved ? 'disabled' : ''}
-                        title="${isActive ? '停用營位' : '啟用營位'}">
+                        title="${isActive ? '停用營' : '啟用營位'}">
                     ${isActive ? '停用' : '啟用'}
                 </button>`;
             
             buttonsHtml += '</div>';
             return buttonsHtml;
+        }
+
+        // 添加新的 showSpotDetail 函數
+        async function showSpotDetail(spot) {
+            try {
+                const response = await fetch('/CampExplorer/owner/api/spots/get_spot.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        spot_id: spot.spot_id
+                    })
+                });
+
+                const data = await response.json();
+                if (!data.success) {
+                    throw new Error(data.message);
+                }
+
+                const spotDetail = data.spot;
+                console.log('spotDetail:', spotDetail); // 調試用
+
+                // 取得審核狀態文字
+                const getReviewStatusBadge = (status) => {
+                    const statusMap = {
+                        '0': '<span class="status-badge review pending">審核中</span>',
+                        '1': '<span class="status-badge review approved">已通過</span>',
+                        '2': '<span class="status-badge review rejected">不通過</span>'
+                    };
+                    return statusMap[status] || '<span class="status-badge unknown">未知狀態</span>';
+                };
+
+                // 取得營運狀態文字
+                const getOperationStatusBadge = (status) => {
+                    return status === '1' 
+                        ? '<span class="status-badge operation active">使用中</span>'
+                        : '<span class="status-badge operation inactive">停用中</span>';
+                };
+
+                await Swal.fire({
+                    title: `<div class="spot-detail-title">
+                                <h2>${spotDetail.spot_name || spot.spot_name}</h2>
+                            </div>`,
+                    html: `
+                        <div class="spot-detail-container">
+                            <!-- 上方圖片區 -->
+                            <div class="spot-image-section">
+                                <img src="${spot.image_path || '/CampExplorer/images/default-spot.jpg'}" 
+                                     alt="${spotDetail.spot_name}" 
+                                     class="spot-detail-image"
+                                     onclick="showFullImage(this.src)"
+                                     style="cursor: pointer;">
+                                <div class="image-info">
+                                    <i class="bi bi-camera"></i> 點擊查看大圖
+                                </div>
+                            </div>
+                            
+                            <!-- 下方資訊區 -->
+                            <div class="spot-info-section">
+                                <!-- 基本資訊 -->
+                                <div class="info-group">
+                                    <h3 class="info-title"><i class="bi bi-info-circle"></i> 基本資訊</h3>
+                                    <div class="info-grid">
+                                        <div class="info-item">
+                                            <strong>營地名稱</strong>
+                                            <span>${spot.camp_name || '未設定'}</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <strong>容納人數</strong>
+                                            <span>${spotDetail.capacity} 人</span>
+                                        </div>
+                                        <div class="info-item price-item">
+                                            <strong>價格</strong>
+                                            <span class="price-value">NT$ ${spotDetail.price}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 狀態資訊 -->
+                                <div class="info-group">
+                                    <h3 class="info-title"><i class="bi bi-toggle2-on"></i> 狀態資訊</h3>
+                                    <div class="info-grid">
+                                        <div class="info-item status-item">
+                                            <strong>審核狀態</strong>
+                                            <div class="status-container">
+                                                ${getReviewStatusBadge(spotDetail.application_status)}
+                                            </div>
+                                        </div>
+                                        <div class="info-item status-item">
+                                            <strong>營運狀態</strong>
+                                            <div class="status-container">
+                                                ${getOperationStatusBadge(spotDetail.status)}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 描述區域 -->
+                                <div class="spot-description">
+                                    <h3 class="info-title"><i class="bi bi-card-text"></i> 營位描述</h3>
+                                    <p class="description-content">${spotDetail.description || '暫無描述'}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `,
+                    width: '800px',
+                    showCloseButton: true,
+                    showConfirmButton: false,
+                    customClass: {
+                        container: 'spot-detail-modal',
+                        popup: 'spot-detail-popup',
+                        closeButton: 'spot-detail-close',
+                        title: 'spot-detail-header'
+                    }
+                });
+            } catch (error) {
+                console.error('載入營位詳情失敗:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: '錯誤',
+                    text: error.message || '載入營位詳情時發生錯誤',
+                    confirmButtonColor: '#4C6B74'
+                });
+            }
+        }
+
+        // 修改圖片放大功能
+        function showFullImage(imageSrc) {
+            Swal.fire({
+                imageUrl: imageSrc,
+                showConfirmButton: false,
+                width: 'auto',
+                padding: 0,
+                background: 'transparent',
+                customClass: {
+                    image: 'full-screen-image',
+                    popup: 'image-popup'
+                }
+            });
         }
     </script>
 </body>

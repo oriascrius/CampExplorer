@@ -22,9 +22,11 @@ try {
         csa.description,
         ca.name AS camp_name,
         ca.status AS application_status,
-        ca.operation_status
+        ca.operation_status,
+        csi.image_path
         FROM camp_spot_applications csa
         JOIN camp_applications ca ON csa.application_id = ca.application_id
+        LEFT JOIN camp_spot_images csi ON csa.spot_id = csi.spot_id
         WHERE ca.owner_id = :owner_id";
 
     $stmt = $db->prepare($sql);

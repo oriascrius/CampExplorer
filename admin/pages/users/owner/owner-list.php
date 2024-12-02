@@ -16,6 +16,7 @@ try {
     $p = isset($_GET['p']) ? (int)$_GET['p'] : 1;
     $perPage = 7; // 每頁顯示的營主數量
     $offset = max(0, ($p - 1) * $perPage);
+    $search = isset($_GET['search']) ? $_GET['search'] : '';
 
     // 防止 SQL 注入
     if (!in_array($sort_field, $allowed_fields)) {
@@ -30,11 +31,17 @@ try {
 
     // 獲取營主列表，並進行分頁
     $sql = "SELECT * FROM owners WHERE 1=1";
+    if (!empty($search)) {
+        $sql .= " AND (id LIKE :search OR name LIKE :search OR phone LIKE :search OR address  LIKE :search OR company_name LIKE :search)";
+    }
     if (isset($_GET['hideStatusZero']) && $_GET['hideStatusZero'] == '1') {
         $sql .= " AND status != 0";
     }
     $sql .= " ORDER BY {$orderBy} LIMIT :perPage OFFSET :offset";
     $stmt = $db->prepare($sql);
+    if (!empty($search)) {
+        $stmt->bindValue(':search', '%' . $search . '%', PDO::PARAM_STR);
+    }
     $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
     $stmt->bindValue(':perPage', $perPage, PDO::PARAM_INT);
     $stmt->execute();
@@ -42,10 +49,17 @@ try {
 
     // 獲取營主總數
     $totalSql = "SELECT COUNT(*) FROM owners WHERE 1=1";
+    if (!empty($search)) {
+        $totalSql .= " AND (id LIKE :search OR name LIKE :search OR phone LIKE :search OR address LIKE :search OR company_name LIKE :search)";
+    }
     if (isset($_GET['hideStatusZero']) && $_GET['hideStatusZero'] == '1') {
         $totalSql .= " AND status != 0";
     }
-    $totalStmt = $db->query($totalSql);
+    $totalStmt = $db->prepare($totalSql);
+    if (!empty($search)) {
+        $totalStmt->bindValue(':search', '%' . $search . '%', PDO::PARAM_STR);
+    }
+    $totalStmt->execute();
     $totalOwners = $totalStmt->fetchColumn();
     $totalPages = ceil($totalOwners / $perPage);
 
@@ -91,28 +105,46 @@ function getFieldLabel($field) {
         
         <div class="d-flex flex-column align-items-start">
                      <!-- 勾選框 -->
-<div class="form-check">
+        <div class="d-flex align-items-center mb-2">
+<label for="fieldSelect" class="fw-bold mb-0 ">排序方式：</label><div class="form-check me-3">
+
     <input class="form-check-input" type="checkbox" value="" id="hideStatusZero" <?= isset($_GET['hideStatusZero']) ? 'checked' : '' ?>>
     <label class="form-check-label" for="hideStatusZero">
     隱藏 停用 <?= $statusZeroCount ?>名營主
     </label>
 </div>
-            <label for="fieldSelect" class="mb-2 fw-bold ">排序方式：</label>
-            <div class="d-flex">
-                <select id="fieldSelect" class="form-select me-2 mb-2 mb-md-0 ">
-                    <option value="">--未選擇--</option>
-                    <?php foreach ($allowed_fields as $field): ?>
-                        <option value="<?= $field ?>"><?= getFieldLabel($field) ?></option>
-                    <?php endforeach; ?>
-                </select>
-                <select id="orderSelect" class="form-select">
-                    <option value="">--未選擇--</option>
-                    <option value="asc">升序</option>
-                    <option value="desc">降序</option>
-                </select>
+        </div>
+
+            <div class="d-flex flex-wrap">
+                <div class="mb-2 mb-md-0">
+                    <select id="fieldSelect" class="form-select fixed-width">
+                        <option value="">--未選擇--</option>
+                        <?php foreach ($allowed_fields as $field): ?>
+                            <option value="<?= $field ?>"><?= getFieldLabel($field) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="mb-2 mb-md-0">
+                    <select id="orderSelect" class="form-select fixed-width">
+                        <option value="">--未選擇--</option>
+                        <option value="asc">升序</option>
+                        <option value="desc">降序</option>
+                    </select>
+                </div>
+                <div class="mb-2 mb-md-0">
+                    <form class="d-flex" method="GET" action="">
+                        <input type="hidden" name="page" value="owners_list">
+                        <input type="text" class="form-control fixed-width me-1" name="search" placeholder="搜尋營主" value="<?= htmlspecialchars($search) ?>">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
             </div>
         </div>
-    </div>
+   
 
     <!-- 營主列表 -->
     <div class="card">
@@ -191,7 +223,7 @@ function getFieldLabel($field) {
             ?>
             <li class="page-item <?php if ($p == 1) echo "disabled"; ?>">
                 <a class="page-link" href="?<?= $queryString ?>&p=<?= $prevPage ?>" aria-label="Previous">
-                    <span aria-hidden="true">&laquo;</span>
+                    <span aria-hidden="true">&lt;</span>
                 </a>
             </li>
 
@@ -208,7 +240,7 @@ function getFieldLabel($field) {
             ?>
             <li class="page-item <?php if ($p == $totalPages) echo "disabled"; ?>">
                 <a class="page-link" href="?<?= $queryString ?>&p=<?= $totalPages ?>" aria-label="End">
-                    <span aria-hidden="true">&raquo;</span>
+                    <span aria-hidden="true">&gt;</span>
                 </a>
             </li>
         </ul>

@@ -42,25 +42,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_SERVER['HTTP_X_REQUESTED_W
                 throw new Exception('帳號或密碼錯誤');
             }
 
-            // 直接比對密碼
-            if ($password !== $admin['password']) {
+            // 使用 MD5 加密比對密碼
+            if (md5($password) === $admin['password']) {
+                // 更新登入資訊
+                $stmt = $conn->prepare("UPDATE admins SET login_at = NOW(), login_ip = ? WHERE id = ?");
+                $stmt->execute([$_SERVER['REMOTE_ADDR'], $admin['id']]);
+
+                // 登入成功，設置 session
+                $_SESSION['admin_id'] = $admin['id'];
+                $_SESSION['admin_name'] = $admin['name'];
+                $_SESSION['admin_role'] = $admin['role'];
+
+                echo json_encode([
+                    'success' => true,
+                    'message' => '登入成功！'
+                ]);
+                exit;
+            } else {
                 throw new Exception('帳號或密碼錯誤');
             }
-
-            // 更新登入資訊
-            $stmt = $conn->prepare("UPDATE admins SET login_at = NOW(), login_ip = ? WHERE id = ?");
-            $stmt->execute([$_SERVER['REMOTE_ADDR'], $admin['id']]);
-
-            // 登入成功，設置 session
-            $_SESSION['admin_id'] = $admin['id'];
-            $_SESSION['admin_name'] = $admin['name'];
-            $_SESSION['admin_role'] = $admin['role'];
-
-            echo json_encode([
-                'success' => true,
-                'message' => '登入成功！'
-            ]);
-            exit;
         }
 
         // 處理註冊請求
@@ -87,11 +87,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_SERVER['HTTP_X_REQUESTED_W
                 throw new Exception('帳號已存在');
             }
 
-            // 新增管理員（不加密密碼）
+            // 新增管理員（使用 MD5 加密密碼）
             $stmt = $conn->prepare("INSERT INTO admins (username, password, name, email, role, status) VALUES (?, ?, ?, ?, 1, 1)");
             $success = $stmt->execute([
                 $username,
-                $password,  // 直接使用原始密碼
+                md5($password),  // 使用 MD5 加密密碼
                 $name,
                 $email
             ]);

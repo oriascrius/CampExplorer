@@ -96,7 +96,7 @@ function translateGender($gender)
 
     <!-- 頁面標題和新增按鈕 -->
     <div class="d-flex justify-content-start align-items-center mb-4">
-        <h1 class="h1 mt-4 fw-bold me-5">會員管理</h1>
+        <h1 class=" mt-4 fw-bold me-5">會員管理</h1>
     </div>
     <div class="d-flex justify-content-between align-items-end flex-wrap">
         
@@ -110,8 +110,8 @@ function translateGender($gender)
             
             <!-- 勾選框 -->
             <div class="d-flex align-items-center mb-2">
-    <div class="form-check me-3">
-    <label for="fieldSelect" class="fw-bold mb-0">排序方式：</label>
+    
+    <label for="fieldSelect" class="fw-bold mb-0">排序方式：</label><div class="form-check me-3">
         <input class="form-check-input" type="checkbox" value="" id="hideStatusZero" <?= isset($_GET['hideStatusZero']) ? 'checked' : '' ?>>
         <label class="form-check-label" for="hideStatusZero">
             隱藏 停用 <?= $statusZeroCount ?>名會員
@@ -127,10 +127,8 @@ function translateGender($gender)
             <option value="name">姓名</option>
             <option value="birthday">生日</option>
             <option value="gender">性別</option>
-            <option value="last_login">最後登入</option>
             <option value="status">狀態</option>
             <option value="created_at">建立時間</option>
-            <option value="updated_at">更新日期</option>
         </select>
     </div>
     <div class="mb-2 mb-md-0">
@@ -170,11 +168,9 @@ function translateGender($gender)
                                 'phone' => '電話',
                                 'birthday' => '生日',
                                 'gender' => '性別',
-                                'address' => '地址',
-                                'last_login' => '最後登入',
+                                'address' => '地址',                              
                                 'status' => '狀態',
                                 'created_at' => '建立時間',
-                                'updated_at' => '更新時間',
                                 
                             ];
                             foreach ($headers as $field => $label): ?>
@@ -192,7 +188,7 @@ function translateGender($gender)
                     </thead>
                     <tbody>
                         <?php foreach ($users as $user): ?>
-                            <tr>
+                            <tr class="user-row" data-id="<?= $user['id'] ?>">
                             <td class="id"><?= htmlspecialchars($user['id']) ?></td>
                             <td class="email"><?= htmlspecialchars($user['email']) ?></td>
                             <td><?= htmlspecialchars($user['name']) ?></td>
@@ -200,14 +196,12 @@ function translateGender($gender)
                             <td><?= htmlspecialchars($user['birthday']) ?></td>
                             <td class="gender text-center"><?= htmlspecialchars(translateGender($user['gender'])) ?></td>
                             <td><?= htmlspecialchars($user['address']) ?></td>
-                            <td><?= htmlspecialchars($user['last_login']) ?></td>
                             <td class="status text-center">
                                 <span class="badge <?= $user['status'] ? 'bg-success' : 'bg-danger' ?>">
                                     <?= $user['status'] ? '啟用' : '停用' ?>
                                 </span>
                             </td>
                             <td><?= date('Y-m-d', strtotime($user['created_at'])) ?></td>
-                            <td><?= date('Y-m-d', strtotime($user['updated_at'])) ?></td>
                             <td>
                                 <div class="d-flex gap-2 justify-content-center">
                                     <button type="button" class="btn btn-sm btn-outline-primary" data-action="edit" data-id="<?= $user['id'] ?>">
@@ -344,11 +338,11 @@ function translateGender($gender)
                                 <input type="text" class="form-control" name="address" placeholder="address" value="${user.address}">
                                 <label for="floatingInput"><i class="bi bi-geo-alt"></i> 地址</label>
                             </div>
-                            <div class="form-floating mb-4">
+                            <div class="form-floating mb-4 pt-1">
                                 <input type="date" class="form-control" name="birthday" placeholder="birthday" value="${user.birthday}">
                                 <label for="floatingInput"><i class="bi bi-calendar"></i> 生日</label>
                             </div>
-                            <div class="form-floating mb-4">
+                            <div class="form-floating mb-4 pt-1">
                                 <select class="form-control" name="gender" required>
                                     <option value="male" ${user.gender === 'male' ? 'selected' : ''}>男</option>
                                     <option value="female" ${user.gender === 'female' ? 'selected' : ''}>女</option>
@@ -533,11 +527,11 @@ function translateGender($gender)
                             <input type="text" class="form-control" id="floatingAddress" name="address" placeholder="address">
                             <label for="floatingAddress"><i class="bi bi-geo-alt"></i> 地址</label>
                         </div>
-                        <div class="form-floating mb-4">
+                        <div class="form-floating mb-4 pt-1">
                             <input type="date" class="form-control" id="floatingBirthday" name="birthday" placeholder="birthday">
                             <label for="floatingBirthday"><i class="bi bi-calendar"></i> 生日</label>
                         </div>
-                        <div class="form-floating mb-4">
+                        <div class="form-floating mb-4 pt-1">
                             <select class="form-control" id="floatingGender" name="gender" required>
                              <option value="">--未選擇--</option>
                                 <option value="male">男</option>
@@ -637,6 +631,47 @@ function translateGender($gender)
             urlParams.set('order', direction);
             window.location.search = urlParams.toString();
         }
+
+        document.querySelectorAll('.user-row').forEach(row => {
+            row.addEventListener('click', async function(event) {
+                if (event.target.closest('button')) {
+                    return; // 如果點擊的是按鈕，則不處理
+                }
+                const userId = this.getAttribute('data-id');
+                try {
+                    const response = await fetch(`/CampExplorer/admin/api/users/member/read.php?id=${userId}`);
+                    const result = await response.json();
+
+                    if (!result.success) {
+                        throw new Error(result.message);
+                    }
+
+                    const user = result.data;
+                    Swal.fire({
+                        title: '會員資料',
+                        html: `
+                            <div class="text-start mt-2">
+                                <p><i class="bi bi-person"></i> 會員名稱: ${user.name}</p>
+                                <p><i class="bi bi-envelope"></i> Email: ${user.email}</p>
+                                <p><i class="bi bi-telephone"></i> 電話: ${user.phone}</p>
+                                <p><i class="bi bi-geo-alt"></i> 地址: ${user.address}</p>
+                                <p><i class="bi bi-calendar"></i> 生日: ${user.birthday}</p>
+                                <p><i class="bi bi-gender-ambiguous"></i> 性別: ${translateGender(user.gender)}</p>
+                                <p><i class="bi bi-clock"></i> 最後登入: ${user.last_login ? user.last_login : '尚未登入'}</p>
+                                <p><i class="bi bi-calendar-plus"></i> 建立時間: ${user.created_at}</p>
+                                <p><i class="bi bi-calendar-check"></i> 更新時間: ${user.updated_at}</p>
+                                <p><i class="bi ${user.status ? 'bi-toggle-on' : 'bi-toggle-off'}"></i> 狀態: ${user.status ? '啟用' : '停用'}</p>
+                            </div>
+                        `,
+                        showCloseButton: true,
+                        focusConfirm: false,
+                        confirmButtonText: '關閉'
+                    });
+                } catch (error) {
+                    Swal.fire('錯誤', error.message, 'error');
+                }
+            });
+        });
     });
     document.getElementById('hideStatusZero').addEventListener('change', function() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -713,20 +748,18 @@ document.querySelectorAll('.email').forEach(function (element) {
         width: 7.4rem;
         /* 調整寬度 */
     }
-    .table th.updated_at{
-        width: 7.4rem;
-        /* 調整寬度 */
-    }
-  
 
-    
     .table th.address {
-        width: 8.4rem;
+        width: 17.4rem;
         /* 調整寬度 */
         word-wrap: break-word;
 
     }
     .table th.email {
+        width: 12rem;
+        /* 調整寬度 */
+    }
+    .table th.phone {
         width: 7rem;
         /* 調整寬度 */
     }
@@ -740,10 +773,7 @@ document.querySelectorAll('.email').forEach(function (element) {
         user-select: none;
         /* 禁止選取 */
     }
-    .table .last_login {
-        width: 8.1rem;
-        /* 調整寬度 */
-    }
+
     .table .birthday{
         width: 7.1rem;
         /* 調整寬度 */
