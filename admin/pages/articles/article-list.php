@@ -141,9 +141,14 @@ function buildQueryString($params = [])
 }
 
 // 計算分頁範圍
-$start_page = max(1, $current_page - 2); // 從當前頁前兩頁開始
-$end_page = min($total_pages, $start_page + 4); // 最多顯示5頁
-$start_page = max(1, $end_page - 4); // 保證始終有5頁（若可能）
+$max_pages = 5; // 分頁按鈕最多顯示5頁
+$start_page = max(1, $current_page - 2); // 優先從當前頁前兩頁開始
+$end_page = $start_page + $max_pages - 1; // 預設範圍結束位置
+
+if ($end_page > $total_pages) {
+    $end_page = $total_pages; // 若超出總頁數，調整結尾範圍
+    $start_page = max(1, $end_page - $max_pages + 1); // 調整起始範圍，保證最多顯示5頁
+}
 
 //限制文章標題文字顯示字數 = 10
 function truncateText($text, $length = 10)
@@ -397,42 +402,43 @@ tbody td{
 
                     <!-- 分頁按鈕 -->
                     <div class="d-flex justify-content-between align-items-center my-3 px-3">
-                         <div>
-                            <ul class="pagination mb-0">
-                                <!-- 上一頁 -->
-                                <?php if ($current_page > 1): ?>
-                                    <li class="page-item">
-                                        <a class="page-link" href="<?= buildQueryString(['page_num' => $current_page - 1]) ?>">上一頁</a>
-                                    </li>
-                                <?php else: ?>
-                                    <li class="page-item disabled">
-                                        <a class="page-link" tabindex="-1">上一頁</a>
-                                    </li>
-                                <?php endif; ?>
+    <div>
+        <ul class="pagination mb-0">
+            <!-- 上一頁 -->
+            <?php if ($current_page > 1): ?>
+                <li class="page-item">
+                    <a class="page-link" href="<?= buildQueryString(['page_num' => $current_page - 1]) ?>">上一頁</a>
+                </li>
+            <?php else: ?>
+                <li class="page-item disabled">
+                    <a class="page-link" tabindex="-1">上一頁</a>
+                </li>
+            <?php endif; ?>
 
-                                <!-- 數字頁碼 -->
-                                <?php for ($i = $start_page; $i <= $end_page; $i++): ?>
-                                    <li class="page-item <?= $i === $current_page ? 'active' : '' ?>">
-                                        <a class="page-link" href="<?= buildQueryString(['page_num' => $i]) ?>"><?= $i ?></a>
-                                    </li>
-                                <?php endfor; ?>
+            <!-- 數字頁碼 -->
+            <?php for ($i = $start_page; $i <= $end_page; $i++): ?>
+                <li class="page-item <?= (int)$i === (int)$current_page ? 'active' : '' ?>">
+                    <a class="page-link" href="<?= buildQueryString(['page_num' => $i]) ?>"><?= $i ?></a>
+                </li>
+            <?php endfor; ?>
 
-                                <!-- 下一頁 -->
-                                <?php if ($current_page < $total_pages): ?>
-                                    <li class="page-item">
-                                        <a class="page-link" href="<?= buildQueryString(['page_num' => $current_page + 1]) ?>">下一頁</a>
-                                    </li>
-                                <?php else: ?>
-                                    <li class="page-item disabled">
-                                        <a class="page-link" tabindex="-1">下一頁</a>
-                                    </li>
-                                <?php endif; ?>
-                            </ul>
-                        </div>
-                        <div>
-                            <span>共 <?= $total_items ?> 筆資料，分 <?= $total_pages ?> 頁</span>
-                        </div>
-                    </div>
+            <!-- 下一頁 -->
+            <?php if ($current_page < $total_pages): ?>
+                <li class="page-item">
+                    <a class="page-link" href="<?= buildQueryString(['page_num' => $current_page + 1]) ?>">下一頁</a>
+                </li>
+            <?php else: ?>
+                <li class="page-item disabled">
+                    <a class="page-link" tabindex="-1">下一頁</a>
+                </li>
+            <?php endif; ?>
+        </ul>
+    </div>
+    <div>
+        <span>共 <?= $total_items ?> 筆資料，分 <?= $total_pages ?> 頁</span>
+    </div>
+</div>
+
 
                 </div>
             </div>
