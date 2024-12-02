@@ -80,7 +80,7 @@ $db = null;
     }
 
     table {
-        background: #fff;
+        background: #fefefe;
     }
 
     .table thead {

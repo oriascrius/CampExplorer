@@ -166,19 +166,19 @@ if (session_status() === PHP_SESSION_NONE) {
         transition: width 0.3s ease;
     }
 
-    .table td span:hover::after {
+    /* .table td span:hover::after {
         width: 100%;
-    }
+    } */
 
     /* 狀態標籤動畫 */
     .badge {
         transition: all 0.3s ease;
     }
 
-    .badge:hover {
+    /* .badge:hover {
         transform: scale(1.1);
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    }
+    } */
 
     /* 按鈕優化 */
     .btn {
@@ -243,17 +243,18 @@ if (session_status() === PHP_SESSION_NONE) {
 
     /* 頁面標題樣式 */
     .page-title {
-        color: var(--morandi-primary);
-        font-size: 1.75rem;
-        font-weight: 600;
-        margin-bottom: 1.5rem;
+
+        
         position: relative;
         padding-left: 1rem;
         display: flex;
         align-items: center;
+        margin: 0 75px;
+        margin-bottom: 1.5rem;
+        color: #767676;
     }
 
-    .page-title::before {
+    /* .page-title::before {
         content: '';
         position: absolute;
         left: 0;
@@ -263,7 +264,7 @@ if (session_status() === PHP_SESSION_NONE) {
         height: 70%;
         background: linear-gradient(to bottom, var(--morandi-primary), var(--morandi-secondary));
         border-radius: 2px;
-    }
+    } */
 
     /* 卡片標題優化 */
     .card-header {
@@ -279,13 +280,6 @@ if (session_status() === PHP_SESSION_NONE) {
         letter-spacing: 0.5px;
     }
 
-    /* 表格容器優化 */
-    .table-container {
-        background: white;
-        border-radius: 15px;
-        padding: 1rem;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-    }
 
     /* 狀態標籤優化 */
     .badge {
@@ -304,6 +298,69 @@ if (session_status() === PHP_SESSION_NONE) {
         padding: 0.4rem 1rem;
         font-size: 0.875rem;
     }
+
+    .card.shadow-sm{
+    border-radius:30px;
+    padding-top: 15px;
+}
+.table thead{
+    color:#fff;
+    
+}
+.badge.bg-primary{
+    background-color: transparent !important;
+    border: 1px solid #007bff;
+    color: #007bff !important;
+    padding: 7px 23px;
+}
+.badge.bg-info{
+    background-color: transparent !important;
+    border: 1px solid #ffc107;
+    color: #efb300 !important;
+    padding: 7px 23px;
+}
+.d-flex.justify-content-between{
+    margin: 0 75px;
+}
+.card.shadow-sm{
+    margin: 0 75px;
+}
+tr{
+    border-bottom-width: 1px;
+}
+.table thead th{
+    
+    background-color: transparent!important;
+    color: #fff!important;
+    padding: .5rem!important;
+}
+.text-center .badge.bg-primary{
+    background-color: transparent !important;
+    border-radius: .25rem;
+}
+.text-center .badge.bg-info{
+    background-color: transparent !important;
+    border-radius: .25rem;
+}
+.badge.bg-warning{
+    background-color: transparent !important;
+    border: 1px solid #0dcaf0;
+    color: #0dcaf0 !important;
+    padding: 7px 23px;
+    border-radius: .25rem;
+}
+.badge.bg-success{
+    background-color: transparent !important;
+    border: 1px solid #0080005c;
+    color: #008000 !important;
+    padding: 7px 23px;
+    border-radius: .25rem;
+}
+.btn.btn-primary{
+    color: #8b6a09;
+    background-color: #ffc1076e;
+    border: 0;
+}
 </style>
 <div class="container-fluid">
     <h1 class="page-title">營位審核管理</h1>
