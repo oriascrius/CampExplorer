@@ -256,7 +256,7 @@ require_once __DIR__ . '/../../../camping_db.php';
 
         /* 狀態標籤基本樣式 */
         .status-badge {
-            padding: 0.5rem 1rem;
+            padding: 1rem 1rem;
             border-radius: 20px;
             font-size: 0.875rem;
             font-weight: 500;
@@ -274,7 +274,8 @@ require_once __DIR__ . '/../../../camping_db.php';
 
         /* 已通過 - 較深的藍綠色 */
         .status-badge.approved {
-            background-color: #4C6B74;  /* 改為較深的藍綠色 */
+            background-color: #4C6B74;
+            /* 改為較深的藍綠色 */
         }
 
         /* 不通過 - 莫蘭迪粉 */
@@ -282,22 +283,57 @@ require_once __DIR__ . '/../../../camping_db.php';
             background-color: #D4B5B5;
         }
 
-        /* 使用中 - 較淺的莫蘭迪綠 */
+        /* 使用��� - 較淺的莫蘭迪綠 */
         .status-badge.active {
-            background-color: #A8C2B3;  /* 改為較淺的莫蘭迪綠 */
+            background-color: #A8C2B3;
+            /* 改為較淺的莫蘭迪綠 */
         }
 
-        /* 停用中 - 莫蘭迪粉 */
-        .status-badge.inactive {
+        /* 停用�� - 莫蘭迪粉色系 */
+        .status-badge.operation.inactive {
             background-color: #B47B84;
+            /* 莫蘭迪粉色 */
+            /* border: 1px solid #A46B74;   */
+            /* 深一點的莫蘭迪粉色作為邊框 */
+            color: white;
+        }
+
+        .status-badge.operation.inactive i {
+            color: #FFF5F5;
+            /* 淺粉色的圖標 */
+        }
+
+        /* hover 效果 */
+        .status-badge.operation.inactive:hover {
+            background-color: #A46B74;
+            /* hover 時顏色稍深 */
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(180, 123, 132, 0.2);
+            /* 粉色陰影 */
         }
 
         /* Hover 效果 */
-        .status-badge.pending:hover { background-color: #C4B599; }
-        .status-badge.approved:hover { background-color: #3C5B64;  /* hover 時更深 */ }
-        .status-badge.rejected:hover { background-color: #C4A5A5; }
-        .status-badge.active:hover { background-color: #98B2A3;  /* hover 時更深 */ }
-        .status-badge.inactive:hover { background-color: #A46B74; }
+        .status-badge.pending:hover {
+            background-color: #C4B599;
+        }
+
+        .status-badge.approved:hover {
+            background-color: #3C5B64;
+            /* hover 時更深 */
+        }
+
+        .status-badge.rejected:hover {
+            background-color: #C4A5A5;
+        }
+
+        .status-badge.active:hover {
+            background-color: #98B2A3;
+            /* hover 時更深 */
+        }
+
+        .status-badge.inactive:hover {
+            background-color: #A46B74;
+        }
 
         /* 按鈕樣式 */
         .btn-edit {
@@ -350,9 +386,9 @@ require_once __DIR__ . '/../../../camping_db.php';
             color: var(--camp-primary);
             font-size: 2rem;
             font-weight: 600;
-            margin-bottom: 2rem;
+            /* margin-bottom: 2rem;
             padding-bottom: 1rem;
-            border-bottom: 3px solid var(--camp-border);
+            border-bottom: 3px solid var(--camp-border); */
             position: relative;
         }
 
@@ -397,12 +433,29 @@ require_once __DIR__ . '/../../../camping_db.php';
         }
 
         /* 狀態卡片顏色 */
-        .stat-card.total { border-left: 4px solid var(--camp-primary); }
-        .stat-card.pending { border-left: 4px solid #D4C5A9; }
-        .stat-card.approved { border-left: 4px solid #4C6B74; }
-        .stat-card.rejected { border-left: 4px solid #D4B5B5; }
-        .stat-card.active { border-left: 4px solid #A8C2B3; }
-        .stat-card.inactive { border-left: 4px solid #B47B84; }
+        .stat-card.total {
+            border-left: 4px solid var(--camp-primary);
+        }
+
+        .stat-card.pending {
+            border-left: 4px solid #D4C5A9;
+        }
+
+        .stat-card.approved {
+            border-left: 4px solid #4C6B74;
+        }
+
+        .stat-card.rejected {
+            border-left: 4px solid #D4B5B5;
+        }
+
+        .stat-card.active {
+            border-left: 4px solid #A8C2B3;
+        }
+
+        .stat-card.inactive {
+            border-left: 4px solid #B47B84;
+        }
 
         /* 圖標樣式 */
         .stat-icon {
@@ -417,12 +470,35 @@ require_once __DIR__ . '/../../../camping_db.php';
         }
 
         /* 圖標背景顏色 */
-        .stat-card.total .stat-icon { background: #EDF2F7; color: var(--camp-primary); }
-        .stat-card.pending .stat-icon { background: #F7F4ED; color: #D4C5A9; }
-        .stat-card.approved .stat-icon { background: #EDF5F1; color: #4C6B74; }
-        .stat-card.rejected .stat-icon { background: #F7EDED; color: #D4B5B5; }
-        .stat-card.active .stat-icon { background: #E6F5F2; color: #A8C2B3; }
-        .stat-card.inactive .stat-icon { background: #F5E6E9; color: #B47B84; }
+        .stat-card.total .stat-icon {
+            background: #EDF2F7;
+            color: var(--camp-primary);
+        }
+
+        .stat-card.pending .stat-icon {
+            background: #F7F4ED;
+            color: #D4C5A9;
+        }
+
+        .stat-card.approved .stat-icon {
+            background: #EDF5F1;
+            color: #4C6B74;
+        }
+
+        .stat-card.rejected .stat-icon {
+            background: #F7EDED;
+            color: #D4B5B5;
+        }
+
+        .stat-card.active .stat-icon {
+            background: #E6F5F2;
+            color: #A8C2B3;
+        }
+
+        .stat-card.inactive .stat-icon {
+            background: #F5E6E9;
+            color: #B47B84;
+        }
 
         /* Hover 效果 */
         .stat-card:hover {
@@ -430,12 +506,29 @@ require_once __DIR__ . '/../../../camping_db.php';
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
         }
 
-        .stat-card.total:hover { background: var(--camp-primary); }
-        .stat-card.pending:hover { background: #D4C5A9; }
-        .stat-card.approved:hover { background: #4C6B74; }
-        .stat-card.rejected:hover { background: #D4B5B5; }
-        .stat-card.active:hover { background: #A8C2B3; }
-        .stat-card.inactive:hover { background: #B47B84; }
+        .stat-card.total:hover {
+            background: var(--camp-primary);
+        }
+
+        .stat-card.pending:hover {
+            background: #D4C5A9;
+        }
+
+        .stat-card.approved:hover {
+            background: #4C6B74;
+        }
+
+        .stat-card.rejected:hover {
+            background: #D4B5B5;
+        }
+
+        .stat-card.active:hover {
+            background: #A8C2B3;
+        }
+
+        .stat-card.inactive:hover {
+            background: #B47B84;
+        }
 
         /* Hover 時的文字和圖標顏色 */
         .stat-card:hover .stat-icon {
@@ -532,22 +625,27 @@ require_once __DIR__ . '/../../../camping_db.php';
         .stat-card.pending {
             border-left: 4px solid #D4C5A9;
         }
+
         .stat-card.pending .stat-icon {
             background-color: #F7F4ED;
             color: #D4C5A9;
         }
+
         .stat-card.pending:hover {
             background: linear-gradient(135deg, #D4C5A9 0%, #E5DBC8 100%);
         }
 
         /* 已通過 - 較深的藍綠色 */
         .stat-card.approved {
-            border-left: 4px solid #4C6B74;  /* 改為較深的藍綠色 */
+            border-left: 4px solid #4C6B74;
+            /* 改為較深的藍綠色 */
         }
+
         .stat-card.approved .stat-icon {
             background-color: #EDF5F1;
             color: #4C6B74;
         }
+
         .stat-card.approved:hover {
             background: linear-gradient(135deg, #4C6B74 0%, #C4D8CD 100%);
         }
@@ -556,22 +654,26 @@ require_once __DIR__ . '/../../../camping_db.php';
         .stat-card.active {
             border-left: 4px solid #A8C2B3;
         }
+
         .stat-card.active .stat-icon {
             background-color: #EDF2F7;
             color: #A8C2B3;
         }
+
         .stat-card.active:hover {
             background: linear-gradient(135deg, #A8C2B3 0%, #C4D8CD 100%);
         }
 
-        /* 停用中 - 莫蘭迪粉 */
+        /* 停用中 - 莫蘭迪粉色系 */
         .stat-card.inactive {
             border-left: 4px solid #D4B5B5;
         }
+
         .stat-card.inactive .stat-icon {
             background-color: #F7EDED;
             color: #D4B5B5;
         }
+
         .stat-card.inactive:hover {
             background: linear-gradient(135deg, #D4B5B5 0%, #E5CDCD 100%);
         }
@@ -597,16 +699,31 @@ require_once __DIR__ . '/../../../camping_db.php';
         }
 
         /* 審核狀態顏色 */
-        .status-badge.review.pending { background-color: var(--camp-warning); }
-        .status-badge.review.approved { background-color: var(--camp-primary); }
-        .status-badge.review.rejected { background-color: var(--camp-danger); }
+        .status-badge.review.pending {
+            background-color: var(--camp-warning);
+        }
+
+        .status-badge.review.approved {
+            background-color: var(--camp-primary);
+        }
+
+        .status-badge.review.rejected {
+            background-color: var(--camp-danger);
+        }
 
         /* 營運狀態顏色 */
-        .status-badge.operation.active { background-color: #8FB3A9; }
-        .status-badge.operation.inactive { background-color: #B47B84; }
+        .status-badge.operation.active {
+            background-color: #8FB3A9;
+        }
+
+        .status-badge.operation.inactive {
+            background-color: #B47B84;
+        }
 
         /* 未知狀態 */
-        .status-badge.unknown { background-color: var(--camp-secondary); }
+        .status-badge.unknown {
+            background-color: var(--camp-secondary);
+        }
 
         /* 操作按鈕容器 */
         .d-flex.gap-2 {
@@ -622,10 +739,13 @@ require_once __DIR__ . '/../../../camping_db.php';
             font-size: 0.875rem;
             transition: all 0.3s ease;
             background-color: white;
-            min-width: 72px;  /* 設定最小寬度 */
+            min-width: 72px;
+            /* 設定最小寬度 */
             text-align: center;
-            height: 32px;     /* 統一高度 */
-            line-height: 1;   /* 調整文字垂直置中 */
+            height: 32px;
+            /* 統一高度 */
+            line-height: 1;
+            /* 調整文字垂直置中 */
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -678,8 +798,16 @@ require_once __DIR__ . '/../../../camping_db.php';
         }
 
         /* 統計卡片標籤文字顏色對應調整 */
-        .stat-card.approved .stat-label { color: #4C6B74; }  /* 深藍綠色 */
-        .stat-card.active .stat-label { color: #A8C2B3; }    /* 淺莫蘭迪綠 */
+        .stat-card.approved .stat-label {
+            color: #4C6B74;
+        }
+
+        /* 深藍綠色 */
+        .stat-card.active .stat-label {
+            color: #A8C2B3;
+        }
+
+        /* 淺莫蘭迪綠 */
 
         /* Hover 時文字變白 */
         .stat-card:hover .stat-label {
@@ -748,7 +876,8 @@ require_once __DIR__ . '/../../../camping_db.php';
         }
 
         .swal2-wide-button {
-            min-width: 200px !important;  /* 設定最小寬度 */
+            min-width: 200px !important;
+            /* 設定最小寬度 */
             padding: 0.5rem 2rem !important;
         }
 
@@ -796,25 +925,42 @@ require_once __DIR__ . '/../../../camping_db.php';
         .stat-card {
             cursor: pointer;
         }
-        
+
         .stat-card.selected {
             transform: translateY(-4px);
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
         }
-        
+
         .stat-card.selected .stat-icon,
         .stat-card.selected .stat-number,
         .stat-card.selected .stat-label {
             color: white;
         }
-        
-        .stat-card.selected.total { background-color: var(--camp-primary); }
-        .stat-card.selected.pending { background-color: #D4C5A9; }
-        .stat-card.selected.approved { background-color: #4C6B74; }
-        .stat-card.selected.rejected { background-color: #D4B5B5; }
-        .stat-card.selected.active { background-color: #A8C2B3; }
-        .stat-card.selected.inactive { background-color: #B47B84; }
-        
+
+        .stat-card.selected.total {
+            background-color: var(--camp-primary);
+        }
+
+        .stat-card.selected.pending {
+            background-color: #D4C5A9;
+        }
+
+        .stat-card.selected.approved {
+            background-color: #4C6B74;
+        }
+
+        .stat-card.selected.rejected {
+            background-color: #D4B5B5;
+        }
+
+        .stat-card.selected.active {
+            background-color: #A8C2B3;
+        }
+
+        .stat-card.selected.inactive {
+            background-color: #B47B84;
+        }
+
         .stat-card.selected .stat-icon {
             background-color: rgba(255, 255, 255, 0.2);
         }
@@ -837,14 +983,36 @@ require_once __DIR__ . '/../../../camping_db.php';
 
         .spot-detail-header {
             margin: 0 !important;
-            padding: 0.75rem 1rem !important;
+            /* padding: 0.75rem 1rem !important; */
             background-color: var(--camp-primary);
             color: white;
+            height: 120px;
         }
 
         .spot-detail-title {
             text-align: center;
             padding: 0.25rem 0;
+            position: absolute;
+            bottom: 1%;
+            left: 60px;
+        }
+
+        .swal2-title {
+            height: 100px;
+        }
+
+        .swal2-close {
+            position: absolute;
+            right: 12px;
+            top: 12px;
+        }
+
+        .swal2-close:hover {
+            transform: translateY(-3px) scale(1.05);
+        }
+
+        .swal2-close:focus {
+            box-shadow: none;
         }
 
         .spot-detail-title h2 {
@@ -933,7 +1101,8 @@ require_once __DIR__ . '/../../../camping_db.php';
         }
 
         .info-item span {
-            font-size: 1rem;
+            /* font-size: 1rem; */
+            font-size: 0.875rem;
         }
 
         .price-item {
@@ -967,14 +1136,17 @@ require_once __DIR__ . '/../../../camping_db.php';
         }
 
         .spot-detail-close {
-            top: 1.5rem !important;
-            right: 1.5rem !important;
+            top: 1.2rem !important;
+            right: 1.2rem !important;
             color: white !important;
+            width: 24px;
+            height: 24px;
         }
 
         .spot-detail-close:hover {
             color: var(--camp-light) !important;
-            transform: rotate(90deg);
+            border: 0;
+            /* transform: rotate(90deg); */
         }
 
         /* 更新現有樣式 */
@@ -995,14 +1167,14 @@ require_once __DIR__ . '/../../../camping_db.php';
         }
 
         .status-container {
-            margin-top: 0.5rem;
+            /* margin-top: 0.5rem; */
             display: flex;
             justify-content: center;
         }
 
         /* 圖片放大相關樣式 */
         .full-screen-image {
-            max-height: 80vh;
+            max-height: 160vh;
             object-fit: contain;
             border-radius: 8px;
         }
@@ -1022,11 +1194,11 @@ require_once __DIR__ . '/../../../camping_db.php';
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            padding: 0.4rem 1rem;
+            padding: 0.5rem 1rem;
             border-radius: 20px;
             font-size: 0.875rem;
             /* margin: 0 auto; */
-            margin:0 3px;
+            margin: 0 3px;
         }
 
         /* 確保資訊項目內容置中 */
@@ -1038,6 +1210,175 @@ require_once __DIR__ . '/../../../camping_db.php';
         /* 價格項目特別樣式 */
         .price-value {
             text-align: center !important;
+        }
+
+        /* 營運狀態標籤樣式 */
+        .status-badge.operation {
+            padding: 0.3rem 1rem 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        /* 使用中狀態 - 莫蘭迪綠色系 */
+        .status-badge.operation.active {
+            background-color: #A8C2B3;
+            border: 1px solid #98B2A3;
+            color: white;
+        }
+
+        .status-badge.operation.active i {
+            color: #E6FCF5;
+        }
+
+        /* 停用中狀態 - 莫蘭迪灰色系 */
+        .status-badge.operation.inactive {
+            color: white;
+        }
+
+        .status-badge.operation.inactive i {
+            color: #F8F9FA;
+        }
+
+        /* 圖標樣式 */
+        .status-badge.operation i {
+            font-size: 1rem;
+        }
+
+        /* hover 效果 */
+        .status-badge.operation:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 搜尋框樣式 */
+        .search-box {
+            position: relative;
+            width: 450px;
+            /* 增加寬度 */
+        }
+
+        .search-box input {
+            padding-right: 35px;
+            padding-left: 15px;
+            /* 增加左邊內距 */
+            border-radius: 20px;
+            border: 1px solid var(--camp-border);
+            height: 42px;
+            /* 適當增加高度 */
+            font-size: 0.95rem;
+            /* 調整字體大小 */
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--camp-secondary);
+        }
+
+        /* 排序圖標樣式 */
+        .sortable {
+            cursor: pointer;
+            position: relative;
+            user-select: none;
+        }
+
+        .sort-icon {
+            font-size: 0.8em;
+            margin-left: 4px;
+            opacity: 0.5;
+            display: inline-block;
+            transition: transform 0.2s ease;
+        }
+
+        /* 當前排序狀態的樣式 */
+        .sortable.asc .sort-icon {
+            opacity: 1;
+            color: white;
+            transform: rotate(0deg);
+        }
+
+        .sortable.desc .sort-icon {
+            opacity: 1;
+            color: white;
+            transform: rotate(180deg);
+        }
+
+        /* 未排序狀態下的圖標方向 */
+        .sort-icon {
+            transform: rotate(180deg);
+        }
+
+        /* 懸停效果 */
+        .sortable:hover .sort-icon {
+            opacity: 1;
+        }
+
+        /* 分頁樣式 */
+        .pagination-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            padding: 10px;
+            min-height: 60px;
+        }
+
+        .pagination-info {
+            color: var(--camp-secondary);
+        }
+
+        .pagination {
+            margin: 0;
+            user-select: none;
+        }
+
+        .pagination .page-link {
+            cursor: pointer;
+            user-select: none;
+            -webkit-user-drag: none;
+            color: var(--camp-primary);
+            border-color: var(--camp-border);
+            padding: 0.5rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            background-color: white;
+            transition: all 0.2s ease;
+        }
+
+        .pagination .page-item.disabled .page-link {
+            background-color: #e9ecef;
+            border-color: #dee2e6;
+            color: #adb5bd;
+            cursor: not-allowed;
+            opacity: 0.8;
+            pointer-events: none;
+        }
+
+        .pagination .page-item.active .page-link {
+            background-color: var(--camp-primary);
+            border-color: var(--camp-primary);
+            color: white;
+            font-weight: 500;
+        }
+
+        .pagination .page-link:hover:not(.disabled) {
+            background-color: var(--camp-light);
+            border-color: var(--camp-primary);
+            color: var(--camp-primary);
+        }
+
+        /* 省略號樣式 */
+        .pagination .page-item.disabled span.page-link {
+            background-color: transparent;
+            border: none;
         }
     </style>
 </head>
@@ -1055,7 +1396,7 @@ require_once __DIR__ . '/../../../camping_db.php';
                     <div class="stat-label">總營位數</div>
                 </div>
             </div>
-            
+
             <div class="stat-card pending">
                 <div class="stat-icon"><i class="bi bi-hourglass-split"></i></div>
                 <div class="stat-content">
@@ -1063,7 +1404,7 @@ require_once __DIR__ . '/../../../camping_db.php';
                     <div class="stat-label">審核中</div>
                 </div>
             </div>
-            
+
             <div class="stat-card approved">
                 <div class="stat-icon"><i class="bi bi-check-circle"></i></div>
                 <div class="stat-content">
@@ -1071,7 +1412,7 @@ require_once __DIR__ . '/../../../camping_db.php';
                     <div class="stat-label">已通過</div>
                 </div>
             </div>
-            
+
             <div class="stat-card rejected">
                 <div class="stat-icon"><i class="bi bi-x-circle"></i></div>
                 <div class="stat-content">
@@ -1079,7 +1420,7 @@ require_once __DIR__ . '/../../../camping_db.php';
                     <div class="stat-label">未通過</div>
                 </div>
             </div>
-            
+
             <div class="stat-card active">
                 <div class="stat-icon"><i class="bi bi-play-circle"></i></div>
                 <div class="stat-content">
@@ -1087,7 +1428,7 @@ require_once __DIR__ . '/../../../camping_db.php';
                     <div class="stat-label">使用中</div>
                 </div>
             </div>
-            
+
             <div class="stat-card inactive">
                 <div class="stat-icon"><i class="bi bi-stop-circle"></i></div>
                 <div class="stat-content">
@@ -1099,22 +1440,45 @@ require_once __DIR__ . '/../../../camping_db.php';
 
         <!-- 主要內容區 -->
         <div class="content-wrapper">
-            <div class="page-header">
-                <h1 class="page-title">營位管理</h1>
+            <div class="page-header d-flex justify-content-between align-items-center mb-4">
+                <h1 class="page-title m-0 ms-1">營位管理</h1>
+                <div class="search-box">
+                    <input type="text" id="searchInput" class="form-control" placeholder="搜尋營位...">
+                    <i class="bi bi-search search-icon"></i>
+                </div>
             </div>
             <table class="spot-list">
                 <thead>
                     <tr>
                         <th>圖片</th>
-                        <th>營位名稱</th>
-                        <th>容納人數</th>
-                        <th>價格</th>
-                        <th>狀態</th>
+                        <th class="sortable" data-sort="name">
+                            營位名稱 <i class="bi bi-chevron-up sort-icon"></i>
+                        </th>
+                        <th class="sortable" data-sort="capacity">
+                            容納人數 <i class="bi bi-chevron-up sort-icon"></i>
+                        </th>
+                        <th class="sortable" data-sort="price">
+                            價格 <i class="bi bi-chevron-up sort-icon"></i>
+                        </th>
+                        <th class="sortable" data-sort="status">
+                            狀態 <i class="bi bi-chevron-up sort-icon"></i>
+                        </th>
                         <th>操作</th>
                     </tr>
                 </thead>
                 <tbody id="spot-list"></tbody>
             </table>
+            <div class="pagination-container">
+                <div class="pagination-info">
+                    每頁顯示:
+                    <select id="itemsPerPage">
+                        <option value="5">5</option>
+                        <option value="10" selected>10</option>
+                        <option value="20">20</option>
+                    </select>
+                </div>
+                <ul class="pagination" id="pagination"></ul>
+            </div>
         </div>
     </div>
 
@@ -1133,7 +1497,7 @@ require_once __DIR__ . '/../../../camping_db.php';
             try {
                 const response = await axios.get('/CampExplorer/owner/api/spots/get_owner_spots.php');
                 console.log('API 回應:', response.data);
-                
+
                 if (response.data.success) {
                     const spots = response.data.spots;
                     spots.forEach(spot => {
@@ -1146,7 +1510,7 @@ require_once __DIR__ . '/../../../camping_db.php';
                     updateUI(spots);
                     updateStats(spots);
                 } else {
-                    throw new Error(response.data.message || '載入失敗');
+                    throw new Error(response.data.message || '載入失���');
                 }
             } catch (error) {
                 console.error('載入營位失敗:', error);
@@ -1169,12 +1533,12 @@ require_once __DIR__ . '/../../../camping_db.php';
         function updateUI(spots) {
             const spotList = document.querySelector('.spot-list tbody');
             spotList.innerHTML = spots.map(spot => {
-                let imagePath = spot.image_path && spot.image_path.trim() !== '' 
-                    ? (spot.image_path.includes('/CampExplorer/') 
-                        ? spot.image_path 
-                        : `/CampExplorer/${spot.image_path}`)
-                    : '/CampExplorer/images/default-spot.jpg';
-                    
+                let imagePath = spot.image_path && spot.image_path.trim() !== '' ?
+                    (spot.image_path.includes('/CampExplorer/') ?
+                        spot.image_path :
+                        `/CampExplorer/${spot.image_path}`) :
+                    '/CampExplorer/images/default-spot.jpg';
+
                 return `
                     <tr class="spot-row" style="cursor: pointer;" onclick="showSpotDetail(${JSON.stringify(spot).replace(/"/g, '&quot;')})">
                         <td>
@@ -1199,20 +1563,20 @@ require_once __DIR__ . '/../../../camping_db.php';
         // 分離統計更新邏輯
         function updateStatistics(spots) {
             console.log('Updating stats with spots:', spots); // 調試用
-            
+
             const stats = {
                 total: spots.length,
-                pending: spots.filter(spot => 
+                pending: spots.filter(spot =>
                     spot.application_status === '0' || spot.application_status === 0
                 ).length,
-                approved: spots.filter(spot => 
+                approved: spots.filter(spot =>
                     spot.application_status === '1' || spot.application_status === 1
                 ).length,
-                active: spots.filter(spot => 
+                active: spots.filter(spot =>
                     (spot.application_status === '1' || spot.application_status === 1) &&
                     (spot.status === '1' || spot.status === 1)
                 ).length,
-                inactive: spots.filter(spot => 
+                inactive: spots.filter(spot =>
                     (spot.application_status === '1' || spot.application_status === 1) &&
                     (spot.status === '0' || spot.status === 0)
                 ).length
@@ -1231,10 +1595,10 @@ require_once __DIR__ . '/../../../camping_db.php';
         // 分離列表更新邏輯
         function updateSpotsList(spots) {
             console.log('Updating spots list with:', spots); // 調試用
-            
+
             const spotList = document.querySelector('#spot-list tbody');
             if (!spotList) return;
-            
+
             spotList.innerHTML = spots.map(spot => `
                 <tr>
                     <td>${spot.spot_name}</td>
@@ -1306,21 +1670,21 @@ require_once __DIR__ . '/../../../camping_db.php';
         // 修改 filterSpots 函數
         function filterSpots(filterType) {
             console.log('Filtering by:', filterType);
-            
+
             const rows = document.querySelectorAll('#spot-list tbody tr');
-            
+
             rows.forEach(row => {
                 const badges = row.querySelectorAll('.status-badge');
                 let show = false;
 
                 // 簡化的狀態檢查函數
                 const hasStatus = (status) => {
-                    return Array.from(badges).some(badge => 
+                    return Array.from(badges).some(badge =>
                         badge.textContent.trim().includes(status)
                     );
                 };
 
-                switch(filterType) {
+                switch (filterType) {
                     case 'total':
                         show = true;
                         break;
@@ -1340,7 +1704,7 @@ require_once __DIR__ . '/../../../camping_db.php';
                         show = hasStatus('停用中');
                         break;
                 }
-                
+
                 row.style.display = show ? '' : 'none';
             });
 
@@ -1362,15 +1726,15 @@ require_once __DIR__ . '/../../../camping_db.php';
         // 修改統計卡片的點擊事件處理
         function initializeStatCards() {
             const statCards = document.querySelectorAll('.stat-card');
-            
+
             statCards.forEach(card => {
                 card.addEventListener('click', function() {
                     console.log('Stat card clicked:', this.className); // 調試用
-                    
+
                     // 獲取過濾類型
                     const filterTypes = ['total', 'pending', 'approved', 'rejected', 'active', 'inactive'];
                     const filterType = filterTypes.find(type => this.classList.contains(type)) || 'total';
-                    
+
                     // 執行過濾
                     filterSpots(filterType);
                 });
@@ -1580,14 +1944,14 @@ require_once __DIR__ . '/../../../camping_db.php';
         // 獲取狀態對應的 CSS class
         function getStatusClass(spot) {
             console.log('Checking status for spot:', spot); // 添加調試日誌
-            
+
             // 審核狀態
             const appStatus = spot.application_status;
             const opStatus = spot.status;
-            
+
             console.log('Application status:', appStatus);
             console.log('Operation status:', opStatus);
-            
+
             if (appStatus === '0' || appStatus === 0) return 'pending';
             if (appStatus === '2' || appStatus === 2) return 'rejected';
             if (appStatus === '1' || appStatus === 1) {
@@ -1599,22 +1963,22 @@ require_once __DIR__ . '/../../../camping_db.php';
         // 確保狀態標籤生成正確的 class
         function getStatusText(spot) {
             let statusHtml = '<div class="status-container">';
-            
+
             // 審核狀態
             const appStatus = Number(spot.application_status);
             const opStatus = Number(spot.status);
-            
+
             // 添加審核狀態標籤
-            switch(appStatus) {
+            switch (appStatus) {
                 case 0:
                     statusHtml += '<span class="status-badge review pending">審核中</span>';
                     break;
                 case 1:
                     statusHtml += '<span class="status-badge review approved">已通過</span>';
                     // 如果審核通過，添加營運狀態標籤
-                    statusHtml += opStatus === 1 
-                        ? '<span class="status-badge operation active">使用中</span>'
-                        : '<span class="status-badge operation inactive">停用中</span>';
+                    statusHtml += opStatus === 1 ?
+                        '<span class="status-badge operation active">使用中</span>' :
+                        '<span class="status-badge operation inactive">停用中</span>';
                     break;
                 case 2:
                     statusHtml += '<span class="status-badge review rejected">不通過</span>';
@@ -1622,7 +1986,7 @@ require_once __DIR__ . '/../../../camping_db.php';
                 default:
                     statusHtml += '<span class="status-badge review unknown">未知狀態</span>';
             }
-            
+
             statusHtml += '</div>';
             return statusHtml;
         }
@@ -1631,20 +1995,20 @@ require_once __DIR__ . '/../../../camping_db.php';
         function updateStats(spots) {
             const stats = {
                 total: spots.length,
-                pending: spots.filter(spot => 
+                pending: spots.filter(spot =>
                     spot.application_status === '0' || spot.application_status === 0
                 ).length,
-                approved: spots.filter(spot => 
+                approved: spots.filter(spot =>
                     spot.application_status === '1' || spot.application_status === 1
                 ).length,
-                rejected: spots.filter(spot => 
+                rejected: spots.filter(spot =>
                     spot.application_status === '2' || spot.application_status === 2
                 ).length,
-                active: spots.filter(spot => 
+                active: spots.filter(spot =>
                     (spot.application_status === '1' || spot.application_status === 1) &&
                     (spot.status === '1' || spot.status === 1)
                 ).length,
-                inactive: spots.filter(spot => 
+                inactive: spots.filter(spot =>
                     (spot.application_status === '1' || spot.application_status === 1) &&
                     (spot.status === '0' || spot.status === 0)
                 ).length
@@ -1662,7 +2026,7 @@ require_once __DIR__ . '/../../../camping_db.php';
 
         function getActionButtons(spot) {
             let buttonsHtml = '<div class="d-flex gap-2">';
-            
+
             // 編輯按鈕
             buttonsHtml += `
                 <button class="btn btn-sm btn-action btn-edit" 
@@ -1670,11 +2034,11 @@ require_once __DIR__ . '/../../../camping_db.php';
                         title="編輯營位">
                     編輯營位
                 </button>`;
-            
+
             // 所有狀態都顯示停用按鈕，但只有審核通過的可以點擊
             const isActive = Number(spot.status) === 1;
             const isApproved = Number(spot.application_status) === 1;
-            
+
             buttonsHtml += `
                 <button class="btn btn-sm btn-action ${isActive ? 'btn-deactivate' : 'btn-activate'}"
                         onclick="toggleSpotStatus(${spot.spot_id}, ${!isActive})"
@@ -1682,7 +2046,7 @@ require_once __DIR__ . '/../../../camping_db.php';
                         title="${isActive ? '停用營' : '啟用營位'}">
                     ${isActive ? '停用' : '啟用'}
                 </button>`;
-            
+
             buttonsHtml += '</div>';
             return buttonsHtml;
         }
@@ -1720,9 +2084,11 @@ require_once __DIR__ . '/../../../camping_db.php';
 
                 // 取得營運狀態文字
                 const getOperationStatusBadge = (status) => {
-                    return status === '1' 
-                        ? '<span class="status-badge operation active">使用中</span>'
-                        : '<span class="status-badge operation inactive">停用中</span>';
+                    const isActive = status === '1' || status === 1;
+                    return `<span class="status-badge operation ${isActive ? 'active' : 'inactive'}">
+                        <i class="bi ${isActive ? 'bi-play-circle' : 'bi-stop-circle'}"></i>
+                        ${isActive ? '使用中' : '停用中'}
+                    </span>`;
                 };
 
                 await Swal.fire({
@@ -1825,6 +2191,188 @@ require_once __DIR__ . '/../../../camping_db.php';
                     popup: 'image-popup'
                 }
             });
+        }
+
+        // 分頁相關變數
+        let currentPage = 1;
+        let itemsPerPage = 10;
+        let currentSort = {
+            field: null,
+            direction: 'asc'
+        };
+        let filteredSpots = [];
+
+        // 搜尋功能
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            filteredSpots = spotsCache.filter(spot =>
+                spot.spot_name.toLowerCase().includes(searchTerm) ||
+                spot.camp_name.toLowerCase().includes(searchTerm)
+            );
+            currentPage = 1;
+            updateUI(filteredSpots);
+            updatePagination();
+        });
+
+        // 修改排序點擊事件處理
+        document.querySelectorAll('.sortable').forEach(th => {
+            th.addEventListener('click', function() {
+                const field = this.dataset.sort;
+
+                // 檢查當前排序狀態
+                if (currentSort.field === field) {
+                    // 如果是同一列，切換排序方向
+                    const direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+                    document.querySelectorAll('.sortable').forEach(el => {
+                        if (el !== this) {
+                            el.classList.remove('asc', 'desc');
+                        }
+                    });
+                    this.classList.remove('asc', 'desc');
+                    this.classList.add(direction);
+                    currentSort = {
+                        field,
+                        direction
+                    };
+                } else {
+                    // 如果是不同列，設置新的排序列為降序
+                    document.querySelectorAll('.sortable').forEach(el => {
+                        if (el !== this) {
+                            el.classList.remove('asc', 'desc');
+                        }
+                    });
+                    this.classList.remove('asc', 'desc');
+                    this.classList.add('desc');
+                    currentSort = {
+                        field,
+                        direction: 'desc'
+                    };
+                }
+
+                // 執行排序
+                sortSpots(currentSort.field, currentSort.direction);
+            });
+        });
+
+        // 排序邏輯
+        function sortSpots(field, direction) {
+            const spots = [...filteredSpots];
+            spots.sort((a, b) => {
+                let valueA = a[field];
+                let valueB = b[field];
+
+                // 數字類型轉換
+                if (field === 'price' || field === 'capacity') {
+                    valueA = Number(valueA);
+                    valueB = Number(valueB);
+                }
+
+                if (direction === 'asc') {
+                    return valueA > valueB ? 1 : -1;
+                } else {
+                    return valueA < valueB ? 1 : -1;
+                }
+            });
+
+            // 更新 UI 但保持排序狀態
+            updateUI(spots);
+        }
+
+        // 分頁控制
+        document.getElementById('itemsPerPage').addEventListener('change', function(e) {
+            itemsPerPage = Number(e.target.value);
+            currentPage = 1;
+            updateUI(filteredSpots);
+            updatePagination();
+        });
+
+        function updatePagination() {
+            const totalPages = Math.ceil(filteredSpots.length / itemsPerPage);
+            const pagination = document.getElementById('pagination');
+            pagination.innerHTML = '';
+
+            // 上一頁
+            const prevLi = document.createElement('li');
+            prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
+            prevLi.innerHTML = `<span class="page-link" onclick="changePage(${currentPage - 1})">上一頁</span>`;
+            pagination.appendChild(prevLi);
+
+            // 頁碼
+            for (let i = 1; i <= totalPages; i++) {
+                const li = document.createElement('li');
+                li.className = `page-item ${currentPage === i ? 'active' : ''}`;
+                li.innerHTML = `<span class="page-link" onclick="changePage(${i})">${i}</span>`;
+                pagination.appendChild(li);
+            }
+
+            // 下一頁
+            const nextLi = document.createElement('li');
+            nextLi.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
+            nextLi.innerHTML = `<span class="page-link" onclick="changePage(${currentPage + 1})">下一頁</span>`;
+            pagination.appendChild(nextLi);
+        }
+
+        function changePage(page) {
+            if (page < 1 || page > Math.ceil(filteredSpots.length / itemsPerPage)) return;
+            currentPage = page;
+            updateUI(filteredSpots);
+            updatePagination();
+        }
+
+        // 修改 updateUI 函數以支持分頁
+        function updateUI(spots) {
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const paginatedSpots = spots.slice(start, end);
+
+            // 更新表格內容
+            const spotList = document.querySelector('#spot-list');
+            spotList.innerHTML = paginatedSpots.map(spot => {
+                let imagePath = spot.image_path && spot.image_path.trim() !== '' ?
+                    (spot.image_path.includes('/CampExplorer/') ?
+                        spot.image_path :
+                        `/CampExplorer/${spot.image_path}`) :
+                    '/CampExplorer/images/default-spot.jpg';
+
+                return `
+                    <tr class="spot-row" style="cursor: pointer;" onclick="showSpotDetail(${JSON.stringify(spot).replace(/"/g, '&quot;')})">
+                        <td>
+                            <img src="${imagePath}" 
+                                 alt="${spot.spot_name}" 
+                                 class="spot-image"
+                                 onerror="this.onerror=null; this.src='/CampExplorer/images/default-spot.jpg';">
+                        </td>
+                        <td>
+                            <div class="fw-bold">${spot.spot_name}</div>
+                            <small class="text-muted">${spot.camp_name}</small>
+                        </td>
+                        <td>${spot.capacity} 人</td>
+                        <td>NT$ ${spot.price}</td>
+                        <td>${getStatusText(spot)}</td>
+                        <td onclick="event.stopPropagation();">${getActionButtons(spot)}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            updatePagination();
+        }
+
+        // 修改 getSpots 函數
+        async function getSpots(forceRefresh = false) {
+            try {
+                const response = await axios.get('/CampExplorer/owner/api/spots/get_owner_spots.php');
+                if (response.data.success) {
+                    spotsCache = response.data.spots;
+                    filteredSpots = [...spotsCache];
+                    updateUI(filteredSpots);
+                    updateStats(filteredSpots);
+                } else {
+                    throw new Error(response.data.message || '載入失敗');
+                }
+            } catch (error) {
+                console.error('載入營位失敗:', error);
+                showError(error.message);
+            }
         }
     </script>
 </body>

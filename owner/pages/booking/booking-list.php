@@ -86,7 +86,7 @@ try {
             --camp-danger: #B47B84;
             /* 危險色：莫蘭迪粉 */
             --status-pending: #C4A687;
-            /* 待處理：莫蘭迪沙 */
+            /* 待確認：莫蘭迪沙 */
             --status-confirmed: #8FA977;
             /* 已確認：鼠尾草綠 */
             --status-cancelled: #C69B97;
@@ -977,7 +977,7 @@ try {
             font-size: 0.9em;
             color: white;
             border-radius: 12px;
-       }
+        }
 
         /* Modal 按鈕樣式 */
         .btn-outline-secondary {
@@ -1152,7 +1152,7 @@ try {
             padding: 0.5rem;
         }
 
-        /* 狀態卡片基���樣��� */
+        /* 狀態卡片基����樣��� */
         .status-card {
             position: relative;
             display: block;
@@ -1199,32 +1199,32 @@ try {
         }
 
         /* 待確認狀態 */
-        #status_pending + .status-content {
+        #status_pending+.status-content {
             background-color: #F7F4ED;
             color: #B5A99A;
         }
 
-        #status_pending + .status-content .status-icon {
+        #status_pending+.status-content .status-icon {
             background-color: #D4C5A9;
         }
 
         /* 已確認狀態 */
-        #status_confirmed + .status-content {
+        #status_confirmed+.status-content {
             background-color: #EDF5F1;
             color: #8FA99B;
         }
 
-        #status_confirmed + .status-content .status-icon {
+        #status_confirmed+.status-content .status-icon {
             background-color: #A8C2B3;
         }
 
         /* 已取消狀態 */
-        #status_cancelled + .status-content {
+        #status_cancelled+.status-content {
             background-color: #F5EDED;
             color: #B59A9A;
         }
 
-        #status_cancelled + .status-content .status-icon {
+        #status_cancelled+.status-content .status-icon {
             background-color: #D4B5B5;
         }
 
@@ -1235,7 +1235,7 @@ try {
         }
 
         /* 選中效果 */
-        .status-radio:checked + .status-content {
+        .status-radio:checked+.status-content {
             border-left: 4px solid currentColor;
         }
 
@@ -1310,7 +1310,8 @@ try {
             border-radius: 16px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
         }
-/* 
+
+        /* 
         .modal-header {
             padding: 1.5rem 2rem;
         } */
@@ -1369,7 +1370,7 @@ try {
         }
 
         /* 選中效果 */
-        .status-option input[type="radio"]:checked + .status-label {
+        .status-option input[type="radio"]:checked+.status-label {
             border-color: currentColor;
             background-color: rgba(0, 0, 0, 0.05);
             font-weight: 500;
@@ -1445,19 +1446,19 @@ try {
         }
 
         /* 選中效果 */
-        .status-radio input:checked + .status-box {
+        .status-radio input:checked+.status-box {
             color: white;
         }
 
-        .status-radio input:checked + .status-box.pending {
+        .status-radio input:checked+.status-box.pending {
             background-color: #D4B499;
         }
 
-        .status-radio input:checked + .status-box.confirmed {
+        .status-radio input:checked+.status-box.confirmed {
             background-color: #A8B686;
         }
 
-        .status-radio input:checked + .status-box.cancelled {
+        .status-radio input:checked+.status-box.cancelled {
             background-color: #C4A4A4;
         }
 
@@ -1467,7 +1468,7 @@ try {
             background-color: #f0f1f3;
         }
 
-        .status-radio input:checked + .status-box:hover {
+        .status-radio input:checked+.status-box:hover {
             transform: translateX(4px);
             opacity: 0.9;
         }
@@ -1522,37 +1523,37 @@ try {
         }
 
         /* 狀態顏色和效果 */
-        #status_pending + .status-label {
+        #status_pending+.status-label {
             color: #D4B499;
             border: 1px solid #D4B499;
         }
 
-        #status_pending + .status-label:hover,
-        #status_pending:checked + .status-label {
+        #status_pending+.status-label:hover,
+        #status_pending:checked+.status-label {
             background-color: #D4B499;
             color: white;
         }
 
         /* 已確認狀態 */
-        #status_confirmed + .status-label {
+        #status_confirmed+.status-label {
             color: #A8B686;
             border: 1px solid #A8B686;
         }
 
-        #status_confirmed + .status-label:hover,
-        #status_confirmed:checked + .status-label {
+        #status_confirmed+.status-label:hover,
+        #status_confirmed:checked+.status-label {
             background-color: #A8B686;
             color: white;
         }
 
         /* 已取消狀態 */
-        #status_cancelled + .status-label {
+        #status_cancelled+.status-label {
             color: #C4A4A4;
             border: 1px solid #C4A4A4;
         }
 
-        #status_cancelled + .status-label:hover,
-        #status_cancelled:checked + .status-label {
+        #status_cancelled+.status-label:hover,
+        #status_cancelled:checked+.status-label {
             background-color: #C4A4A4;
             color: white;
         }
@@ -1560,25 +1561,31 @@ try {
         /* 搜尋框樣式 */
         .search-box {
             position: relative;
-            width: 450px; /* 增加寬度 */
+            width: 450px;
+            /* 增加寬度 */
         }
 
         .search-box input {
             padding-right: 35px;
-            padding-left: 15px; /* 增加左邊內距 */
+            padding-left: 15px;
+            /* 增加左邊內距 */
             border-radius: 20px;
             border: 1px solid var(--camp-border);
-            height: 42px; /* 適當增加高度 */
-            font-size: 0.95rem; /* 調整字體大小 */
+            height: 42px;
+            /* 適當增加高度 */
+            font-size: 0.95rem;
+            /* 調整字體大小 */
         }
 
         .search-box .bi-search {
             position: absolute;
-            right: 15px; /* 調整圖示位置 */
+            right: 15px;
+            /* 調整圖示位置 */
             top: 50%;
             transform: translateY(-50%);
             color: var(--camp-secondary);
-            font-size: 1.1rem; /* 調整圖示大小 */
+            font-size: 1.1rem;
+            /* 調整圖示大小 */
         }
 
         /* 響應式設計 */
@@ -1593,13 +1600,13 @@ try {
                 width: 100%;
                 margin-top: 1rem;
             }
-            
+
             /* 在手機版將標題和搜尋框改為垂直排列 */
             .d-flex.justify-content-between.align-items-center {
                 flex-direction: column;
                 align-items: stretch !important;
             }
-            
+
             .page-title {
                 text-align: center;
                 margin-bottom: 1rem;
@@ -1629,7 +1636,8 @@ try {
             align-items: center;
             margin-top: 20px;
             padding: 10px;
-            min-height: 60px; /* 設定最小高度 */
+            min-height: 60px;
+            /* 設定最小高度 */
         }
 
         .pagination-info {
@@ -1638,13 +1646,15 @@ try {
 
         .pagination {
             margin: 0;
-            user-select: none; /* 防止文字被選中 */
+            user-select: none;
+            /* 防止文字被選中 */
         }
 
         .pagination .page-link {
             cursor: pointer;
             user-select: none;
-            -webkit-user-drag: none; /* 防止拖曳 */
+            -webkit-user-drag: none;
+            /* 防止拖曳 */
             color: var(--camp-primary);
             border-color: var(--camp-border);
             padding: 0.5rem 1rem;
@@ -1656,12 +1666,16 @@ try {
         }
 
         .pagination .page-item.disabled .page-link {
-            background-color: #e9ecef; /* 更明顯的禁用背景色 */
+            background-color: #e9ecef;
+            /* 更明顯的禁用背景色 */
             border-color: #dee2e6;
-            color: #adb5bd; /* 更淡的文字顏色 */
+            color: #adb5bd;
+            /* 更淡的文字顏色 */
             cursor: not-allowed;
-            opacity: 0.8; /* 增加透明度效果 */
-            pointer-events: none; /* 確保完全禁用點擊 */
+            opacity: 0.8;
+            /* 增加透明度效果 */
+            pointer-events: none;
+            /* 確保完全禁用點擊 */
         }
 
         .pagination .page-item.active .page-link {
@@ -1682,6 +1696,41 @@ try {
             background-color: transparent;
             border: none;
         }
+
+        /* 添加統計卡片的 active 狀態樣式 */
+        .stat-card.active {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        }
+
+        /* 為每種類型的卡片添加 active 狀態樣式 */
+        .stat-card.all.active {
+            background: linear-gradient(135deg, var(--camp-primary) 0%, var(--camp-secondary) 100%);
+        }
+
+        .stat-card.pending.active {
+            background: linear-gradient(135deg, var(--status-pending) 0%, #D4C5A9 100%);
+        }
+
+        .stat-card.confirmed.active {
+            background: linear-gradient(135deg, var(--status-confirmed) 0%, #A8C2B3 100%);
+        }
+
+        .stat-card.cancelled.active {
+            background: linear-gradient(135deg, var(--status-cancelled) 0%, #D4B5B5 100%);
+        }
+
+        /* active 狀態下的文字和圖標顏色 */
+        .stat-card.active .stat-icon,
+        .stat-card.active .stat-number,
+        .stat-card.active .stat-label {
+            color: white;
+        }
+
+        .stat-card.active .stat-icon {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
     </style>
 </head>
 
@@ -1707,11 +1756,11 @@ try {
                 <div class="col-md-3">
                     <div class="stat-card pending" data-status="pending" onclick="filterBookings('pending')">
                         <div class="stat-icon">
-                            <i class="bi bi-hourglass-split"></i> <!-- 待處理 -->
+                            <i class="bi bi-hourglass-split"></i> <!-- 待確認 -->
                         </div>
                         <div class="stat-content">
                             <div class="stat-number" id="pendingBookings"><?= $stats['pending'] ?></div>
-                            <div class="stat-label">待處理</div>
+                            <div class="stat-label">待確認</div>
                         </div>
 
                     </div>
@@ -1747,11 +1796,11 @@ try {
         <div class="content-wrapper">
             <!-- 標題列 -->
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1 class="page-title">訂單管理</h1>
+                <h1 class="page-title m-0">訂單管理</h1>
                 <div class="search-box">
-                    <input type="text" 
-                        id="searchInput" 
-                        class="form-control" 
+                    <input type="text"
+                        id="searchInput"
+                        class="form-control"
                         placeholder="搜尋訂單編號、活動名稱、價格..."
                         onkeyup="handleSearch()">
                     <i class="bi bi-search"></i>
@@ -1848,19 +1897,19 @@ try {
     </div>
 
     <!-- 訂單詳情 Modal -->
-    <div class="modal fade" 
-        id="detailModal" 
-        tabindex="-1" 
-        role="dialog" 
+    <div class="modal fade"
+        id="detailModal"
+        tabindex="-1"
+        role="dialog"
         aria-labelledby="detailModalLabel"
         aria-modal="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header border-bottom-0">
                     <h5 class="modal-title" id="detailModalLabel">訂單詳情</h5>
-                    <button type="button" 
-                        class="btn-close" 
-                        data-bs-dismiss="modal" 
+                    <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
                         aria-label="關閉">
                     </button>
                 </div>
@@ -1930,8 +1979,8 @@ try {
                     </div>
                 </div>
                 <div class="modal-footer border-top-0">
-                    <button type="button" 
-                        class="btn btn-outline-secondary" 
+                    <button type="button"
+                        class="btn btn-outline-secondary"
                         data-bs-dismiss="modal">關閉</button>
                 </div>
             </div>
@@ -1956,13 +2005,13 @@ try {
         // 初始化所有 Modal
         function initializeModals() {
             console.log('Initializing modals...'); // 除錯用
-            
+
             // 初始化狀態編輯 Modal
             const statusModalElement = document.getElementById('statusModal');
             if (statusModalElement) {
                 statusModal = new bootstrap.Modal(statusModalElement);
                 console.log('Status modal initialized'); // 除錯用
-                
+
                 // 添加更新按鈕事件監聽
                 const updateBtn = document.getElementById('updateStatusBtn');
                 if (updateBtn) {
@@ -1982,6 +2031,7 @@ try {
             }
         }
 
+
         // 確保 DOM 完全載入後再初始化
         document.addEventListener('DOMContentLoaded', function() {
             console.log('DOM Content Loaded'); // 除錯用
@@ -1992,12 +2042,12 @@ try {
         // 顯示狀態編輯 Modal
         function showStatusModal(bookingId) {
             if (!statusModal) return;
-            
+
             const booking = currentBookingData[bookingId];
             if (!booking) return;
 
             currentBookingId = bookingId;
-            
+
             // 設置當前選中的狀態
             const statusRadio = document.querySelector(`input[name="bookingStatus"][value="${booking.status}"]`);
             if (statusRadio) {
@@ -2013,16 +2063,16 @@ try {
             if (typeof price === 'string') {
                 price = price.replace(/,/g, '');
             }
-            
+
             // 轉換為數字
             const numPrice = Number(price);
-            
+
             // 檢是否為有效數字
             if (isNaN(numPrice)) {
                 console.error('Invalid price value:', price);
                 return 'NT$ 0';
             }
-            
+
             // 格式化價格
             return `NT$ ${numPrice.toLocaleString('zh-TW')}`;
         }
@@ -2046,11 +2096,11 @@ try {
                 document.getElementById('activityName').textContent = booking.activity_name;
                 document.getElementById('spotName').textContent = booking.spot_name;
                 document.getElementById('quantity').textContent = booking.quantity;
-                
+
                 // 處理價格顯示
                 const unitPrice = parseFloat(booking.unit_price) || 0;
                 const totalPrice = parseFloat(booking.total_price) || 0;
-                
+
                 document.getElementById('unitPrice').textContent = formatPrice(unitPrice);
                 document.getElementById('totalPrice').textContent = formatPrice(totalPrice);
             } catch (error) {
@@ -2088,14 +2138,14 @@ try {
             if (!bookingsList) return;
 
             bookingsList.innerHTML = '';
-            
+
             bookings.forEach(booking => {
                 currentBookingData[booking.booking_id] = booking;
-                
+
                 // 處理價格，移除可能的逗號
                 const unitPrice = booking.unit_price.toString().replace(/,/g, '');
                 const totalPrice = booking.total_price.toString().replace(/,/g, '');
-                
+
                 const row = document.createElement('tr');
                 row.style.cursor = 'pointer';
                 row.onclick = () => showBookingDetail(booking.booking_id);
@@ -2210,53 +2260,61 @@ try {
             document.getElementById('cancelledBookings').textContent = stats.cancelled;
         }
 
-        // 篩選函數
+        // 修改 filterBookings 函數
         function filterBookings(status = null) {
-            console.log('Filtering by status:', status); // 除錯用
-            
-            // 如沒有訂單數據，直接返回
+            console.log('Filtering by status:', status);
+
+            // 移除所有卡片的 active 狀態
+            document.querySelectorAll('.stat-card').forEach(card => {
+                card.classList.remove('active');
+            });
+
+            // 為當前選中的卡片添加 active 狀態
+            const selectedCard = document.querySelector(`.stat-card[data-status="${status || 'all'}"]`);
+            if (selectedCard) {
+                selectedCard.classList.add('active');
+            }
+
+            // 如果沒有訂單數據，直接返回
             if (!allBookings) {
                 console.log('No bookings data available');
                 return;
             }
 
-            let filteredBookings;
-            if (!status || status === 'all') {
-                filteredBookings = allBookings;
-            } else {
-                filteredBookings = allBookings.filter(booking => booking.status === status);
-            }
+            // 根據狀態篩選訂單
+            filteredBookings = !status || status === 'all' ?
+                [...allBookings] :
+                allBookings.filter(booking => booking.status === status);
 
-            console.log('Filtered bookings:', filteredBookings); // 除錯用
+            console.log('Filtered bookings:', filteredBookings);
 
-            // 渲染篩選的訂單
-            renderBookings(filteredBookings);
+            // 重置分頁到第一頁
+            currentPage = 1;
 
-            // 更新統計卡片的活躍狀態
-            updateStatsCardActive(status);
+            // 更新分頁和渲染訂單
+            updatePagination();
+            renderBookings(getCurrentPageBookings());
         }
 
-        // 更新統計卡片的活躍狀態
-        function updateStatsCardActive(activeStatus) {
-            const statCards = document.querySelectorAll('.stat-card');
-            statCards.forEach(card => {
-                const cardStatus = card.getAttribute('data-status');
-                card.classList.remove('active');
-                if ((!activeStatus && cardStatus === 'all') || cardStatus === activeStatus) {
-                    card.classList.add('active');
-                }
-            });
-        }
+        // 確保頁面載入時預設選中"全部"卡片
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('頁面載入完成');
+            initializeModals();
+            loadBookings();
+
+            // 預設選中"全部"卡片
+            document.querySelector('.stat-card.all').classList.add('active');
+        });
 
         // 搜尋功能增強
         function handleSearch() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
-            
+
             filteredBookings = allBookings.filter(booking => {
                 // 移除價格中的所有非數字字符（包括 NT$ 和逗號）
                 const unitPrice = parseFloat(booking.unit_price.toString().replace(/[^0-9.-]+/g, ''));
                 const totalPrice = parseFloat(booking.total_price.toString().replace(/[^0-9.-]+/g, ''));
-                
+
                 // 將搜尋詞也清理為純數字（如果是數字的話）
                 const searchNumber = parseFloat(searchTerm.replace(/[^0-9.-]+/g, ''));
                 const isNumericSearch = !isNaN(searchNumber);
@@ -2274,10 +2332,10 @@ try {
                         priceMatch = unitPrice < searchNumber || totalPrice < searchNumber;
                     } else {
                         // 精確匹配或包含匹配
-                        priceMatch = 
-                            unitPrice === searchNumber || 
+                        priceMatch =
+                            unitPrice === searchNumber ||
                             totalPrice === searchNumber ||
-                            unitPrice.toString().includes(searchTerm) || 
+                            unitPrice.toString().includes(searchTerm) ||
                             totalPrice.toString().includes(searchTerm);
                     }
                 }
@@ -2291,7 +2349,7 @@ try {
                 const searchStatus = statusMap[searchTerm] || searchTerm;
 
                 // 一般文字搜尋
-                const textMatch = 
+                const textMatch =
                     booking.booking_id.toString().includes(searchTerm) ||
                     booking.activity_name.toLowerCase().includes(searchTerm) ||
                     booking.spot_name.toLowerCase().includes(searchTerm) ||
@@ -2301,7 +2359,7 @@ try {
 
                 return textMatch || priceMatch;
             });
-            
+
             currentPage = 1;
             updatePagination();
             renderBookings(getCurrentPageBookings());
@@ -2317,22 +2375,22 @@ try {
                 sortField = field;
                 sortDirection = 'asc';
             }
-            
+
             filteredBookings.sort((a, b) => {
                 let valueA = a[field];
                 let valueB = b[field];
-                
+
                 // 數字類型特殊處理
                 if (field === 'unit_price' || field === 'total_price' || field === 'quantity') {
                     valueA = parseFloat(valueA);
                     valueB = parseFloat(valueB);
                 }
-                
+
                 if (valueA < valueB) return sortDirection === 'asc' ? -1 : 1;
                 if (valueA > valueB) return sortDirection === 'asc' ? 1 : -1;
                 return 0;
             });
-            
+
             renderBookings(getCurrentPageBookings());
         }
 
@@ -2348,14 +2406,14 @@ try {
             const totalPages = Math.ceil(filteredBookings.length / itemsPerPage);
             const startIndex = (currentPage - 1) * itemsPerPage + 1;
             const endIndex = Math.min(startIndex + itemsPerPage - 1, filteredBookings.length);
-            
+
             document.getElementById('startIndex').textContent = startIndex;
             document.getElementById('endIndex').textContent = endIndex;
             document.getElementById('totalItems').textContent = filteredBookings.length;
-            
+
             const pagination = document.getElementById('pagination');
             pagination.innerHTML = '';
-            
+
             // 上一頁按鈕
             const prevLi = document.createElement('li');
             const isFirstPage = currentPage === 1;
@@ -2367,15 +2425,15 @@ try {
                     <i class="bi bi-chevron-left"></i> 上一頁
                 </a>`;
             pagination.appendChild(prevLi);
-            
+
             // 頁碼按鈕
             let startPage = Math.max(1, currentPage - 2);
             let endPage = Math.min(totalPages, startPage + 4);
-            
+
             if (endPage - startPage < 4) {
                 startPage = Math.max(1, endPage - 4);
             }
-            
+
             // 第一頁和省略號
             if (startPage > 1) {
                 pagination.appendChild(createPageItem(1));
@@ -2386,12 +2444,12 @@ try {
                     pagination.appendChild(ellipsis);
                 }
             }
-            
+
             // 中間頁碼
             for (let i = startPage; i <= endPage; i++) {
                 pagination.appendChild(createPageItem(i));
             }
-            
+
             // 最後頁和省略號
             if (endPage < totalPages) {
                 if (endPage < totalPages - 1) {
@@ -2402,7 +2460,7 @@ try {
                 }
                 pagination.appendChild(createPageItem(totalPages));
             }
-            
+
             // 下一頁按鈕
             const nextLi = document.createElement('li');
             const isLastPage = currentPage === totalPages;
@@ -2436,13 +2494,13 @@ try {
                 event.preventDefault();
                 event.stopPropagation();
             }
-            
+
             if (page < 1 || page > Math.ceil(filteredBookings.length / itemsPerPage)) return;
-            
+
             currentPage = page;
             updatePagination();
             renderBookings(getCurrentPageBookings());
-            
+
             return false; // 確保不會觸發任何預設行為
         }
     </script>

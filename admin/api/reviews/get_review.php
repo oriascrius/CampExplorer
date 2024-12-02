@@ -1,5 +1,5 @@
 <?php
-require_once '../../includes/db.php';
+require_once __DIR__ . '/../../../camping_db.php';
 
 header('Content-Type: application/json');
 
@@ -13,7 +13,7 @@ try {
         throw new Exception('無效的申請 ID');
     }
 
-    $conn = connectDB();
+    global $db;
     
     // 查詢營地申請和審核資料
     $sql = "SELECT 
@@ -27,7 +27,7 @@ try {
             LEFT JOIN admin_users au ON cr.admin_id = au.admin_id
             WHERE ca.application_id = ?";
             
-    $stmt = $conn->prepare($sql);
+    $stmt = $db->prepare($sql);
     $stmt->execute([$application_id]);
     $review = $stmt->fetch(PDO::FETCH_ASSOC);
     
