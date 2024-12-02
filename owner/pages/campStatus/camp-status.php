@@ -122,27 +122,43 @@ try {
     </div>
     <!-- 主要內容區 -->
     <div class="content-wrapper">
-        <div class="page-header">
-            <h1 class="page-title">營地狀態</h1>
+        <div class="page-header d-flex justify-content-between align-items-center mb-2">
+            <h1 class="page-title m-0">營地狀態</h1>
+            <div class="search-box">
+                <input type="text"
+                    id="searchInput"
+                    class="form-control"
+                    placeholder="搜尋營地名稱..."
+                    onkeyup="handleSearch()">
+                <i class="bi bi-search"></i>
+            </div>
         </div>
         <div class="card">
             <?php if (empty($camps)): ?>
                 <div class="text-center text-muted py-3">
-                    <p>目前還沒有營地資料</p>
+                    <p>還沒有營地資料</p>
                 </div>
             <?php else: ?>
                 <div class="table-responsive">
                     <table class="spot-list">
                         <thead>
                             <tr>
-                                <th>營地名稱</th>
-                                <th>審核狀態</th>
-                                <th>申請時間</th>
-                                <th>最後更新</th>
+                                <th onclick="sortTable('name')" class="sortable">
+                                    營地名稱 <i class="bi bi-arrow-down-up"></i>
+                                </th>
+                                <th onclick="sortTable('status')" class="sortable">
+                                    審核狀態 <i class="bi bi-arrow-down-up"></i>
+                                </th>
+                                <th onclick="sortTable('created_at')" class="sortable">
+                                    申請時間 <i class="bi bi-arrow-down-up"></i>
+                                </th>
+                                <th onclick="sortTable('updated_at')" class="sortable">
+                                    最後更新 <i class="bi bi-arrow-down-up"></i>
+                                </th>
                                 <th>操作</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="campsList">
                             <?php foreach ($camps as $camp): ?>
                                 <tr>
                                     <td><?= htmlspecialchars($camp['name']) ?></td>
@@ -165,18 +181,19 @@ try {
                                     <td><?= date('Y-m-d H:i', strtotime($camp['created_at'])) ?></td>
                                     <td><?= date('Y-m-d H:i', strtotime($camp['updated_at'])) ?></td>
                                     <td>
-                                        <button type="button" class="btn btn-outline-info btn-sm"
+                                        <button type="button"
+                                            class="btn btn-outline-info btn-sm"
                                             data-bs-toggle="modal"
                                             data-bs-target="#campDetailModal"
                                             data-camp-name="<?= htmlspecialchars($camp['name']) ?>"
                                             data-camp-address="<?= htmlspecialchars($camp['address']) ?>"
                                             data-camp-status="<?= htmlspecialchars($camp['status_text']) ?>"
+                                            data-camp-status-code="<?= htmlspecialchars($camp['status']) ?>"
                                             data-camp-created="<?= date('Y-m-d H:i', strtotime($camp['created_at'])) ?>"
                                             data-camp-updated="<?= date('Y-m-d H:i', strtotime($camp['updated_at'])) ?>"
                                             data-camp-description="<?= htmlspecialchars($camp['description']) ?>"
                                             data-camp-rules="<?= htmlspecialchars($camp['rules']) ?>"
-                                            data-camp-notice="<?= htmlspecialchars($camp['notice']) ?>"
-                                            data-camp-comment="<?= htmlspecialchars($camp['admin_comment'] ?? '') ?>">
+                                            data-camp-notice="<?= htmlspecialchars($camp['notice']) ?>">
                                             查看詳情
                                         </button>
                                     </td>
@@ -184,6 +201,16 @@ try {
                             <?php endforeach; ?>
                         </tbody>
                     </table>
+
+                    <!-- 添加分頁容器 -->
+                    <div class="pagination-wrapper mt-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="pagination-info">
+                                顯示第 <span id="startIndex">0</span> 到第 <span id="endIndex">0</span> 筆，共 <span id="totalItems">0</span> 筆資料
+                            </div>
+                            <ul class="pagination" id="pagination"></ul>
+                        </div>
+                    </div>
                 </div>
             <?php endif; ?>
         </div>
@@ -193,55 +220,82 @@ try {
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js"></script>
 
 <!-- Modal -->
-<div class="modal fade"
-    id="campDetailModal"
-    tabindex="-1"
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="campDetailModalLabel">
-    <div class="modal-dialog modal-lg" role="document">
+<div class="modal fade" id="campDetailModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="campDetailModalLabel">營地詳細資訊</h5>
-                <button type="button"
-                    class="btn-close"
-                    data-bs-dismiss="modal"
-                    aria-label="關閉">
-                </button>
+                <h5 class="modal-title">營地詳細資訊</h5>
+                <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">關閉</button>
             </div>
             <div class="modal-body">
-                <div class="camp-info">
-                    <div class="row mb-3">
+                <!-- 基本資訊區塊 -->
+                <div class="detail-section">
+                    <h6 class="section-title">基本資訊</h6>
+                    <div class="row g-3">
                         <div class="col-md-6">
-                            <p><span class="info-label">營地名稱：</span> <span id="modalCampName"></span></p>
-                            <p><span class="info-label">營地地址：</span> <span id="modalCampAddress"></span></p>
-                            <p><span class="info-label">申請時間：</span> <span id="modalCampCreated"></span></p>
+                            <div class="detail-item">
+                                <label class="form-label">營地名稱</label>
+                                <div class="camp-name detail-content"></div>
+                            </div>
                         </div>
                         <div class="col-md-6">
-                            <p><span class="info-label">審核狀態：</span> <span id="modalCampStatus"></span></p>
-                            <p><span class="info-label">最後更新：</span> <span id="modalCampUpdated"></span></p>
-                            <p><span class="info-label">審核意見：</span> <span id="modalCampComment"></span></p>
+                            <div class="detail-item">
+                                <label class="form-label">地址</label>
+                                <div class="camp-address detail-content"></div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="mb-3">
-                        <h6 class="info-label">營地介紹</h6>
-                        <div id="modalCampDescription" class="p-3 bg-light rounded"></div>
-                    </div>
-                    <div class="mb-3">
-                        <h6 class="info-label">營地規則</h6>
-                        <div id="modalCampRules" class="p-3 bg-light rounded"></div>
-                    </div>
-                    <div class="mb-3">
-                        <h6 class="info-label">注意事項</h6>
-                        <div id="modalCampNotice" class="p-3 bg-light rounded"></div>
                     </div>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button"
-                    class="btn btn-outline-info"
-                    data-bs-dismiss="modal"
-                    aria-label="關閉對話框">關閉</button>
+
+                <!-- 審核資訊區塊 -->
+                <div class="detail-section">
+                    <h6 class="section-title">審核資訊</h6>
+                    <div class="row g-3 align-items-center">
+                        <div class="col-md-4">
+                            <div class="detail-item">
+                                <label class="form-label">審核狀態</label>
+                                <div class="modalCampStatus detail-content"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="detail-item">
+                                <label class="form-label">申請時間</label>
+                                <div class="camp-created detail-content"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="detail-item">
+                                <label class="form-label">最後更新</label>
+                                <div class="camp-updated detail-content"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 詳細內容區塊 -->
+                <div class="detail-section">
+                    <h6 class="section-title">詳細內容</h6>
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <div class="detail-item">
+                                <label class="form-label">營地描述</label>
+                                <div class="camp-description detail-content"></div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="detail-item">
+                                <label class="form-label">營地規則</label>
+                                <div class="camp-rules detail-content"></div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="detail-item">
+                                <label class="form-label">注意事項</label>
+                                <div class="camp-notice detail-content"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -249,92 +303,106 @@ try {
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // 表格行點件
-        document.querySelectorAll('table tbody tr').forEach(row => {
-            row.addEventListener('click', function(e) {
-                // 如果點擊的是按鈕本身，不需要發行點擊事件
-                if (e.target.closest('.btn')) {
-                    return;
+        const campDetailModal = document.getElementById('campDetailModal');
+        if (!campDetailModal) return;
+
+        campDetailModal.addEventListener('show.bs.modal', function(event) {
+            try {
+                const button = event.relatedTarget;
+                const modal = this;
+
+                // 獲取當前營地的狀態碼
+                const statusCode = button.getAttribute('data-camp-status-code');
+                const statusText = button.getAttribute('data-camp-status');
+
+                // 根據狀態碼設置對應的樣式和圖標
+                let statusClass, statusIcon;
+                switch (parseInt(statusCode)) {
+                    case 1:
+                        statusClass = 'approved';
+                        statusIcon = 'bi-check-circle-fill';
+                        break;
+                    case 2:
+                        statusClass = 'rejected';
+                        statusIcon = 'bi-x-circle-fill';
+                        break;
+                    case 0:
+                    default:
+                        statusClass = 'pending';
+                        statusIcon = 'bi-hourglass-split';
+                        break;
                 }
 
-                // 找到該行中的詳細資訊按鈕
-                const detailButton = this.querySelector('.btn-outline-primary');
-                if (detailButton) {
-                    detailButton.click();
+                // 更新狀態顯示
+                const modalCampStatus = modal.querySelector('.modalCampStatus');
+                if (modalCampStatus) {
+                    // 清除所有可能的狀態類
+                    modalCampStatus.classList.remove('pending', 'approved', 'rejected');
+                    // 添加狀態類
+                    modalCampStatus.classList.add('status-badge', statusClass);
+                    modalCampStatus.innerHTML = `
+                        <i class="bi ${statusIcon}"></i>
+                        ${statusText}
+                    `;
+                }
+
+                // 更新其他內容
+                modal.querySelector('.camp-name').textContent = button.getAttribute('data-camp-name') || '';
+                modal.querySelector('.camp-address').textContent = button.getAttribute('data-camp-address') || '';
+                modal.querySelector('.camp-created').textContent = button.getAttribute('data-camp-created') || '';
+                modal.querySelector('.camp-updated').textContent = button.getAttribute('data-camp-updated') || '';
+                modal.querySelector('.camp-description').textContent = button.getAttribute('data-camp-description') || '無描述';
+                modal.querySelector('.camp-rules').textContent = button.getAttribute('data-camp-rules') || '無規則';
+                modal.querySelector('.camp-notice').textContent = button.getAttribute('data-camp-notice') || '無注意事項';
+
+            } catch (error) {
+                console.error('Modal 更新出錯:', error);
+            }
+        });
+
+        // Modal 關閉時清除內容
+        campDetailModal.addEventListener('hidden.bs.modal', function() {
+            const elements = {
+                name: this.querySelector('.camp-name'),
+                address: this.querySelector('.camp-address'),
+                status: this.querySelector('.modalCampStatus'),
+                created: this.querySelector('.camp-created'),
+                updated: this.querySelector('.camp-updated'),
+                description: this.querySelector('.camp-description'),
+                rules: this.querySelector('.camp-rules'),
+                notice: this.querySelector('.camp-notice')
+            };
+
+            // 清除所有內容
+            Object.values(elements).forEach(element => {
+                if (element) {
+                    if (element.classList.contains('status-badge')) {
+                        // 清除狀態標籤的所有類別和內容
+                        element.className = 'modalCampStatus';
+                        element.innerHTML = '';
+                    } else {
+                        element.textContent = '';
+                    }
                 }
             });
         });
-
-        // 其他現有的 DOMContentLoaded 事件處理程式
-        const container = document.querySelector('.container-fluid');
-        const sideNav = document.querySelector('.side-nav');
-
-        if (sideNav) {
-            const observer = new MutationObserver(function(mutations) {
-                mutations.forEach(function(mutation) {
-                    if (mutation.target.classList.contains('collapsed')) {
-                        container.classList.add('nav-collapsed');
-                    } else {
-                        container.classList.remove('nav-collapsed');
-                    }
-                });
-            });
-
-            observer.observe(sideNav, {
-                attributes: true,
-                attributeFilter: ['class']
-            });
-        }
-
-        const campDetailModal = document.getElementById('campDetailModal');
-        if (campDetailModal) {
-            // Modal 開啟時的處理
-            campDetailModal.addEventListener('show.bs.modal', function(event) {
-                // 移除 aria-hidden 屬性
-                this.removeAttribute('aria-hidden');
-
-                const button = event.relatedTarget;
-
-                // 更新 Modal 內容
-                document.getElementById('modalCampName').textContent = button.dataset.campName || '無資料';
-                document.getElementById('modalCampAddress').textContent = button.dataset.campAddress || '無資料';
-                document.getElementById('modalCampStatus').textContent = button.dataset.campStatus || '無資料';
-                document.getElementById('modalCampCreated').textContent = button.dataset.campCreated || '無資料';
-                document.getElementById('modalCampUpdated').textContent = button.dataset.campUpdated || '無資料';
-                document.getElementById('modalCampDescription').textContent = button.dataset.campDescription || '無資料';
-                document.getElementById('modalCampRules').textContent = button.dataset.campRules || '無資料';
-                document.getElementById('modalCampNotice').textContent = button.dataset.campNotice || '無資料';
-                document.getElementById('modalCampComment').textContent = button.dataset.campComment || '無核意見';
-            });
-
-            // Modal 關閉時的處理
-            campDetailModal.addEventListener('hide.bs.modal', function() {
-                // 使用 inert 屬性而不是 aria-hidden
-                this.setAttribute('inert', '');
-            });
-
-            // Modal 完全關後的處理
-            campDetailModal.addEventListener('hidden.bs.modal', function() {
-                // 移除 inert 屬性
-                this.removeAttribute('inert');
-                // 重置焦點到觸發按鈕
-                const triggerButton = document.querySelector('[data-bs-target="#campDetailModal"]');
-                if (triggerButton) {
-                    triggerButton.focus();
-                }
-            });
-        }
-
-        animateStatNumbers();
     });
 
     // 添加篩選功能
     function filterCamps(type) {
+        // 移除所有卡片的 active 狀態
+        document.querySelectorAll('.stat-card').forEach(card => {
+            card.classList.remove('active');
+        });
+        
+        // 為當前選中的卡片添加 active 狀態
+        document.querySelector(`.stat-card.${type}`).classList.add('active');
+        
         const campRows = document.querySelectorAll('.spot-list tbody tr');
-
+        
         campRows.forEach(row => {
             const statusText = row.querySelector('.status-badge').textContent.trim();
-
+            
             switch (type) {
                 case 'pending':
                     row.style.display = statusText === '審核中' ? '' : 'none';
@@ -345,8 +413,9 @@ try {
                 case 'rejected':
                     row.style.display = statusText === '已退回' ? '' : 'none';
                     break;
-                default:
+                default: // 'all'
                     row.style.display = '';
+                    break;
             }
         });
     }
@@ -531,7 +600,7 @@ try {
 
     .status-2:hover {
         background-color: #9B6A72;
-        /* 深一點的磚紅色 */
+        /* 深點的磚紅色 */
     }
 
     /* 操作按鈕基本樣式 */
@@ -569,7 +638,7 @@ try {
         box-shadow: 0 4px 12px rgba(168, 194, 179, 0.2);
     }
 
-    /* 停用按鈕 - 莫蘭迪粉 */
+    /* 停用按鈕 - 蘭迪粉 */
     .btn-deactivate {
         border: 1px solid #B47B84;
         color: #B47B84;
@@ -587,9 +656,9 @@ try {
         color: var(--camp-primary);
         font-size: 2rem;
         font-weight: 600;
-        margin-bottom: 1rem;
-        padding-bottom: 1rem;
-        border-bottom: 3px solid var(--camp-border);
+        /* margin-bottom: 1rem;
+        padding-bottom: 1rem; */
+        /* border-bottom: 3px solid var(--camp-border); */
         position: relative;
     }
 
@@ -927,6 +996,346 @@ try {
         font-size: 0.85rem;
         margin: 0;
     }
+
+    /* 添加搜尋框樣式 */
+    .search-box {
+        position: relative;
+        width: 300px;
+    }
+
+    .search-box input {
+        padding-right: 30px;
+        border-radius: 20px;
+    }
+
+    .search-box i {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--camp-secondary);
+    }
+
+    /* 添加排序圖標樣式 */
+    th.sortable {
+        cursor: pointer;
+        user-select: none;
+    }
+
+    th.sortable i {
+        margin-left: 5px;
+        font-size: 0.8em;
+    }
+
+    /* 分頁樣式 */
+    .pagination-container {
+        margin-top: 2rem;
+        padding: 1rem;
+        background: white;
+        border-radius: 8px;
+    }
+
+    .pagination {
+        margin: 0;
+    }
+
+    .page-link {
+        color: var(--camp-primary);
+        cursor: pointer;
+    }
+
+    .page-item.active .page-link {
+        background-color: var(--camp-primary);
+        border-color: var(--camp-primary);
+    }
+
+    /* 分頁容器樣式 */
+    .pagination-wrapper {
+        padding: 1rem;
+        background-color: #fff;
+        border-top: 1px solid var(--camp-border);
+    }
+
+    .pagination-info {
+        color: var(--camp-text);
+        font-size: 0.9rem;
+    }
+
+    .pagination-info span {
+        font-weight: bold;
+        color: var(--camp-primary);
+    }
+
+    /* 狀態標籤樣式 */
+    .modalCampStatus {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.75rem;
+        border-radius: 1rem;
+        font-size: 0.875rem;
+    }
+
+    .modalCampStatus i {
+        margin-right: 0.375rem;
+    }
+
+    /* 不同狀態的顏色 */
+    .modalCampStatus.pending {
+        color: var(--status-pending);
+        background-color: rgba(196, 166, 135, 0.1);
+    }
+
+    .modalCampStatus.approved {
+        color: var(--status-confirmed);
+        background-color: rgba(143, 169, 119, 0.1);
+    }
+
+    .modalCampStatus.rejected {
+        color: var(--status-cancelled);
+        background-color: rgba(198, 155, 151, 0.1);
+    }
+
+    /* Modal 樣式優化 */
+    .modal-body {
+        padding: 1.5rem;
+    }
+
+    .detail-section {
+        margin-bottom: 2rem;
+        padding: 1.25rem;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+    }
+
+    .detail-section:last-child {
+        margin-bottom: 0;
+    }
+
+    .section-title {
+        color: var(--camp-primary);
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid var(--camp-primary);
+        font-weight: 600;
+    }
+
+    .detail-item {
+        margin-bottom: 0.5rem;
+    }
+
+    .detail-item .form-label {
+        font-weight: 500;
+        color: #666;
+        margin-bottom: 0.25rem;
+    }
+
+    .detail-content {
+        padding: 0.5rem;
+        background-color: white;
+        border-radius: 4px;
+        min-height: 2.5rem;
+        border: 1px solid #dee2e6;
+        display: flex;
+        align-items: center;
+    }
+
+    /* 狀態標籤在 Modal 中的特殊樣式 */
+    .modalCampStatus.status-badge {
+        display: inline-flex;
+        margin: 0.25rem 0;
+    }
+
+    /* Modal 標題樣式 */
+    .modal-header {
+        background: linear-gradient(to right, var(--camp-primary), var(--camp-secondary));
+        color: white;
+    }
+
+    .modal-header .btn-outline-light {
+        color: var(--camp-primary);
+        border-color: var(--camp-primary);
+    }
+
+    .modal-header .btn-outline-light:hover {
+        background-color: var(--camp-primary);
+        color: white;
+    }
+
+    /* 滾動條美化 */
+    .modal-body {
+        max-height: calc(100vh - 200px);
+        overflow-y: auto;
+    }
+
+    .modal-body::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .modal-body::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 4px;
+    }
+
+    .modal-body::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 4px;
+    }
+
+    .modal-body::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+
+    /* Modal 中的狀態標籤樣式 */
+    .modal .status-badge {
+        max-width: 120px;
+        padding: 0.5rem 1.2rem;
+        margin-left: 0.2rem;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+        color: white;
+    }
+
+    /* 審核中 - 莫蘭迪黃色系 */
+    .modal .status-badge.pending {
+        background-color: #D4C5A9;
+        border: 1px solid #C4B699;
+    }
+
+    .modal .status-badge.pending i {
+        color: #FFF4E6;
+    }
+
+    /* 已通過 - 莫蘭迪綠色系 */
+    .modal .status-badge.approved {
+        background-color: #A8C2B3;
+        border: 1px solid #98B2A3;
+    }
+
+    .modal .status-badge.approved i {
+        color: #E6FCF5;
+    }
+
+    /* 已退回 - 莫蘭迪粉色系 */
+    .modal .status-badge.rejected {
+        background-color: #D4B5B5;
+        border: 1px solid #C4A5A5;
+    }
+
+    .modal .status-badge.rejected i {
+        color: #FFF5F5;
+    }
+
+    /* 狀態標籤 hover 效果 */
+    .modal .status-badge:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    /* 圖標樣式 */
+    .modal .status-badge i {
+        font-size: 1rem;
+    }
+
+    /* 確保狀態標籤在 Modal 中的位置正確 */
+    .modal .detail-content .status-badge {
+        display: inline-flex;
+        margin: 0;
+    }
+
+    /* 審核資訊區塊樣式 */
+    .detail-section {
+        margin-bottom: 2rem;
+        padding: 1.25rem;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+    }
+
+    /* 調整行高和對齊方式 */
+    .detail-section .row {
+        min-height: 60px;
+        /* 確保每行有固定最小高度 */
+    }
+
+    /* 調整垂直對齊 */
+    .detail-item {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        /* 垂直置中 */
+    }
+
+    /* 調整標籤和內容的間距 */
+    .detail-item .form-label {
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: #666;
+    }
+
+    /* 調整內容區域的對齊 */
+    .detail-content {
+        padding: 0.5rem;
+        background-color: white;
+        border-radius: 4px;
+        min-height: 2.5rem;
+        border: 1px solid #dee2e6;
+        display: flex;
+        align-items: center;
+        /* 垂直置中 */
+    }
+
+    /* 特別處理狀態標籤容器 */
+    .detail-content .status-badge {
+        margin: 0;
+    }
+
+    .search-box input {
+        padding-right: 35px;
+        padding-left: 15px;
+        border-radius: 20px;
+        border: 1px solid var(--camp-border);
+        height: 42px;
+        font-size: 0.95rem;
+    }
+
+    /* 添加 active 狀態的樣式 */
+    .stat-card.active {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    }
+
+    /* 為每種類型的卡片添加 active 狀態樣式 */
+    .stat-card.all.active {
+        background: linear-gradient(135deg, #A8B9C7 0%, #C4D3DF 100%);
+    }
+
+    .stat-card.pending.active {
+        background: linear-gradient(135deg, #D4C5A9 0%, #E5DBC8 100%);
+    }
+
+    .stat-card.approved.active {
+        background: linear-gradient(135deg, #A8C2B3 0%, #C4D8CD 100%);
+    }
+
+    .stat-card.rejected.active {
+        background: linear-gradient(135deg, #D4B5B5 0%, #E5CDCD 100%);
+    }
+
+    /* active 狀態下的文字和圖標顏色 */
+    .stat-card.active .stat-icon,
+    .stat-card.active .stat-number,
+    .stat-card.active .stat-label {
+        color: white;
+    }
+
+    .stat-card.active .stat-icon {
+        background-color: rgba(255, 255, 255, 0.2);
+    }
 </style>
 
 <!-- 在表上方添加 -->
@@ -935,3 +1344,240 @@ try {
         <span class="visually-hidden">載入中...</span>
     </div>
 </div>
+
+<script>
+    let allCamps = <?= json_encode($camps) ?>;
+    let filteredCamps = [...allCamps];
+    let currentPage = 1;
+    const itemsPerPage = 10;
+    let currentSort = {
+        field: 'created_at',
+        direction: 'desc'
+    };
+
+    // 添加 renderCamps 函數
+    function renderCamps(camps) {
+        const tbody = document.getElementById('campsList');
+        if (!tbody) return;
+
+        tbody.innerHTML = '';
+
+        camps.forEach(camp => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+            <td>${htmlEscape(camp.name)}</td>
+            <td>
+                <span class="status-badge ${getStatusClass(camp.status)}">
+                    <i class="bi ${getStatusIcon(camp.status)}"></i>
+                    ${camp.status_text}
+                </span>
+            </td>
+            <td>${formatDate(camp.created_at)}</td>
+            <td>${formatDate(camp.updated_at)}</td>
+            <td>
+                <button type="button" 
+                        class="btn btn-outline-info btn-sm"
+                        data-bs-toggle="modal"
+                        data-bs-target="#campDetailModal"
+                        data-camp-name="${htmlEscape(camp.name)}"
+                        data-camp-address="${htmlEscape(camp.address)}"
+                        data-camp-status="${htmlEscape(camp.status_text)}"
+                        data-camp-status-code="${camp.status}"
+                        data-camp-created="${formatDate(camp.created_at)}"
+                        data-camp-updated="${formatDate(camp.updated_at)}"
+                        data-camp-description="${htmlEscape(camp.description)}"
+                        data-camp-rules="${htmlEscape(camp.rules)}"
+                        data-camp-notice="${htmlEscape(camp.notice)}">
+                    查看詳情
+                </button>
+            </td>
+        `;
+            tbody.appendChild(row);
+        });
+    }
+
+    // 添加輔助函數
+    function htmlEscape(str) {
+        if (!str) return '';
+        return str
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    function formatDate(dateStr) {
+        return new Date(dateStr).toLocaleString('zh-TW', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+
+    function getStatusClass(status) {
+        return {
+            0: 'pending',
+            1: 'approved',
+            2: 'rejected'
+        } [status] || 'pending';
+    }
+
+    function getStatusIcon(status) {
+        return {
+            0: 'bi-hourglass-split',
+            1: 'bi-check-circle-fill',
+            2: 'bi-x-circle-fill'
+        } [status] || 'bi-hourglass-split';
+    }
+
+    // 搜尋功能
+    function handleSearch() {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        filteredCamps = allCamps.filter(camp =>
+            camp.name.toLowerCase().includes(searchTerm) ||
+            camp.address.toLowerCase().includes(searchTerm)
+        );
+        currentPage = 1;
+        updatePagination();
+        renderCamps(getCurrentPageCamps());
+    }
+
+    // 排序功能
+    function sortTable(field) {
+        if (currentSort.field === field) {
+            currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+        } else {
+            currentSort.field = field;
+            currentSort.direction = 'asc';
+        }
+
+        // 更新序圖標
+        document.querySelectorAll('th.sortable i').forEach(icon => {
+            icon.className = 'bi bi-arrow-down-up';
+        });
+        const currentIcon = document.querySelector(`th[onclick="sortTable('${field}')"] i`);
+        currentIcon.className = `bi bi-arrow-${currentSort.direction === 'asc' ? 'up' : 'down'}`;
+
+        // 序數據
+        filteredCamps.sort((a, b) => {
+            let compareA = a[field];
+            let compareB = b[field];
+
+            // 日期類型特殊處理
+            if (field.includes('_at')) {
+                compareA = new Date(compareA);
+                compareB = new Date(compareB);
+            }
+
+            if (compareA < compareB) return currentSort.direction === 'asc' ? -1 : 1;
+            if (compareA > compareB) return currentSort.direction === 'asc' ? 1 : -1;
+            return 0;
+        });
+
+        renderCamps(getCurrentPageCamps());
+    }
+
+    // 獲取當前頁數據
+    function getCurrentPageCamps() {
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        return filteredCamps.slice(startIndex, startIndex + itemsPerPage);
+    }
+
+    // 更新分頁控制項
+    function updatePagination() {
+        const startIndexEl = document.getElementById('startIndex');
+        const endIndexEl = document.getElementById('endIndex');
+        const totalItemsEl = document.getElementById('totalItems');
+
+        // 檢查必要的元素是否存在
+        if (!startIndexEl || !endIndexEl || !totalItemsEl) {
+            console.error('找不到分頁資訊元素');
+            return;
+        }
+
+        const totalPages = Math.ceil(filteredCamps.length / itemsPerPage);
+        const startIndex = (currentPage - 1) * itemsPerPage + 1;
+        const endIndex = Math.min(startIndex + itemsPerPage - 1, filteredCamps.length);
+
+        startIndexEl.textContent = filteredCamps.length ? startIndex : 0;
+        endIndexEl.textContent = endIndex;
+        totalItemsEl.textContent = filteredCamps.length;
+
+        renderPagination(totalPages);
+    }
+
+    // 渲染分頁按鈕
+    function renderPagination(totalPages) {
+        const pagination = document.getElementById('pagination');
+        if (!pagination) {
+            console.error('找不到分頁容器元');
+            return;
+        }
+
+        pagination.innerHTML = '';
+
+        // 上一頁
+        const prevLi = document.createElement('li');
+        prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
+        prevLi.innerHTML = `
+        <a class="page-link" onclick="changePage(${currentPage - 1})">
+            <i class="bi bi-chevron-left"></i>
+        </a>
+    `;
+        pagination.appendChild(prevLi);
+
+        // 頁碼
+        for (let i = 1; i <= totalPages; i++) {
+            if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+                const li = document.createElement('li');
+                li.className = `page-item ${i === currentPage ? 'active' : ''}`;
+                li.innerHTML = `<a class="page-link" onclick="changePage(${i})">${i}</a>`;
+                pagination.appendChild(li);
+            } else if (i === currentPage - 3 || i === currentPage + 3) {
+                const li = document.createElement('li');
+                li.className = 'page-item disabled';
+                li.innerHTML = '<span class="page-link">...</span>';
+                pagination.appendChild(li);
+            }
+        }
+
+        // 下一頁
+        const nextLi = document.createElement('li');
+        nextLi.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
+        nextLi.innerHTML = `
+        <a class="page-link" onclick="changePage(${currentPage + 1})">
+            <i class="bi bi-chevron-right"></i>
+        </a>
+    `;
+        pagination.appendChild(nextLi);
+    }
+
+    // 換頁
+    function changePage(page) {
+        if (page < 1 || page > Math.ceil(filteredCamps.length / itemsPerPage)) return;
+        currentPage = page;
+        updatePagination();
+        renderCamps(getCurrentPageCamps());
+    }
+
+    // 確保 DOM 完全載入後再初始化
+    document.addEventListener('DOMContentLoaded', function() {
+        // 檢查必要的元素是否存在
+        const requiredElements = ['startIndex', 'endIndex', 'totalItems', 'pagination', 'campsList'];
+        const missingElements = requiredElements.filter(id => !document.getElementById(id));
+
+        if (missingElements.length > 0) {
+            console.error('缺少必要的元素:', missingElements);
+            return;
+        }
+
+        updatePagination();
+        renderCamps(getCurrentPageCamps());
+
+        // 預設選中 "全部" 卡片
+        document.querySelector('.stat-card.all').classList.add('active');
+    });
+</script>

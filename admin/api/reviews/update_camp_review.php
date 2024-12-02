@@ -1,6 +1,6 @@
 <?php
-require_once '../../includes/db.php';
-require_once '../../includes/session.php';
+require_once __DIR__ . '/../../../camping_db.php';
+// require_once __DIR__ . '/../../../includes/session.php';
 
 // 設置響應頭
 header('Content-Type: application/json');
@@ -31,14 +31,14 @@ try {
         throw new Exception('審核意見至少需要10個字');
     }
 
-    $conn = connectDB();
+    global $db;
     
     // 開始事務
-    $conn->beginTransaction();
+    $db->beginTransaction();
 
     try {
         // 檢查申請是否存在
-        $checkStmt = $conn->prepare("
+        $checkStmt = $db->prepare("
             SELECT application_id 
             FROM camp_applications 
             WHERE application_id = ?
@@ -50,7 +50,7 @@ try {
         }
 
         // 更新申請狀態
-        $updateAppStmt = $conn->prepare("
+        $updateAppStmt = $db->prepare("
             UPDATE camp_applications 
             SET status = ?, 
                 updated_at = NOW() 
@@ -64,7 +64,7 @@ try {
         }
 
         // 檢查是否已有審核記錄
-        $checkReviewStmt = $conn->prepare("
+        $checkReviewStmt = $db->prepare("
             SELECT review_id 
             FROM campsite_reviews 
             WHERE application_id = ?
@@ -74,7 +74,7 @@ try {
 
         if ($existingReview) {
             // 更新現有審核記錄
-            $reviewStmt = $conn->prepare("
+            $reviewStmt = $db->prepare("
                 UPDATE campsite_reviews 
                 SET status = ?,
                     comment = ?,
@@ -90,7 +90,7 @@ try {
             ]);
         } else {
             // 新增審核記錄
-            $reviewStmt = $conn->prepare("
+            $reviewStmt = $db->prepare("
                 INSERT INTO campsite_reviews 
                 (application_id, admin_id, status, comment, reviewed_at)
                 VALUES (?, ?, ?, ?, NOW())
@@ -108,7 +108,7 @@ try {
         }
 
         // 提交事務
-        $conn->commit();
+        $db->commit();
 
         echo json_encode([
             'success' => true,
@@ -120,7 +120,7 @@ try {
         ]);
 
     } catch (Exception $e) {
-        $conn->rollBack();
+        $db->rollBack();
         throw $e;
     }
 

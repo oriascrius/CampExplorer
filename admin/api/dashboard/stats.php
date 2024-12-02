@@ -32,6 +32,50 @@ try {
         ]
     ];
 
+    // 添加通知相關數據
+    $notifications = [
+        // 營地申請通知
+        'new_camps' => $db->query("
+            SELECT COUNT(*) 
+            FROM camp_applications 
+            WHERE status = 0 
+            AND DATE(created_at) = CURDATE()"
+        )->fetchColumn(),
+        
+        // 低庫存商品通知
+        'low_stock' => $db->query("
+            SELECT COUNT(*) 
+            FROM products 
+            WHERE stock <= 10 
+            AND DATE(updated_at) = CURDATE()"
+        )->fetchColumn(),
+        
+        // 新討論通知
+        'new_discussions' => $db->query("
+            SELECT COUNT(*) 
+            FROM user_discussions 
+            WHERE status = 'pending' 
+            AND DATE(created_at) = CURDATE()"
+        )->fetchColumn(),
+        
+        // 新訂單通知
+        'new_orders' => $db->query("
+            SELECT COUNT(*) 
+            FROM product_orders 
+            WHERE DATE(created_at) = CURDATE() 
+            AND order_status = 'pending'"
+        )->fetchColumn(),
+        
+        // 新用戶註冊通知
+        'new_users' => $db->query("
+            SELECT COUNT(*) 
+            FROM users 
+            WHERE DATE(created_at) = CURDATE()"
+        )->fetchColumn()
+    ];
+    
+    $stats['notifications'] = $notifications;
+
     // 添加時間戳到回應
     $stats['timestamp'] = date('Y-m-d H:i:s');
 

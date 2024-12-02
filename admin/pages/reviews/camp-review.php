@@ -112,6 +112,14 @@ tbody tr:hover{
 .modal-footer .btn.btn-primary{
     background-color: #ecba82;
 }
+.left-thead{
+    border-top-left-radius: 12px;
+    border-bottom-left-radius: 12px;
+}
+.right-thead{
+    border-top-right-radius: 12px;
+    border-bottom-right-radius: 12px;
+}
 </style>
 <!-- 只保留內容部分，移除所有 JavaScript -->
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3">
@@ -130,15 +138,15 @@ tbody tr:hover{
     <div class="card-body">
         <div class="table-responsive">
             <table class="table table-hover align-middle">
-                <thead class="">
+                <thead>
                     <tr>
-                        <th scope="col" class="text-nowrap text-center">申請編號</th>
+                        <th scope="col" class="text-nowrap text-center left-thead">申請編號</th>
                         <th scope="col" class="text-center" style="min-width: 200px;">營地資訊</th>
                         <th scope="col" class="text-center" style="min-width: 180px;">營主資訊</th>
                         <th scope="col" class="text-center">申請內容</th>
                         <th scope="col" class="text-nowrap text-center">申請時間</th>
                         <th scope="col" class="text-center">狀態</th>
-                        <th scope="col" class="text-center">操作</th>
+                        <th scope="col" class="text-center right-thead">操作</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -176,13 +184,9 @@ tbody tr:hover{
                                     </small>
                                 </td>
                                 <td class="text-center">
-                                    <span class="badge bg-primary me-2">
+                                    <span class="badge bg-primary">
                                         <i class="bi bi-house-door"></i>
                                         <?= $app['spot_count'] ?> 個營位
-                                    </span>
-                                    <span class="badge bg-info">
-                                        <i class="bi bi-images"></i>
-                                        <?= $app['image_count'] ?> 張圖片
                                     </span>
                                 </td>
                                 <td class="text-nowrap text-center">

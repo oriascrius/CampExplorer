@@ -105,7 +105,8 @@ if (!isset($_SESSION['owner_id'])) {
     .next-step {
         min-width: 120px;
     }
-    .prev-step{
+
+    .prev-step {
         border: 2px solid var(--camp-primary) !important;
         color: var(--camp-primary) !important;
         background-color: transparent !important;
@@ -494,19 +495,22 @@ if (!isset($_SESSION['owner_id'])) {
     }
 
     /* 使用營地狀態的顏色變數 */
-    .status-0 {  /* 審核中 */
+    .status-0 {
+        /* 審核中 */
         background-color: var(--camp-light);
         color: var(--camp-secondary);
         border: 1px solid var(--camp-secondary);
     }
 
-    .status-1 {  /* 已通過 */
+    .status-1 {
+        /* 已通過 */
         background-color: var(--camp-light);
         color: var(--camp-primary);
         border: 1px solid var(--camp-primary);
     }
 
-    .status-2 {  /* 已退回 */
+    .status-2 {
+        /* 已退回 */
         background-color: #FFF5F6;
         color: var(--camp-danger);
         border: 1px solid var(--camp-danger);
@@ -518,7 +522,11 @@ if (!isset($_SESSION['owner_id'])) {
         background-color: var(--camp-primary);
         color: white;
         border: none;
-        padding: 0.5rem 1.5rem;
+        /* padding: 0.5rem 1.5rem; */
+    }
+
+    .btn:focus {
+        background-color: var(--camp-primary);
     }
 
     /* 主要按鈕 hover 效果 */
@@ -561,6 +569,14 @@ if (!isset($_SESSION['owner_id'])) {
         color: white;
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(76, 107, 116, 0.2);
+    }
+
+    .btn-danger {
+        padding: 0.2rem 0.5rem;
+    }
+
+    .btn-primary:hover {
+        color: white;
     }
 </style>
 

@@ -144,17 +144,36 @@ try {
 
     // 會員活躍度統計
     $sql_activity = "SELECT 
-        COUNT(DISTINCT CASE WHEN DATE(last_login) = CURDATE() THEN user_id END) as active_users_today,
-        COUNT(DISTINCT CASE WHEN last_login >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) THEN user_id END) as active_users_week,
-        COUNT(DISTINCT CASE WHEN last_login >= DATE_SUB(CURDATE(), INTERVAL 30 DAY) THEN user_id END) as active_users_month,
+        COUNT(DISTINCT CASE WHEN DATE(last_login) = CURDATE() THEN id END) as active_users_today,
+        COUNT(DISTINCT CASE WHEN last_login >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) THEN id END) as active_users_week,
+        COUNT(DISTINCT CASE WHEN last_login >= DATE_SUB(CURDATE(), INTERVAL 30 DAY) THEN id END) as active_users_month,
         ROUND(
-            (COUNT(DISTINCT CASE WHEN last_login >= DATE_SUB(CURDATE(), INTERVAL 30 DAY) THEN user_id END) * 100.0 / 
-            (SELECT COUNT(*) FROM users)), 
+            (COUNT(DISTINCT CASE WHEN last_login >= DATE_SUB(CURDATE(), INTERVAL 30 DAY) THEN id END) * 100.0 / 
+            COUNT(*)), 
         2) as active_rate
-    FROM user_activities";
+    FROM users
+    WHERE status = 1";  // 只統計啟用的帳號
 
     $result_activity = $db->query($sql_activity);
     $activity_stats = $result_activity->fetch(PDO::FETCH_ASSOC);
+
+    // 取得今年每月營收趨勢
+    $sql_monthly_revenue = "SELECT 
+        MONTH(created_at) as month,
+        COALESCE(SUM(CASE WHEN payment_status = 1 THEN total_amount ELSE 0 END), 0) as revenue
+    FROM product_orders 
+    WHERE YEAR(created_at) = YEAR(CURDATE())
+    GROUP BY MONTH(created_at)
+    ORDER BY month ASC";
+
+    $result_monthly_revenue = $db->query($sql_monthly_revenue);
+    $monthly_revenue = $result_monthly_revenue->fetchAll(PDO::FETCH_ASSOC);
+
+    // 準備圖表數據
+    $revenue_months = array_fill(1, 12, 0); // 初始化12個月的數據為0
+    foreach ($monthly_revenue as $data) {
+        $revenue_months[$data['month']] = (float)$data['revenue'];
+    }
 } catch (PDOException $e) {
     // 添加錯誤處理，設置預設值
     $activity_stats = [
@@ -214,7 +233,7 @@ try {
         background: linear-gradient(135deg, #9D91A9 0%, #AEA3B9 100%);
     }
 
-    /* 圖標圓圈樣��優化 */
+    /* 圖標圓圈樣式優化 */
     .icon-circle {
         height: 60px;
         width: 60px;
@@ -337,6 +356,7 @@ try {
         }
     }
 
+
     /* 新增載入中狀態 */
     .loading {
         position: relative;
@@ -447,7 +467,7 @@ try {
         color: #5B8A5B;
     }
 
-    /* 活���內容樣式 */
+    /* 活動內容樣式 */
     .timeline-content {
         background: white;
         border-radius: 8px;
@@ -504,7 +524,7 @@ try {
         box-shadow: 0 0 0 2px var(--morandi-blue-light);
     }
 
-    /* 活動內容��器 */
+    /* 活動內容容器 */
     .timeline-content {
         background: rgba(255, 255, 255, 0.5);
         border-radius: 8px;
@@ -546,7 +566,7 @@ try {
         background: var(--morandi-blue);
     }
 
-    /* 活動��標樣式 */
+    /* 活動標題樣式 */
     .activity-icon {
         width: 32px;
         height: 32px;
@@ -642,7 +662,7 @@ try {
         border-color: #6B7A8F;
     }
 
-    /* 動畫��果 */
+    /* 動畫效果 */
     @keyframes fadeInUp {
         from {
             opacity: 0;
@@ -774,7 +794,7 @@ try {
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     }
 
-    /* 莫蘭���按鈕樣式 */
+    /* 莫蘭迪按鈕樣式 */
     .btn-monofondi-sage {
         background-color: var(--monofondi-sage);
         color: white;
@@ -1101,7 +1121,7 @@ try {
         text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
-    /* 卡片內容布局 */
+    /* ��片內容布局 */
     .card-body {
         padding: 1.75rem;
         position: relative;
@@ -1761,6 +1781,88 @@ try {
         border-left: 2px solid rgba(52, 152, 219, 0.3);
         /* 調整邊框透明度 */
     }
+
+    .card-header {
+        background-color: var(--morandi-teal);
+        color: white;
+        font-size: 24px;
+    }
+
+    .morandiColor {
+        background-color: #A8B2B9;
+    }
+
+    .toast {
+        min-width: 300px;
+        backdrop-filter: blur(10px);
+        border: none;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        opacity: 0.95;
+    }
+
+    .toast-header {
+        border-bottom: none;
+    }
+
+    .toast-body {
+        color: #6B7A8A;
+        padding: 1rem;
+        font-size: 0.9rem;
+    }
+
+    /* 不同類型通知的顏色 */
+    .notification-camp {
+        background-color: #A8B2B9 !important;
+    }
+
+    /* 莫蘭迪灰藍 */
+    .notification-stock {
+        background-color: #C4B6B6 !important;
+    }
+
+    /* 莫蘭迪粉灰 */
+    .notification-discussion {
+        background-color: #B9C0BA !important;
+    }
+
+    /* 莫蘭迪灰綠 */
+    .notification-order {
+        background-color: #B6A6A6 !important;
+    }
+
+    /* 莫蘭迪玫瑰 */
+
+    /* 待處理事項的莫蘭迪色系 */
+    .pending-camps-badge {
+        background-color: #A8B2B9 !important;
+        /* 莫蘭迪灰藍 - 營地申請 */
+    }
+
+    .low-stock-badge {
+        background-color: #C4B6B6 !important;
+        /* 莫蘭迪粉灰 - 庫存警告 */
+    }
+
+    .pending-discussions-badge {
+        background-color: #B9C0BA !important;
+        /* 莫蘭迪灰綠 - 待回覆評論 */
+    }
+
+    /* 共同樣式 */
+    .pending-badge {
+        color: #fff;
+        font-weight: 500;
+        padding: 0.2rem 0.5rem 0.2rem 0.8rem;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        margin-right: 0.2rem;
+    }
+
+    .pending-badge:hover {
+        opacity: 0.9;
+        transform: translateY(-1px);
+    }
 </style>
 
 
@@ -1792,9 +1894,15 @@ try {
         <h4 class="alert-heading"><i class="fas fa-exclamation-triangle"></i> 待處理事項提醒</h4>
         <p class="mb-0">
             您有
-            <span class="badge bg-danger"><?= $pending_stats['pending_camps'] ?></span> 個待審核營地、
-            <span class="badge bg-warning"><?= $pending_stats['low_stock_products'] ?></span> 個庫存不足商品、
-            <span class="badge bg-info"><?= $pending_stats['pending_discussions'] ?></span> 則待回覆評論
+            <span class="pending-badge pending-camps-badge">
+                <?= $pending_stats['pending_camps'] ?>
+            </span> 個待審核營地、
+            <span class="pending-badge low-stock-badge">
+                <?= $pending_stats['low_stock_products'] ?>
+            </span> 個庫存不足商品、
+            <span class="pending-badge pending-discussions-badge">
+                <?= $pending_stats['pending_discussions'] ?>
+            </span> 則待回覆評論
         </p>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
@@ -1980,7 +2088,7 @@ try {
                     <div class="d-flex justify-content-between">
                         <div>
                             <h4 class="mb-0 text-morandi-mint">$<?= number_format($revenue_stats['today_revenue'] ?? 0) ?></h4>
-                            <small class="">今日營收</small>
+                            <small class="">今日營���</small>
                         </div>
                         <div>
                             <h4 class="mb-0 text-morandi-mint"><?= number_format($revenue_stats['growth_rate'] ?? 0, 1) ?>%</h4>
@@ -2092,9 +2200,9 @@ try {
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h6 class="mb-0">營收趨勢</h6>
                     <div class="btn-group">
-                        <button class="btn btn-sm btn-outline-secondary active" data-period="week">週</button>
-                        <button class="btn btn-sm btn-outline-secondary" data-period="month">月</button>
-                        <button class="btn btn-sm btn-outline-secondary" data-period="year">年</button>
+                        <button class="btn btn-sm btn-white active" data-period="week">週</button>
+                        <button class="btn btn-sm btn-white" data-period="month">月</button>
+                        <button class="btn btn-sm btn-white" data-period="year">年</button>
                     </div>
                 </div>
                 <div class="card-body">
@@ -2118,7 +2226,7 @@ try {
     <div class="row mb-4">
         <div class="col-xl-8 mb-4">
             <div class="card">
-                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                <div class="card-header d-flex justify-content-between align-items-center">
                     <h6 class="mb-0">近期活動紀錄</h6>
                     <div class="d-flex gap-2">
                         <select class="form-select form-select-sm" style="width: auto;" id="activityFilter">
@@ -2176,8 +2284,8 @@ try {
                 <div class="card-body">
                     <div class="table-responsive">
                         <table class="table table-hover">
-                            <thead class="bg-morandi-gray-light">
-                                <tr>
+                            <thead class="">
+                                <tr class="bg-white">
                                     <th>分類名稱</th>
                                     <th class="text-center">商品數量</th>
                                     <th class="text-end">平均單價</th>
@@ -2215,21 +2323,22 @@ try {
         </div>
     </div>
 
-    <!-- 新增互動式提 -->
-    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
-        <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="toast-header">
-                <i class="fas fa-bell me-2"></i>
-                <strong class="me-auto">系統通知</strong>
-                <small>剛</small>
-                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-            </div>
-            <div class="toast-body">
-                新的系統通知...
+    <!-- 通知 Toast 容器 -->
+    <!-- <div id="notificationContainer" class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+        <div class="toast-container">
+            <div id="notificationToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="toast-header">
+                    <i class="fas fa-bell me-2 text-white"></i>
+                    <strong class="me-auto text-white notification-title">系統通知</strong>
+                    <small class="text-white opacity-75">剛剛</small>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+                <div class="toast-body bg-white notification-message">
+                </div>
             </div>
         </div>
     </div>
-</div>
+</div> -->
 
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -2289,7 +2398,7 @@ try {
     // 匯出功能的基本框架
     function exportDashboardData() {
         try {
-            // 收集���有統計數據
+            // 收集所有統計數據
             const statsData = {
                 '用戶統計': {
                     '總用戶數': document.querySelector('.bg-morandi-blue-gradient h2')?.textContent,
@@ -2332,7 +2441,7 @@ try {
                 throw new Error('無法獲取統計數據');
             }
 
-            // 下載檔���
+            // 下載檔案
             const blob = new Blob(['\ufeff' + csv], {
                 type: 'text/csv;charset=utf-8;'
             });
@@ -2359,8 +2468,7 @@ try {
             });
         }
     }
-
-    // 修改圖表初始化代碼
+    // 修改表格初始化代碼
     document.addEventListener('DOMContentLoaded', function() {
         // 儲存圖表實例
         let charts = {
@@ -2387,68 +2495,28 @@ try {
                 charts.revenue = new Chart(revenueCtx.getContext('2d'), {
                     type: 'line',
                     data: {
-                        labels: ['一月', '二月', '三月', '四月', '五月', '六月'],
+                        labels: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
                         datasets: [{
-                            label: '營收金額',
-                            data: [12000, 19000, 15000, 25000, 22000, 30000],
-                            borderColor: '#4e73df',
-                            backgroundColor: 'rgba(78, 115, 223, 0.1)',
-                            tension: 0.3,
+                            label: '營收趨勢',
+                            data: <?= json_encode(array_values($revenue_months)) ?>,
+                            borderColor: '#7A90A8',
+                            backgroundColor: 'rgba(122, 144, 168, 0.1)',
                             fill: true,
-                            pointRadius: 6,
-                            pointBackgroundColor: '#4e73df',
-                            pointBorderColor: '#ffffff',
-                            pointBorderWidth: 2,
-                            pointHoverRadius: 8,
+                            tension: 0.4
                         }]
                     },
                     options: {
                         responsive: true,
                         plugins: {
                             legend: {
-                                display: true,
-                                position: 'top',
-                                labels: {
-                                    font: {
-                                        size: 14
-                                    }
-                                }
+                                display: false
                             },
                             tooltip: {
                                 callbacks: {
                                     label: function(context) {
-                                        return `營收: $${context.parsed.y.toLocaleString()}`;
+                                        return `營收: $${context.raw.toLocaleString()}`;
                                     }
                                 }
-                            },
-                            // 修改：datalabels 配置
-                            datalabels: {
-                                align: 'top',
-                                anchor: 'end',
-                                offset: 10,
-                                backgroundColor: 'rgba(255, 255, 255, 0.85)',
-                                borderRadius: 4,
-                                color: '#4e73df',
-                                font: {
-                                    weight: 'bold',
-                                    size: 12
-                                },
-                                padding: {
-                                    top: 4,
-                                    right: 6,
-                                    bottom: 4,
-                                    left: 6
-                                },
-                                formatter: function(value) {
-                                    return '$' + value.toLocaleString();
-                                },
-                                // 添加陰影效果
-                                shadowOffsetX: 1,
-                                shadowOffsetY: 1,
-                                shadowBlur: 3,
-                                shadowColor: 'rgba(0,0,0,0.2)',
-                                // 確保標籤永遠顯示
-                                display: true
                             }
                         },
                         scales: {
@@ -2458,40 +2526,14 @@ try {
                                     callback: function(value) {
                                         return '$' + value.toLocaleString();
                                     }
-                                },
-                                grid: {
-                                    drawBorder: false,
-                                    color: 'rgba(0,0,0,0.05)'
-                                }
-                            },
-                            x: {
-                                grid: {
-                                    display: false
                                 }
                             }
-                        },
-                        // 修改：增加上方間距以容納標籤
-                        layout: {
-                            padding: {
-                                top: 30,
-                                right: 20,
-                                bottom: 10,
-                                left: 20
-                            }
-                        },
-                        animation: {
-                            duration: 2000,
-                            easing: 'easeOutQuart'
-                        },
-                        interaction: {
-                            intersect: false,
-                            mode: 'index'
                         }
                     }
                 });
             }
 
-            // 營地���布圖
+            // 營地布圖
             const distributionCtx = document.getElementById('campDistributionChart');
             if (distributionCtx) {
                 charts.distribution = new Chart(distributionCtx.getContext('2d'), {
@@ -2501,11 +2543,11 @@ try {
                         datasets: [{
                             data: [30, 25, 20, 15, 10],
                             backgroundColor: [
-                                '#7A90A8',  // 莫蘭迪藍
-                                '#8FA977',  // 莫蘭迪灰綠
-                                '#C69B97',  // 莫蘭迪玫瑰
-                                '#C4A687',  // 莫蘭迪沙
-                                '#A3C5C9'   // 莫蘭迪藍綠
+                                '#7A90A8', // 莫蘭迪藍
+                                '#8FA977', // 莫蘭迪灰綠
+                                '#C69B97', // 莫蘭迪玫瑰
+                                '#C4A687', // 莫蘭迪沙
+                                '#A3C5C9' // 莫蘭迪藍綠
                             ],
                             borderWidth: 2,
                             borderColor: '#ffffff'
@@ -2661,7 +2703,7 @@ try {
         // 移原有的 preventDefault AJAX 
         document.querySelectorAll('.quick-action').forEach(button => {
             button.addEventListener('click', function(e) {
-                // 不阻止默認行為��讓連結正常跳轉
+                // 不阻止默認行為，讓連結正常跳轉
                 const url = this.getAttribute('href');
                 window.location.href = url;
             });
@@ -2706,7 +2748,7 @@ try {
         element.classList.remove('loading');
     }
 
-    // 新增資���更新通知
+    // 新增資料更新通知
     function showUpdateNotification(message) {
         const toast = new bootstrap.Toast(document.getElementById('liveToast'));
         document.querySelector('#liveToast .toast-body').textContent = message;
@@ -2768,7 +2810,7 @@ try {
         animateTimeline();
     });
 
-    // 過濾活��
+    // 過濾活動
     function filterActivities(type) {
         const items = document.querySelectorAll('.timeline-item');
         items.forEach(item => {
@@ -2826,7 +2868,7 @@ try {
         const isCollapsed = content.style.maxHeight === '0px' || !content.style.maxHeight;
 
         if (isCollapsed) {
-            // 展���
+            // 展開
             content.style.maxHeight = `${content.scrollHeight}px`;
             content.style.opacity = '1';
             icon.classList.replace('fa-chevron-up', 'fa-chevron-down');
@@ -2841,7 +2883,7 @@ try {
         updateMainButtonState();
     }
 
-    // 新增：更新主按鈕狀��的函數
+    // 新增：更新主按鈕狀態的函數
     function updateMainButtonState() {
         const allContents = document.querySelectorAll('.timeline-content-body');
         const mainButton = document.getElementById('collapseAllBtn');
@@ -2857,7 +2899,7 @@ try {
             mainButton.title = '全部展開';
         } else if (allExpanded) {
             mainIcon.classList.replace('fa-expand-alt', 'fa-compress-alt');
-            mainButton.title = '全部��疊';
+            mainButton.title = '全部折疊';
         }
     }
 
@@ -2901,7 +2943,7 @@ try {
             button.addEventListener('click', function() {
                 // 移除所有按鈕的 active 狀態
                 filterButtons.forEach(btn => btn.classList.remove('active'));
-                // 添加當前按鈕的 active ���態
+                // 添加當前按鈕的 active 狀態
                 this.classList.add('active');
 
                 // 執行篩選
@@ -2947,7 +2989,7 @@ try {
             }
         });
 
-        // 如果沒有顯示的項目，顯示��示訊息
+        // 如果沒有顯示的項目，顯示提示訊息
         const visibleActivities = document.querySelectorAll('.timeline-item[style="display: none;"]');
         const timelineContainer = document.querySelector('.timeline');
         const noDataMessage = timelineContainer.querySelector('.no-data-message');
@@ -2965,7 +3007,7 @@ try {
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-        // 修改：添��元素存在性检查
+        // 修改：添加元素存在性检查
         const timeline = document.querySelector('.timeline');
         const toggleBtn = document.getElementById('collapseAllBtn'); // 更正ID名称
         const filterBtns = document.querySelectorAll('[data-filter]');
@@ -2993,7 +3035,7 @@ try {
         }
     });
 
-    // 修��：移除重复��事件监听器
+    // 修正：移除重複的事件监听器
     // 删除或合并重复的 DOMContentLoaded 事件处理程序
 
     // 将所有辅助函数移到全局作用域
@@ -3078,24 +3120,24 @@ try {
     });
 
     // 顯示通知的函數
-    function showNotification(title, message) {
-        const toast = document.getElementById('liveToast');
-        const toastTitle = toast.querySelector('strong');
-        const toastBody = toast.querySelector('.toast-body');
-        const time = toast.querySelector('small');
+    // function showNotification(title, message) {
+    //     const toast = document.getElementById('liveToast');
+    //     const toastTitle = toast.querySelector('strong');
+    //     const toastBody = toast.querySelector('.toast-body');
+    //     const time = toast.querySelector('small');
 
-        // 更新內容
-        toastTitle.textContent = title;
-        toastBody.textContent = message;
-        time.textContent = new Date().toLocaleTimeString();
+    //     // 更新內容
+    //     toastTitle.textContent = title;
+    //     toastBody.textContent = message;
+    //     time.textContent = new Date().toLocaleTimeString();
 
-        // 顯示通知
-        const bsToast = new bootstrap.Toast(toast);
-        bsToast.show();
-    }
+    //     // 顯示通知
+    //     const bsToast = new bootstrap.Toast(toast);
+    //     bsToast.show();
+    // }
 
-    // 使用範例
-    showNotification('系統通知', '新訂單已送達！');
+    // // 使用範例
+    // showNotification('系統通知', '新訂單已送達！');
 
 
     // 檢查待處理事項
@@ -3133,65 +3175,128 @@ try {
     }
 
     // 使用 SweetAlert2 顯示通知
-    function showToastNotification(title, message) {
-        const Toast = Swal.mixin({
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 3000,
-            timerProgressBar: true,
-            didOpen: (toast) => {
-                toast.addEventListener('mouseenter', Swal.stopTimer)
-                toast.addEventListener('mouseleave', Swal.resumeTimer)
-            }
-        });
+    function showToastNotification(title, message, type) {
+        const toastEl = document.getElementById('notificationToast');
+        if (!toastEl) {
+            console.error('找不到通知元素');
+            return;
+        }
 
-        Toast.fire({
-            icon: 'info',
-            title: title,
-            text: message
-        });
+        const titleEl = toastEl.querySelector('.notification-title');
+        const messageEl = toastEl.querySelector('.notification-message');
+        const headerEl = toastEl.querySelector('.toast-header');
+
+        if (titleEl && messageEl && headerEl) {
+            // 移除所有之前的顏色類別
+            headerEl.className = 'toast-header';
+            // 添加新的顏色類別
+            headerEl.classList.add(`notification-${type}`);
+            
+            // 更新內容
+            titleEl.textContent = title;
+            messageEl.textContent = message;
+
+            // 顯示通知
+            const toast = new bootstrap.Toast(toastEl);
+            toast.show();
+        }
     }
 
-    // 每分鐘檢查一次待處理事項
-    setInterval(checkPendingItems, 60000);
+    // 等待 DOM 完全載入
+    document.addEventListener('DOMContentLoaded', function() {
+        // 初始化 Toast 元素
+        const toastEl = document.getElementById('notificationToast');
+        if (toastEl) {
+            window.notificationToast = new bootstrap.Toast(toastEl, {
+                delay: 5000,
+                autohide: true
+            });
+        }
 
-    // 頁面載入時先檢查一次
-    document.addEventListener('DOMContentLoaded', checkPendingItems);
+        // 初始檢查通知
+        checkNotifications();
+        
+        // 設置定期檢查
+        setInterval(checkNotifications, 300000); // 每5分鐘檢查一次
+    });
 
-    // 初始化先前的統計數據
+    // 顯示通知
+    // function showNotification(title, message) {
+    //     const toastEl = document.getElementById('notificationToast');
+    //     const titleEl = document.getElementById('notificationTitle');
+    //     const messageEl = document.getElementById('notificationMessage');
+        
+    //     if (!toastEl || !titleEl || !messageEl) {
+    //         console.error('通知元素未找到');
+    //         return;
+    //     }
+        
+    //     titleEl.textContent = title;
+    //     messageEl.textContent = message;
+        
+    //     if (window.notificationToast) {
+    //         window.notificationToast.show();
+    //     }
+    // }
+
+    // 檢查通知
+    async function checkNotifications() {
+        try {
+            const response = await fetch('/CampExplorer/admin/api/dashboard/stats.php');
+            const data = await response.json();
+            const notifications = data.notifications;
+
+            Object.entries(notifications).forEach(([type, count]) => {
+                if (count > 0) {
+                    const messages = {
+                        new_camps: `有 ${count} 個新的營地申請待審核`,
+                        low_stock: `有 ${count} 個商品庫存不足`,
+                        new_discussions: `有 ${count} 則新討論待回覆`,
+                        new_orders: `有 ${count} 筆新訂單待處理`,
+                        new_users: `今日有 ${count} 位新用戶註冊`
+                    };
+                    
+                    if (messages[type]) {
+                        showNotification('系統通知', messages[type]);
+                    }
+                }
+            });
+        } catch (error) {
+            console.error('檢查通知失敗:', error);
+        }
+    }
+
+    // 初始化先前狀態
     let previousStats = {
-        pending_camps: <?= $pending_stats['pending_camps'] ?>,
-        low_stock_products: <?= $pending_stats['low_stock_products'] ?>,
-        pending_discussions: <?= $pending_stats['pending_discussions'] ?>
+        pending_camps: 0,
+        low_stock_products: 0,
+        pending_discussions: 0
     };
 
-    // 檢查待處理事項變化
+    // 檢查更新的函數
     async function checkPendingChanges() {
         try {
-            const response = await axios.get('/CampExplorer/admin/api/dashboard/check-pending.php');
-            const currentStats = response.data;
+            const response = await fetch('/CampExplorer/admin/api/dashboard/check-pending.php');
+            const currentStats = await response.json();
 
-            // 檢查營地審核變化
+            // 比較並顯示通知
             if (currentStats.pending_camps > previousStats.pending_camps) {
                 showNotification(
-                    '新待審核營地',
-                    `新增 ${currentStats.pending_camps - previousStats.pending_camps} 個待審核營地`
+                    '新營地申請',
+                    `新增 ${currentStats.pending_camps - previousStats.pending_camps} 個營地申請待審核`
                 );
             }
 
-            // 檢查庫存變化
             if (currentStats.low_stock_products > previousStats.low_stock_products) {
                 showNotification(
                     '庫存警告',
-                    `新增 ${currentStats.low_stock_products - previousStats.low_stock_products} 個庫存不足商品`
+                    `新增 ${currentStats.low_stock_products - previousStats.low_stock_products} 個商品庫存不足`
                 );
             }
 
-            // 檢查評論變化
             if (currentStats.pending_discussions > previousStats.pending_discussions) {
                 showNotification(
-                    '新待回覆評論',
+                    '新討論待回覆',
                     `新增 ${currentStats.pending_discussions - previousStats.pending_discussions} 則評論待回覆`
                 );
             }
@@ -3204,9 +3309,90 @@ try {
         }
     }
 
-    // 每 30 秒檢查一次
-    setInterval(checkPendingChanges, 30000);
+    // 初始化通知系統
+    document.addEventListener('DOMContentLoaded', function() {
+        // 創建通知容器
+        const toastContainer = document.createElement('div');
+        toastContainer.className = 'toast-container position-fixed bottom-0 end-0 p-3';
+        toastContainer.style.zIndex = '1050';
+        toastContainer.innerHTML = `
+            <div id="notificationToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="toast-header morandiColor">
+                    <i class="fas fa-bell me-2 text-white"></i>
+                    <strong id="notificationTitle" class="me-auto text-white">系統通知</strong>
+                    <small class="text-white">剛剛</small>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+                </div>
+                <div id="notificationMessage" class="toast-body"></div>
+            </div>
+        `;
+        document.body.appendChild(toastContainer);
 
-    // 頁面載入��先執行一次
-    document.addEventListener('DOMContentLoaded', checkPendingChanges);
+        // 初始化 Bootstrap Toast
+        const toast = new bootstrap.Toast(document.getElementById('notificationToast'), {
+            delay: 5000,
+            autohide: true
+        });
+
+        // 定義全局通知函數
+        window.showNotification = function(title, message) {
+            const titleEl = document.getElementById('notificationTitle');
+            const messageEl = document.getElementById('notificationMessage');
+            
+            if (titleEl && messageEl) {
+                titleEl.textContent = title;
+                messageEl.textContent = message;
+                toast.show();
+            }
+        };
+
+        // 開始檢查通知
+        checkPendingChanges();
+        setInterval(checkPendingChanges, 30000);
+    });
+
+    // 等待 DOM 和 Bootstrap 完全載入
+    window.addEventListener('load', function() {
+        // 檢查並創建通知容器
+        let toastContainer = document.querySelector('.toast-container');
+        if (!toastContainer) {
+            toastContainer = document.createElement('div');
+            toastContainer.className = 'toast-container position-fixed bottom-0 end-0 p-3';
+            toastContainer.style.zIndex = '1050';
+            toastContainer.innerHTML = `
+                <div id="notificationToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="toast-header morandiColor">
+                        <i class="fas fa-bell me-2 text-white"></i>
+                        <strong id="notificationTitle" class="me-auto text-white">系統通知</strong>
+                        <small class="text-white">剛剛</small>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+                    </div>
+                    <div id="notificationMessage" class="toast-body"></div>
+                </div>
+            `;
+            document.body.appendChild(toastContainer);
+        }
+
+        // 初始化 Toast
+        const toastEl = document.getElementById('notificationToast');
+        if (toastEl) {
+            window.notificationToast = new bootstrap.Toast(toastEl);
+            // 開始檢查通知
+            checkPendingChanges();
+            setInterval(checkPendingChanges, 30000);
+        }
+    });
 </script>
+
+<!-- 通知容器 -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1050">
+    <div id="notificationToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <i class="fas fa-bell me-2 text-white"></i>
+            <strong id="notificationTitle" class="me-auto text-white">系統通知</strong>
+            <small class="text-white">剛剛</small>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+        </div>
+        <div id="notificationMessage" class="toast-body"></div>
+    </div>
+</div>

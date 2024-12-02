@@ -376,8 +376,19 @@ tbody tr:hover{
 .modal-footer .btn.btn-primary{
     background-color: #ffc1076e;
 }
+.left-thead{
+    border-top-left-radius: 12px;
+    border-bottom-left-radius: 12px;
+}
+.right-thead{
+    border-top-right-radius: 12px;
+    border-bottom-right-radius: 12px;
+}
+.table-container{
+    border-radius: 12px;
+}
 </style>
-<div class="container-fluid">
+<div class="container-fluid" style="margin-top: 40px;">
     <h1 class="page-title">待審核營位管理</h1>
     
     <div class="card shadow-sm">
@@ -386,7 +397,7 @@ tbody tr:hover{
                 <table class="table table-bordered">
                     <thead>
                         <tr>
-                            <th class="text-center">申請編號</th>
+                            <th class="text-center left-thead">申請編號</th>
                             <th class="text-center">營地名稱</th>
                             <th class="text-center">營主名稱</th>
                             <th class="text-center">營位名稱</th>
@@ -395,7 +406,7 @@ tbody tr:hover{
                             <th class="text-center">申請時間</th>
                             <th class="text-center">狀態</th>
                             <th class="text-center">營地狀態</th>
-                            <th class="text-center">操作</th>
+                            <th class="text-center right-thead">操作</th>
                         </tr>
                     </thead>
                     <tbody>
