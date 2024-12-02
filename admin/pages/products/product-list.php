@@ -236,8 +236,8 @@ try {
         }
 
         .smallImg {
-            width: 100px;
-            height: 100px;
+            width: 110px;
+            height: 150px;
             object-fit: cover;
 
             img {
@@ -263,10 +263,10 @@ try {
         }
         .container{
             padding: 4rem;
-        padding-top: 1rem;
-        max-width: 100%;
-        margin: 0;
-        padding-bottom: 1rem; 
+            padding-top: 1rem;
+            max-width: 100%;
+            margin: 0;
+            padding-bottom: 1rem; 
         }
         .bg-success{
             background-color: transparent !important;
@@ -292,7 +292,18 @@ try {
         tbody tr{
             border-bottom-width: 1px;
         }
-        
+        tbody tr:hover{
+            background: rgb(155 254 144 / 10%);
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0px 0px 10px 0px rgb(0 0 0 / 10%);
+            --bs-table-accent-bg: none!important;
+        }
+        tbody td{
+            line-height: 107px;
+        }
+        .btn.btn-warning:hover{
+            background-color: #ffca2c!important;
+        }
     </style>
 </head>
 
@@ -370,32 +381,32 @@ try {
         <table class="table">
             <thead class="">
                 <tr>
-                    <th>ID</th>
-                    <th>名稱</th>
-                    <th>主類別</th>
-                    <th>次類別</th>
-                    <th>圖片</th>
-                    <th>價格</th>
-                    <th>庫存</th>
-                    <th>新增時間</th>
-                    <th>狀態</th>
-                    <th>操作</th>
+                    <th class="text-center">ID</th>
+                    <th class="text-center">名稱</th>
+                    <th class="text-center">主類別</th>
+                    <th class="text-center">次類別</th>
+                    <th class="text-center">圖片</th>
+                    <th class="text-center">價格</th>
+                    <th class="text-center">庫存</th>
+                    <th class="text-center">新增時間</th>
+                    <th class="text-center">狀態</th>
+                    <th class="text-center">操作</th>
                 </tr>
             </thead>
             <tbody>
                 <?php if (!empty($products)): ?>
                     <?php foreach ($products as $product): ?>
                         <tr>
-                            <td class="px-3"><?= htmlspecialchars($product['id']) ?></td>
-                            <td><?= htmlspecialchars($product['product_name']) ?></td>
-                            <td><?= htmlspecialchars($product['category_name']) ?></td>
-                            <td><?= htmlspecialchars($product['subcategory_name']) ?></td>
+                            <td class="px-3 text-center"><?= htmlspecialchars($product['id']) ?></td>
+                            <td class="text-center"><?= htmlspecialchars($product['product_name']) ?></td>
+                            <td class="text-center"><?= htmlspecialchars($product['category_name']) ?></td>
+                            <td class="text-center"><?= htmlspecialchars($product['subcategory_name']) ?></td>
                             <td class="text-center smallImg">
                                 <img src="../uploads/products/img/<?= htmlspecialchars($product['img_path']) ?>" alt="">
                             </td>
-                            <td class="px-2">$<?= htmlspecialchars(number_format($product['price'])) ?></td>
-                            <td class="px-2"><?= htmlspecialchars($product['stock']) ?></td>
-                            <td class="px-2"><?= htmlspecialchars($product['created_at']) ?></td>
+                            <td class="px-2 text-center">$<?= htmlspecialchars(number_format($product['price'])) ?></td>
+                            <td class="px-2 text-center"><?= htmlspecialchars($product['stock']) ?></td>
+                            <td class="px-2 text-center"><?= htmlspecialchars($product['created_at']) ?></td>
                             <td class="text-center">
                                 <?= $product['status'] == 1 ? '<span class="badge bg-success">上架</span>' : '<span class="badge bg-secondary">下架</span>' ?>
                             </td>

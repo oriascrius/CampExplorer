@@ -159,7 +159,7 @@ function translateGender($gender)
             <div class="table-responsive ">
                 <table class="table table-bordered ">
                     <thead class="">
-                        <tr>
+                        <tr class="text-center">
                             <?php
                             $headers = [
                                 'id' => '編號',
@@ -189,19 +189,21 @@ function translateGender($gender)
                     <tbody>
                         <?php foreach ($users as $user): ?>
                             <tr class="user-row" data-id="<?= $user['id'] ?>">
-                            <td class="id"><?= htmlspecialchars($user['id']) ?></td>
-                            <td class="email"><?= htmlspecialchars($user['email']) ?></td>
-                            <td><?= htmlspecialchars($user['name']) ?></td>
-                            <td><?= htmlspecialchars($user['phone']) ?></td>
-                            <td><?= htmlspecialchars($user['birthday']) ?></td>
+                            <td class="id px-2 text-center"><?= htmlspecialchars($user['id']) ?></td>
+                            <td class="email px-2 text-center"><?= htmlspecialchars($user['email']) ?></td>
+                            <td class="text-center"><?= htmlspecialchars($user['name']) ?></td>
+                            <td class="text-center"><?= htmlspecialchars($user['phone']) ?></td>
+                            <td class="text-center"><?= htmlspecialchars($user['birthday']) ?></td>
                             <td class="gender text-center"><?= htmlspecialchars(translateGender($user['gender'])) ?></td>
                             <td><?= htmlspecialchars($user['address']) ?></td>
+                           
                             <td class="status text-center">
                                 <span class="badge <?= $user['status'] ? 'bg-success' : 'bg-danger' ?>">
                                     <?= $user['status'] ? '啟用' : '停用' ?>
                                 </span>
                             </td>
                             <td><?= date('Y-m-d', strtotime($user['created_at'])) ?></td>
+                        
                             <td>
                                 <div class="d-flex gap-2 justify-content-center">
                                     <button type="button" class="btn btn-sm btn-outline-primary" data-action="edit" data-id="<?= $user['id'] ?>">
@@ -864,5 +866,10 @@ document.querySelectorAll('.email').forEach(function (element) {
     .flex-wrap .mb-2.mb-md-0{
         margin-right: 15px;
     }
-
+    tbody tr:hover{
+        background: rgb(155 254 144 / 10%);
+        transition: all 0.2s ease-in-out;
+        box-shadow: 0px 0px 10px 0px rgb(0 0 0 / 10%);
+        --bs-table-accent-bg: none!important;
+    }
 </style>

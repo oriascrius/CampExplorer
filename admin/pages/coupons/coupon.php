@@ -29,9 +29,14 @@ if ($search) {
     // 根據排序條件構建排序語句
     $whereClause = match ($order) {
         1 => "ORDER BY name ASC",
-        2 => "ORDER BY start_date ASC",
-        3 => "ORDER BY id ASC",
-        4 => "ORDER BY id DESC",
+        2 => "ORDER BY name DESC",
+        3 => "ORDER BY start_date ASC",
+        4 => "ORDER BY start_date DESC",
+        5 => "ORDER BY end_date ASC",
+        6 => "ORDER BY end_date DESC",
+        7 => "ORDER BY min_purchase ASC",
+        8 => "ORDER BY min_purchase DESC",
+        // 4 => "ORDER BY discount_value DESC",
         default => "ORDER BY id ASC"
     };
     // 構建最終查詢，進行分頁
@@ -93,7 +98,7 @@ $db = null;
     }
 
     .status-style {
-        font-size: 12px;
+        font-size: 14px;
         text-align: center;
         border-radius: 5px;
     }
@@ -118,6 +123,12 @@ $db = null;
     .card.border-0{
         border-radius: 0 0 30px 30px;
     }
+    tbody tr:hover{
+        background: rgb(155 254 144 / 10%);
+        transition: all 0.2s ease-in-out;
+        box-shadow: 0px 0px 10px 0px rgb(0 0 0 / 10%);
+        --bs-table-accent-bg: none!important;
+    }
     /* ************************************* */
     
   
@@ -138,10 +149,14 @@ $db = null;
                         <label for="" class="form-label">排序方式:</label>
                         <select name="order" class="form-select" onchange="redirectToOrderPage(this)">
                             <option style="display: none;" value="0" <?= $order == 0 ? 'selected' : '' ?>>預設</option>
-                            <option value="1" <?= $order == 1 ? 'selected' : '' ?>>名稱排序</option>
-                            <option value="2" <?= $order == 2 ? 'selected' : '' ?>>日期排序</option>
-                            <!-- <option value="3" <?= $order == 3 ? 'selected' : '' ?>>排序由A到Z</option>
-                            <option value="4" <?= $order == 4 ? 'selected' : '' ?>>排序由Z到A</option> -->
+                            <option value="1" <?= $order == 1 ? 'selected' : '' ?>>名稱排序從前至後</option>
+                            <option value="2" <?= $order == 2 ? 'selected' : '' ?>>名稱排序從後至前</option>
+                            <option value="3" <?= $order == 3 ? 'selected' : '' ?>>開始日期排序從先至後</option>
+                            <option value="4" <?= $order == 4 ? 'selected' : '' ?>>開始日期排序從後至先</option>
+                            <option value="5" <?= $order == 5 ? 'selected' : '' ?>>結束日期排序從先至後</option>
+                            <option value="6" <?= $order == 6 ? 'selected' : '' ?>>結束日期排序從後至先</option>
+                            <option value="7" <?= $order == 7 ? 'selected' : '' ?>>最低消費排序從低至高</option>
+                            <option value="8" <?= $order == 8 ? 'selected' : '' ?>>最低消費排序從高至低</option>
                         </select>
                     </form>
                     <form action="" method="get">
@@ -165,26 +180,26 @@ $db = null;
                             <table class="table table-bordered">
                                 <thead>
                                     <tr>
-                                        <th scope="col">優惠券代碼</th>
-                                        <th scope="col">優惠券名稱</th>
-                                        <th scope="col">折扣類型</th>
-                                        <th scope="col">折扣值</th>
-                                        <th scope="col">最低消費</th>
-                                        <th scope="col">使用期限</th>
-                                        <th scope="col">狀態</th>
-                                        <th scope="col">操作</th>
+                                        <th class="text-center" scope="col">優惠券代碼</th>
+                                        <th class="text-center" scope="col">優惠券名稱</th>
+                                        <th class="text-center" scope="col">折扣類型</th>
+                                        <th class="text-center" scope="col">折扣值</th>
+                                        <th class="text-center" scope="col">最低消費</th>
+                                        <th class="text-center" scope="col">使用期限</th>
+                                        <th class="text-center" scope="col">狀態</th>
+                                        <th class="text-center" scope="col">操作</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <?php foreach ($rows as $user): ?>
                                         <tr>
-                                            <td><?= $user["code"] ?></td>
-                                            <td><?= $user["name"] ?></td>
-                                            <td><?= $user['discount_type'] === 'percentage' ? '百分比' : '固定金額' ?></td>
-                                            <td><?= $user['discount_type'] === 'percentage' ? $user["discount_value"] . '%' : '$' . $user["discount_value"] ?></td>
-                                            <td><?= '$' . $user["min_purchase"] ?></td>
-                                            <td><?= date('Y/m/d', strtotime($user['start_date'])) ?> - <?= date('Y/m/d', strtotime($user["end_date"])) ?></td>
-                                            <td><?= $user["status"] === 1 ? '<div class="p-1 bg-success text-white status-style">啟用</div>' : '<div class="p-1 bg-danger text-white status-style">停用</div>' ?></td>
+                                            <td class="px-2"><?= $user["code"] ?></td>
+                                            <td class="text-center"><?= $user["name"] ?></td>
+                                            <td class="text-center"><?= $user['discount_type'] === 'percentage' ? '百分比' : '固定金額' ?></td>
+                                            <td class="text-center"><?= $user['discount_type'] === 'percentage' ? $user["discount_value"] . '%' : '$' . $user["discount_value"] ?></td>
+                                            <td class="text-center"><?= '$' . $user["min_purchase"] ?></td>
+                                            <td class="text-center"><?= date('Y/m/d', strtotime($user['start_date'])) ?> - <?= date('Y/m/d', strtotime($user["end_date"])) ?></td>
+                                            <td class="text-center"><?= $user["status"] === 1 ? '<div class="p-1 bg-success text-white status-style">啟用</div>' : '<div class="p-1 bg-danger text-white status-style">停用</div>' ?></td>
                                             <td class="d-flex justify-content-center align-items-center">
                                                 <button class="btn btn-sm  mx-2 btn-warning edit-button" data-bs-toggle="modal" data-bs-target="#exampleModal" data-id="<?= $user['id'] ?>">編輯</button>
                                                 <button class="btn btn-sm  mx-2 delete-button text-white <?= $user['status'] === 1 ? 'bg-danger' : 'bg-success' ?>" data-id="<?= $user['id'] ?>" data-bs-toggle="modal" data-bs-target="<?= $user['status'] === 1 ? '#deactivateModal' : '#openModal' ?>"><?= $user['status'] === 1 ? '停用' : '啟用' ?></button>

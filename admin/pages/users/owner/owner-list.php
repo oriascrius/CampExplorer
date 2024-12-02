@@ -152,7 +152,7 @@ function getFieldLabel($field) {
             <div class="table-responsive ">
                 <table class="table">
                     <thead class="">
-                        <tr>
+                        <tr class="text-center">
                             <?php foreach ($allowed_fields as $field): ?>
                                 <th class="sortable" data-field="<?= $field ?>" data-order="<?= $sort_field === $field ? $sort_order : '' ?>">
                                     <?= getFieldLabel($field) ?>
@@ -168,19 +168,19 @@ function getFieldLabel($field) {
                     <?php else: ?>
                         <?php foreach ($owners as $owner): ?>
                             <tr>
-                            <td class="id"><?= htmlspecialchars($owner['id']) ?></td>
-                <td class="name"><?= htmlspecialchars($owner['name']) ?></td>
-                <td class="company_name"><?= htmlspecialchars($owner['company_name']) ?></td>
-                <td class="email"><?= htmlspecialchars($owner['email']) ?></td>
-                <td class="phone"><?= htmlspecialchars($owner['phone'] ?? '-') ?></td>
-                <td class="address"><?= htmlspecialchars($owner['address'] ?? '-') ?></td>
+                            <td class="id px-2 text-center"><?= htmlspecialchars($owner['id']) ?></td>
+                <td class="name text-center"><?= htmlspecialchars($owner['name']) ?></td>
+                <td class="company_name text-center"><?= htmlspecialchars($owner['company_name']) ?></td>
+                <td class="email px-3 text-center"><?= htmlspecialchars($owner['email']) ?></td>
+                <td class="phone text-center"><?= htmlspecialchars($owner['phone'] ?? '-') ?></td>
+                <td class="address text-center"><?= htmlspecialchars($owner['address'] ?? '-') ?></td>
                                 <td class="status text-center">
                                     <span class="badge bg-<?= $owner['status'] ? 'success' : 'danger' ?>">
                                         <?= $owner['status'] ? '啟用' : '停用' ?>
                                     </span>
                                 </td>
-                                <td><?= htmlspecialchars($owner['created_at']) ?></td>
-                                <td>
+                                <td class="px-3 text-center"><?= htmlspecialchars($owner['created_at']) ?></td>
+                                <td class="text-center">
                                     <div class="d-flex gap-2 justify-content-center">
                                         <button type="button" class="btn btn-sm btn-outline-primary" data-action="edit" data-id="<?= $owner['id'] ?>">
                                             編輯
@@ -679,5 +679,11 @@ th.name, td.name {
     }
     tr{
         border-bottom-width: 1px;
+    }
+    tbody tr:hover{
+        background: rgb(155 254 144 / 10%);
+        transition: all 0.2s ease-in-out;
+        box-shadow: 0px 0px 10px 0px rgb(0 0 0 / 10%);
+        --bs-table-accent-bg: none!important;
     }
 </style>
