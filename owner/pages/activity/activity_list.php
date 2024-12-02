@@ -1148,49 +1148,6 @@ require_once __DIR__ . '/../../../camping_db.php';
         margin: 1rem 0;
     }
     </style>
-    <style>
-    /* 營位選項區塊樣式 */
-    .spot-option {
-        background-color: var(--morandy-light);
-        border-radius: 8px;
-        padding: 1rem;
-        margin-bottom: 1rem;
-        border: 1px solid var(--morandy-border);
-        transition: all 0.3s ease;
-    }
-
-    .spot-option:hover {
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    }
-
-    /* 營位選項內的表單元素樣式 */
-    .spot-option .form-select,
-    .spot-option .form-control {
-        border: 1px solid var(--morandy-border);
-        padding: 0.5rem 0.75rem;
-        border-radius: 6px;
-        background-color: white;
-    }
-
-    .spot-option .form-select:focus,
-    .spot-option .form-control:focus {
-        border-color: var(--morandy-green);
-        box-shadow: 0 0 0 0.2rem rgba(76, 107, 116, 0.15);
-    }
-
-    /* 移除按鈕樣式 */
-    .spot-option .btn-outline-danger {
-        border-color: var(--morandy-danger);
-        color: var(--morandy-danger);
-        padding: 0.5rem;
-        border-radius: 6px;
-    }
-
-    .spot-option .btn-outline-danger:hover {
-        background-color: var(--morandy-danger);
-        color: white;
-    }
-    </style>
 </head>
 
 <body>
@@ -1200,7 +1157,7 @@ require_once __DIR__ . '/../../../camping_db.php';
         <!-- 統計卡片 -->
         <div class="stats-container">
             <div class="row g-4 stats-container">
-                <!-- 全部活動統計卡片 -->
+                <!-- 全部活�������統計卡片 -->
                 <div class="col-md-4">
                     <div class="stat-card" onclick="filterActivities('all')" style="cursor: pointer;">
                         <div class="stat-icon">
@@ -1224,7 +1181,7 @@ require_once __DIR__ . '/../../../camping_db.php';
                         </div>
                     </div>
                 </div>
-                <!-- 下架中活動統計卡��� -->
+                <!-- 下架中活動統計卡片 -->
                 <div class="col-md-4">
                     <div class="stat-card" onclick="filterActivities('inactive')" style="cursor: pointer;">
                         <div class="stat-icon">
@@ -1321,6 +1278,9 @@ require_once __DIR__ . '/../../../camping_db.php';
                         <div class="mb-3">
                             <label class="form-label required">營位選項</label>
                             <div id="spotOptionsContainer"></div>
+                            <button type="button" class="btn btn-outline-primary mt-2" onclick="addSpotOption()">
+                                <i class="bi bi-plus-circle me-1"></i>新增營位選項
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -1333,7 +1293,7 @@ require_once __DIR__ . '/../../../camping_db.php';
     </div>
 
     <script>
-        // 載入活���列表
+        // 載入活動列表
         async function loadActivities() {
             try {
                 const response = await axios.get('/CampExplorer/owner/api/activity/get_activities.php');
@@ -1379,11 +1339,11 @@ require_once __DIR__ . '/../../../camping_db.php';
             
             const statusMap = {
                 '營地審核中': '營地審核中',
-                '營地未通過': '營地未通過',
+                '營地未通過': '營地���通過',
                 '下架中': '下架中',
                 '已結束': '已結束',
                 '即將開始': '上架中',
-                '���行中': '上架中'
+                '進行中': '上架中'
             };
 
             return statusMap[status] || status;
@@ -1393,10 +1353,8 @@ require_once __DIR__ . '/../../../camping_db.php';
         function getStatusClass(status) {
             switch (status) {
                 case '進行中':
-                case '即將開始': // 將 '即將開始' 合併到 '上架中'
-                    statusClass = 'status-active';
-                    statusText = '上架中';
-                    break;
+                case '即將開始':
+                    return 'status-active';
                 case '已結束':
                     statusClass = 'status-ended';
                     statusText = '已結束';
@@ -1412,29 +1370,29 @@ require_once __DIR__ . '/../../../camping_db.php';
         }
 
         // 操作按鈕
-        // function getActionButtons(activity) {
-        //     const today = new Date().toISOString().split('T')[0];
-        //     const isEditable = activity.start_date > today;
-        //     const canToggle = ['營地審核中', '營地未通過'].indexOf(activity.activity_status) === -1;
+        function getActionButtons(activity) {
+            const today = new Date().toISOString().split('T')[0];
+            const isEditable = activity.start_date > today;
+            const canToggle = ['營地審核中', '營地未通過'].indexOf(activity.activity_status) === -1;
 
-        //     return `
-        //         <button onclick="editActivity(${activity.activity_id})" 
-        //                 class="btn-action btn-edit" 
-        //                 ${!isEditable ? 'disabled' : ''}>
-        //             <i class="bi bi-pencil"></i>
-        //         </button>
-        //         <button onclick="toggleStatus(${activity.activity_id}, ${activity.is_active})"
-        //                 class="btn-action ${activity.is_active ? 'btn-warning' : 'btn-success'}"
-        //                 ${!canToggle ? 'disabled' : ''}>
-        //             <i class="bi bi-${activity.is_active ? 'eye-slash' : 'eye'}"></i>
-        //         </button>
-        //         <button onclick="deleteActivity(${activity.activity_id})"
-        //                 class="btn-action btn-danger"
-        //                 ${!isEditable ? 'disabled' : ''}>
-        //             <i class="bi bi-trash"></i>
-        //         </button>
-        //     `;
-        // }
+            return `
+                <button onclick="editActivity(${activity.activity_id})" 
+                        class="btn-action btn-edit" 
+                        ${!isEditable ? 'disabled' : ''}>
+                    <i class="bi bi-pencil"></i>
+                </button>
+                <button onclick="toggleStatus(${activity.activity_id}, ${activity.is_active})"
+                        class="btn-action ${activity.is_active ? 'btn-warning' : 'btn-success'}"
+                        ${!canToggle ? 'disabled' : ''}>
+                    <i class="bi bi-${activity.is_active ? 'eye-slash' : 'eye'}"></i>
+                </button>
+                <button onclick="deleteActivity(${activity.activity_id})"
+                        class="btn-action btn-danger"
+                        ${!isEditable ? 'disabled' : ''}>
+                    <i class="bi bi-trash"></i>
+                </button>
+            `;
+        }
 
         // 新增活動
         function createActivity() {
@@ -1458,177 +1416,175 @@ require_once __DIR__ . '/../../../camping_db.php';
         // 編輯活動函數
         async function editActivity(activityId) {
             try {
-                // 先獲取活動資料
-                const response = await axios.get(`/CampExplorer/owner/api/activity/get_activity.php?activity_id=${activityId}`);
-                
+                // 獲取活動詳細資料
+                const response = await axios.get(`/CampExplorer/owner/api/activity/get_activity.php?id=${activityId}`);
+
                 if (!response.data.success) {
                     throw new Error(response.data.message || '無法獲取活動資料');
                 }
 
-                const activity = response.data.activity;
-                
-                // 檢查活動是否已開始
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
-                const startDate = new Date(activity.start_date);
-                const hasStarted = startDate <= today;
+                const {
+                    activity,
+                    spot_options,
+                    available_spots
+                } = response.data.data;
 
-                // 如果活動已開始，顯示警告訊息
-                if (hasStarted) {
-                    const warningResult = await Swal.fire({
-                        title: '注意',
-                        text: '此活動已開始，修改可能會影響已報名的使用者，確定要繼續嗎？',
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonText: '繼續編輯',
-                        cancelButtonText: '取消',
-                        confirmButtonColor: '#3085d6',
-                        cancelButtonColor: '#d33'
-                    });
-
-                    if (!warningResult.isConfirmed) {
-                        return;
-                    }
-                }
-
-                // 繼續編輯流程
-                const formHtml = `
-                    <form id="editActivityForm" class="needs-validation">
-                        <input type="hidden" id="activity_id" value="${activityId}">
-                        <!-- 其他表單欄位 -->
-                    </form>
-                `;
-
+                // 顯示編輯表單
                 const result = await Swal.fire({
                     title: '編輯活動',
-                    html: formHtml,
                     width: '800px',
+                    customClass: {
+                        container: 'activity-form-container',
+                        popup: 'activity-form-popup'
+                    },
+                    html: `
+                        <form id="editActivityForm" class="needs-validation">
+                            <input type="hidden" id="activity_id" value="${activity.activity_id}">
+                            <input type="hidden" id="application_id" value="${activity.application_id}">
+                            
+                            <div class="mb-3">
+                                <label class="form-label required">活動名稱</label>
+                                <input type="text" id="activity_name" class="form-control" value="${activity.activity_name}" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label required">活動標題</label>
+                                <input type="text" id="title" class="form-control" value="${activity.title}" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">副標題</label>
+                                <input type="text" id="subtitle" class="form-control" value="${activity.subtitle || ''}">
+                            </div>
+                            
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label required">開始日期</label>
+                                    <input type="date" id="start_date" class="form-control" value="${activity.start_date}" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label required">結束日期</label>
+                                    <input type="date" id="end_date" class="form-control" value="${activity.end_date}" required>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">活動說明</label>
+                                <textarea id="description" class="form-control" rows="3">${activity.description || ''}</textarea>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">注意事項</label>
+                                <textarea id="notice" class="form-control" rows="3">${activity.notice || ''}</textarea>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label required">營位選項</label>
+                                <div id="spotOptionsContainer">
+                                    ${renderSpotOptions(spot_options, available_spots)}
+                                </div>
+                                <button type="button" class="btn btn-outline-primary mt-2" onclick="addSpotOptionToEdit()">
+                                    <i class="bi bi-plus-circle"></i> 新增營位選項
+                                </button>
+                            </div>
+                        </form>
+                    `,
                     showCancelButton: true,
-                    confirmButtonText: '儲存',
+                    confirmButtonText: '確認修改',
                     cancelButtonText: '取消',
-                    showLoaderOnConfirm: true,
+                    didOpen: () => {
+                        // 設置日期輸入限制
+                        setupDateInputs();
+                        // 初始化營位選項相關功能
+                        initializeSpotOptions(available_spots);
+                    },
                     preConfirm: async () => {
                         try {
-                            return await validateAndSubmitEditForm(activityId);
+                            return await validateAndSubmitEditForm();
                         } catch (error) {
                             Swal.showValidationMessage(error.message);
                             return false;
                         }
-                    },
-                    allowOutsideClick: () => !Swal.isLoading()
+                    }
                 });
 
                 if (result.isConfirmed) {
                     await Swal.fire({
                         icon: 'success',
-                        title: '更新成功',
-                        text: '活動資訊已更新'
+                        title: '修改成功',
+                        text: '活動已成功更新',
+                        timer: 1500
                     });
-                    location.reload();
+                    loadActivities();
                 }
+
             } catch (error) {
                 console.error('編輯活動失敗:', error);
                 Swal.fire({
                     icon: 'error',
-                    title: '編輯失敗',
-                    text: error.message || '發生未知錯誤'
+                    title: '編輯活動失敗',
+                    text: error.message || '無法編輯活動'
                 });
             }
         }
 
-        // 修改驗證和提交函數
-        async function validateAndSubmitEditForm(activityId) {
+        // 修改驗證和提交表單函數
+        async function validateAndSubmitEditForm() {
             try {
-                const formData = new FormData();
-                formData.append('activity_id', activityId);
+                // 基本表單數據
+                const formData = {
+                    activity_id: document.getElementById('activity_id').value,
+                    activity_name: document.getElementById('activity_name').value,
+                    title: document.getElementById('title').value,
+                    subtitle: document.getElementById('subtitle').value || null,
+                    description: document.getElementById('description').value || null,
+                    notice: document.getElementById('notice').value || null,
+                    start_date: document.getElementById('start_date').value,
+                    end_date: document.getElementById('end_date').value
+                };
 
-                // 1. 基本欄位驗證
-                const requiredFields = ['activity_name', 'title', 'start_date', 'end_date'];
-                for (const field of requiredFields) {
-                    const element = document.getElementById(field);
-                    if (!element || !element.value.trim()) {
-                        throw new Error(`請填寫${getFieldName(field)}`);
-                    }
-                    formData.append(field, element.value.trim());
-                }
+                // 基本欄位驗證
+                if (!formData.activity_name?.trim()) throw new Error('請輸入活動名稱');
+                if (!formData.title?.trim()) throw new Error('���輸入活動標題');
+                if (!formData.start_date) throw new Error('請選擇開始日期');
+                if (!formData.end_date) throw new Error('請選擇結束日期');
 
-                // 2. 日期驗證
-                const startDate = new Date(document.getElementById('start_date').value);
-                const endDate = new Date(document.getElementById('end_date').value);
-                
-                if (endDate < startDate) {
-                    throw new Error('結束日期必須大於等於開始日期');
-                }
+                // 營位選項驗證
+                const container = document.getElementById('spotOptionsContainer');
+                const spotOptions = Array.from(container.querySelectorAll('.spot-option'))
+                    .map(option => {
+                        const select = option.querySelector('.spot-select');
+                        const price = option.querySelector('.spot-price');
+                        const quantity = option.querySelector('.spot-quantity');
 
-                // 3. 處理選填欄位
-                const optionalFields = ['subtitle', 'description', 'notice'];
-                optionalFields.forEach(field => {
-                    const element = document.getElementById(field);
-                    formData.append(field, element ? element.value.trim() : '');
-                });
+                        if (!select?.value) throw new Error('請選擇營位');
+                        if (!price?.value || price.value <= 0) throw new Error('請輸入有效的價格');
+                        if (!quantity?.value || quantity.value <= 0) throw new Error('請輸入有效的數量');
 
-                // 4. 處理營位選項
-                const spotOptions = [];
-                const spotOptionElements = document.querySelectorAll('.spot-option');
-                
-                if (spotOptionElements.length === 0) {
-                    throw new Error('至少需要一個營位選項');
-                }
-
-                spotOptionElements.forEach((option, index) => {
-                    // 修改選擇器以匹配實際的 HTML 結構
-                    const spotId = option.querySelector('.spot-select').value;
-                    const price = option.querySelector('.spot-price').value;
-                    const maxQuantity = option.querySelector('.spot-quantity').value;
-
-                    // 驗證價格和數量
-                    if (!price || price <= 0) {
-                        throw new Error(`第 ${index + 1} 個營位的價格必須大於 0`);
-                    }
-                    if (!maxQuantity || maxQuantity <= 0) {
-                        throw new Error(`第 ${index + 1} 個營位的數量必須大於 0`);
-                    }
-
-                    spotOptions.push({
-                        spot_id: spotId,
-                        price: parseInt(price),
-                        max_quantity: parseInt(maxQuantity)
+                        return {
+                            spot_id: select.value,
+                            price: price.value,
+                            max_quantity: quantity.value
+                        };
                     });
-                });
 
-                formData.append('spot_options', JSON.stringify(spotOptions));
-
-                // 5. 處理圖片（如果有新上傳）
-                const imageInput = document.getElementById('main_image');
-                if (imageInput && imageInput.files[0]) {
-                    formData.append('image', imageInput.files[0]);
+                if (spotOptions.length === 0) {
+                    throw new Error('請至少設定一個營位選項');
                 }
 
-                // 6. 發送請求前先印出表單數據以便偵錯
-                for (let [key, value] of formData.entries()) {
-                    console.log(`${key}: ${value}`);
-                }
+                // 添加營位選項到表單數據
+                formData.spot_options = spotOptions;
 
-                // 7. 發送請求
-                const response = await axios.post('/CampExplorer/owner/api/activity/update_activity.php', formData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data'
-                    }
-                });
-
-                console.log('Server Response:', response.data); // 添加這行來查看伺服器回應
-
+                // 發送更新請求
+                const response = await axios.post('/CampExplorer/owner/api/activity/update_activity.php', formData);
+                
                 if (!response.data.success) {
                     throw new Error(response.data.message || '更新失敗');
                 }
 
-                return response.data;
+                return true;
             } catch (error) {
                 console.error('表單驗證或提交失敗:', error);
-                if (error.response) {
-                    console.error('Server Error Response:', error.response.data);
-                    throw new Error(error.response.data.message || '更新失敗');
-                }
                 throw error;
             }
         }
@@ -1643,25 +1599,28 @@ require_once __DIR__ . '/../../../camping_db.php';
                 <div class="spot-option mb-2">
                     <div class="row g-2">
                         <div class="col-md-4">
-                            <select class="form-select spot-select" disabled>
-                                <option value="${option.spot_id}">${option.spot_name}</option>
+                            <select class="form-select spot-select" required>
+                                ${availableSpots.map(spot => `
+                                    <option value="${spot.spot_id}" 
+                                            ${spot.spot_id === option.spot_id ? 'selected' : ''}>
+                                        ${spot.spot_name}
+                                    </option>
+                                `).join('')}
                             </select>
                         </div>
-                        <div class="col-md-4">
-                            <input type="number" 
-                                   class="form-control spot-price" 
-                                   placeholder="價格" 
-                                   value="${option.price}" 
-                                   min="0" 
-                                   required>
+                        <div class="col-md-3">
+                            <input type="number" class="form-control spot-price" 
+                                   placeholder="價格" value="${option.price}" min="0" required>
                         </div>
-                        <div class="col-md-4">
-                            <input type="number" 
-                                   class="form-control spot-quantity" 
-                                   placeholder="數量" 
-                                   value="${option.max_quantity}" 
-                                   min="1" 
-                                   required>
+                        <div class="col-md-3">
+                            <input type="number" class="form-control spot-quantity" 
+                                   placeholder="數量" value="${option.max_quantity}" min="1" required>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="button" class="btn btn-outline-danger" 
+                                    onclick="removeSpotOptionFromEdit(this)">
+                                <i class="bi bi-trash"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -1678,7 +1637,7 @@ require_once __DIR__ . '/../../../camping_db.php';
                     confirmButtonText: '確定',
                     cancelButtonText: '取消',
                     confirmButtonColor: '#4C6B74', // 更加明顯的莫蘭迪綠色
-                    cancelButtonColor: '#B4A197' 
+                    cancelButtonColor: '#94A7AE' // 中性的莫蘭迪藍色
                 });
 
                 if (result.isConfirmed) {
@@ -1706,7 +1665,7 @@ require_once __DIR__ . '/../../../camping_db.php';
             }
         }
 
-        // 停用活動
+        // 刪除活動
         async function deleteActivity(activityId) {
             try {
                 const result = await Swal.fire({
@@ -1843,7 +1802,7 @@ require_once __DIR__ . '/../../../camping_db.php';
                 Swal.fire({
                     icon: 'warning',
                     title: '無法新增',
-                    text: '請先選擇營地，或目前營地無可用營位'
+                    text: '請先��擇營地，或目前營地無可用營���'
                 });
                 return;
             }
@@ -1961,7 +1920,7 @@ require_once __DIR__ . '/../../../camping_db.php';
             const selects = container.querySelectorAll('.spot-select');
             const selectedValues = Array.from(selects)
                 .map(select => select.value)
-                .filter(value => value); // 只考有值的選項
+                .filter(value => value); // 只考慮有值的選項
 
             // 檢查是否有選項
             if (selectedValues.length === 0) return true;
@@ -1972,7 +1931,7 @@ require_once __DIR__ . '/../../../camping_db.php';
                 Swal.fire({
                     icon: 'error',
                     title: '錯誤',
-                    text: '同一個營位不能重複選擇'
+                    text: '同一個營��不能重複選擇'
                 });
                 return false;
             }
@@ -2065,7 +2024,7 @@ require_once __DIR__ . '/../../../camping_db.php';
                 if (response.data.success) {
                     Swal.fire({
                         icon: 'success',
-                        title: '建立功',
+                        title: '建立成功',
                         text: response.data.message,
                         showConfirmButton: false,
                         timer: 1500
@@ -2295,7 +2254,7 @@ require_once __DIR__ . '/../../../camping_db.php';
         }
 
         function isActivityDeletable(activity) {
-            const notDeletableStatus = ['營地審核中', '營地未通過', '進行中', '結束'];
+            const notDeletableStatus = ['營地審核中', '營地未通過', '進行中', '���結束'];
             return !notDeletableStatus.includes(activity.activity_status);
         }
 
@@ -2452,7 +2411,7 @@ require_once __DIR__ . '/../../../camping_db.php';
                                     <div class="info-item">
                                         <i class="bi bi-tag info-icon"></i>
                                         <div class="info-content">
-                                            <div class="info-label">價格範</div>
+                                            <div class="info-label">價格範圍</div>
                                             <div class="info-value price-value">
                                                 ${formatPrice(minPrice)} ~ ${formatPrice(maxPrice)}
                                             </div>
@@ -2816,7 +2775,7 @@ require_once __DIR__ . '/../../../camping_db.php';
             fileInput.value = '';
         }
 
-        // 表單驗證和提
+        // 表單驗證和提交
         async function validateAndSubmitForm() {
             try {
                 const formData = new FormData();
@@ -2867,17 +2826,12 @@ require_once __DIR__ . '/../../../camping_db.php';
                 }
 
                 spotOptionElements.forEach((option, index) => {
-                    // 修正選擇器以匹配實際的 HTML 結構
-                    const spotId = option.querySelector('.spot-select').value;
-                    const price = option.querySelector('.spot-price').value;
-                    const maxQuantity = option.querySelector('.spot-quantity').value;
+                    const spotId = option.querySelector('select[name^="spot_options"]')?.value;
+                    const price = option.querySelector('input[name$="[price]"]')?.value;
+                    const maxQuantity = option.querySelector('input[name$="[max_quantity]"]')?.value;
 
-                    // 驗證價格和數量
-                    if (!price || price <= 0) {
-                        throw new Error(`第 ${index + 1} 個營位的價格必須大於 0`);
-                    }
-                    if (!maxQuantity || maxQuantity <= 0) {
-                        throw new Error(`第 ${index + 1} 個營位的數量必須大於 0`);
+                    if (!spotId || !price || !maxQuantity) {
+                        throw new Error(`請完�����填寫第 ${index + 1} 個營位選項的資訊`);
                     }
 
                     spotOptions.push({
@@ -2886,8 +2840,6 @@ require_once __DIR__ . '/../../../camping_db.php';
                         max_quantity: parseInt(maxQuantity)
                     });
                 });
-
-                formData.append('spot_options', JSON.stringify(spotOptions));
 
                 // 5. 處理圖片
                 const imageFile = document.getElementById('main_image')?.files[0];
@@ -2969,6 +2921,62 @@ require_once __DIR__ . '/../../../camping_db.php';
             if (option) {
                 option.remove();
             }
+        }
+
+        // 編輯表單中的添加營位選項函數
+        function addSpotOptionToEdit() {
+            const container = document.getElementById('spotOptionsContainer');
+            if (!container) return;
+
+            // 獲取目前已選擇的營位
+            const selectedSpots = Array.from(container.querySelectorAll('.spot-select'))
+                .map(select => select.value)
+                .filter(value => value);
+
+            // 過濾出未被選擇的營位
+            const availableSpots = window.availableSpots.filter(spot => 
+                !selectedSpots.includes(spot.spot_id.toString())
+            );
+
+            if (availableSpots.length === 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: '無法新增',
+                    text: '已無可用的營位選項'
+                });
+                return;
+            }
+
+            const newOption = document.createElement('div');
+            newOption.className = 'spot-option mb-2';
+            newOption.innerHTML = `
+                <div class="row g-2">
+                    <div class="col-md-4">
+                        <select class="form-select spot-select" required>
+                            <option value="">選擇營位</option>
+                            ${availableSpots.map(spot => `
+                                <option value="${spot.spot_id}">${spot.spot_name}</option>
+                            `).join('')}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="number" class="form-control spot-price" 
+                               placeholder="價格" min="0" required>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="number" class="form-control spot-quantity" 
+                               placeholder="數量" min="1" required>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="button" class="btn btn-outline-danger" 
+                                onclick="removeSpotOptionFromEdit(this)">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            container.appendChild(newOption);
         }
 
         // 價格格式化函數

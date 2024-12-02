@@ -38,7 +38,56 @@ foreach ($categories as $category) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>類別編輯頁面</title>
     <style>
-
+        .card.my-4{
+            padding: 0;
+            background-color: #f8f9fa;
+            border-radius: 30px;
+            box-shadow: 0px 18px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .card-body{
+            padding: 0;
+        }
+        .haeder-style{
+            background-image: linear-gradient(to top, #0ba360 0%, #3cba92 100%);
+            border-radius: 30px 30px 0 0;
+            color:#fff;
+            padding: 15px;
+        }
+        .haeder-style span.badge{
+            background-color: transparent !important;
+            border: 1px solid #ffffff;
+            color: #ffffff !important;
+        }
+        .mb-3.border-bottom .d-flex{
+            padding: 0 15px;
+            padding-right: 10px;
+            color:#767676!important
+        }
+        .container{
+            padding: 4rem;
+            max-width: 100%;    
+        }
+        .d-flex.justify-content-end{
+            padding: 15px;
+        } 
+        .badge.bg-success{
+            background-color: transparent !important;
+            border: 1px solid #0080005c;
+            color: #008000 !important;
+            padding: 7px 23px;
+        }
+        .badge.bg-danger{
+            background-color: transparent !important;
+            border: 1px solid #ff000040;
+            color: #db0000 !important;
+            padding: 7px 23px;
+        }
+        .btn.btn-outline-primary{
+            color: #8b6a09;
+            background-color: #ffc1076e;
+            border: 0;
+        }
     </style>
 
 </head>
@@ -49,7 +98,7 @@ foreach ($categories as $category) {
     <!-- modal入 -->
 
     <div class="container">
-        <h1 class="mb-4 text-center">類別編輯</h1>
+        <h1 class="mb-4">類別編輯</h1>
         <div>
             <!-- 新增主類別按鈕 -->
             <button class="btn btn-primary " id="addCategoryBtn">新增主類別</button>
@@ -60,7 +109,7 @@ foreach ($categories as $category) {
                 <div class="col-sm-12 col-md-6 col-lg-4  mb-4">
                     <div class="card my-4">
                         <div class="card-body">
-                            <div class="d-flex align-items-center justify-content-between py-2 ">
+                            <div class="d-flex align-items-center justify-content-between haeder-style">
                                 <!-- 左側主類別名稱 -->
                                 <div class="flex-grow-1">
                                     <h4 class="card-title mb-0"><?= $category['name'] ?></h4>
@@ -85,7 +134,7 @@ foreach ($categories as $category) {
                             </div>
 
 
-                            <hr>
+
                             <ul class="list-unstyled">
                                 <?php foreach ($categories as $subCategory): ?>
                                     <?php if ($subCategory['sub_category_id'] == $category['id']): ?>

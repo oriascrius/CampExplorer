@@ -637,9 +637,9 @@ try {
     }
 
     .btn-group .btn.active {
-        background-color: #6B7A8F;
+        background-image: linear-gradient(to top, #0ba360 0%, #3cba92 100%);
         color: #ffffff;
-        border-color: #6B7A8F;
+        /* border-color: #6B7A8F; */
     }
 
     /* 動畫��果 */
@@ -776,43 +776,59 @@ try {
 
     /* 莫蘭���按鈕樣式 */
     .btn-monofondi-sage {
-        background-color: var(--monofondi-sage);
+        /* background-color: var(--monofondi-sage); */
+        background-image: linear-gradient(to top, #37ecba 0%, #72afd3 100%);
         color: white;
+        text-shadow: 1px 1px 2px rgba(0,0,0,.3);
     }
 
     .btn-monofondi-blue {
-        background-color: var(--monofondi-blue);
+        /* background-color: var(--monofondi-blue); */
+        background-image: linear-gradient(to right, #eea2a2 0%, #bbc1bf 19%, #57c6e1 42%, #b49fda 79%, #7ac5d8 100%);
         color: white;
+        text-shadow: 1px 1px 2px rgba(0,0,0,.3);
     }
 
     .btn-monofondi-gray {
-        background-color: var(--monofondi-gray);
+        /* background-color: var(--monofondi-gray); */
+        background: linear-gradient(to top, #37ecba 0%, #72afd3 100%);
         color: white;
+        text-shadow: 1px 1px 2px rgba(0,0,0,.3);
     }
 
     .btn-monofondi-green {
-        background-color: var(--monofondi-green);
+        /* background-color: var(--monofondi-green); */
+        background: linear-gradient(to right, #f78ca0 0%, #f9748f 19%, #fd868c 60%, #fe9a8b 100%);
         color: white;
+        text-shadow: 1px 1px 2px rgba(0,0,0,.3);
     }
 
     .btn-monofondi-sand {
-        background-color: var(--monofondi-sand);
+        /* background-color: var(--monofondi-sand); */
+        background: linear-gradient(to right, #e4afcb 0%, #b8cbb8 0%, #b8cbb8 0%, #e2c58b 30%, #c2ce9c 64%, #7edbdc 100%);
         color: white;
+        text-shadow: 1px 1px 2px rgba(0,0,0,.3);
     }
 
     .btn-monofondi-rose {
-        background-color: var(--monofondi-rose);
+        /* background-color: var(--monofondi-rose); */
+        background: linear-gradient(to top, #5ee7df 0%, #b490ca 100%);
         color: white;
+        text-shadow: 1px 1px 2px rgba(0,0,0,.3);
     }
 
     .btn-monofondi-purple {
-        background-color: var(--monofondi-purple);
+        /* background-color: var(--monofondi-purple); */
+        background: linear-gradient(to top, #9795f0 0%, #fbc8d4 100%);
         color: white;
+        text-shadow: 1px 1px 2px rgba(0,0,0,.3);
     }
 
     .btn-monofondi-blue-gray {
-        background-color: var(--monofondi-blue-gray);
+        /* background-color: var(--monofondi-blue-gray); */
+        background: linear-gradient(120deg, #a6c0fe 0%, #f68084 100%);
         color: white;
+        text-shadow: 1px 1px 2px rgba(0,0,0,.3);
     }
 
     /* 按鈕懸停效果 */
@@ -1013,42 +1029,50 @@ try {
 
     /* 卡片漸層背景 - 更強的視覺效果 */
     .card.bg-morandi-blue-gradient {
-        background: linear-gradient(135deg, #7A90A8 0%, #A8B9CC 100%);
+        /* background: linear-gradient(135deg, #7A90A8 0%, #A8B9CC 100%); */
+        background: linear-gradient(120deg, #a6c0fe 0%, #f68084 100%);
         color: white;
     }
 
     .card.bg-morandi-sage-gradient {
-        background: linear-gradient(135deg, #8FA977 0%, #B3C7A1 100%);
+        /* background: linear-gradient(135deg, #8FA977 0%, #B3C7A1 100%); */
+        background: linear-gradient(to top, #5ee7df 0%, #b490ca 100%);
         color: white;
     }
 
     .card.bg-morandi-rose-gradient {
-        background: linear-gradient(135deg, #C69B97 0%, #E0BDB9 100%);
+        /* background: linear-gradient(135deg, #C69B97 0%, #E0BDB9 100%); */
+        background: linear-gradient(to right, #e4afcb 0%, #b8cbb8 0%, #b8cbb8 0%, #e2c58b 30%, #c2ce9c 64%, #7edbdc 100%);
         color: white;
     }
 
     .card.bg-morandi-purple-gradient {
-        background: linear-gradient(135deg, #9B8AA6 0%, #B8ABC0 100%);
+        /* background: linear-gradient(135deg, #9B8AA6 0%, #B8ABC0 100%); */
+        background: linear-gradient(to top, #37ecba 0%, #72afd3 100%);
         color: white;
     }
 
     .card.bg-morandi-sand-gradient {
-        background: linear-gradient(135deg, #C4A687 0%, #E0CCBA 100%);
+        /* background: linear-gradient(135deg, #C4A687 0%, #E0CCBA 100%); */
+        background: linear-gradient(to right, #f78ca0 0%, #f9748f 19%, #fd868c 60%, #fe9a8b 100%);
         color: white;
     }
 
     .card.bg-morandi-mint-gradient {
-        background: linear-gradient(135deg, #89B0A3 0%, #B1CCC3 100%);
+        /* background: linear-gradient(135deg, #89B0A3 0%, #B1CCC3 100%); */
+        background: linear-gradient(to right, #74ebd5 0%, #9face6 100%);
         color: white;
     }
 
     .card.bg-morandi-mauve-gradient {
-        background: linear-gradient(135deg, #A68E9B 0%, #C7B9C1 100%);
+        /* background: linear-gradient(135deg, #A68E9B 0%, #C7B9C1 100%); */
+        background: linear-gradient(to top, #9795f0 0%, #fbc8d4 100%);
         color: white;
     }
 
     .card.bg-morandi-gray-gradient {
-        background: linear-gradient(135deg, #8E9CAA 0%, #B5BFC9 100%);
+        /* background: linear-gradient(135deg, #8E9CAA 0%, #B5BFC9 100%); */
+        background-image: linear-gradient(to right, #eea2a2 0%, #bbc1bf 19%, #57c6e1 42%, #b49fda 79%, #7ac5d8 100%);
         color: white;
     }
 
@@ -1073,6 +1097,7 @@ try {
     .card[class*="-gradient"] h6,
     .card[class*="-gradient"] small {
         color: white;
+        text-shadow: 1px 1px 2px rgba(0,0,0,.3);
     }
 
     .card[class*="-gradient"] small {
@@ -1760,6 +1785,21 @@ try {
         /* 改為較淺的背景 */
         border-left: 2px solid rgba(52, 152, 219, 0.3);
         /* 調整邊框透明度 */
+    }
+    .bg-morandi-teal{
+        background-image: linear-gradient(to top, #ecba82 0%, #ecba82 100%);
+        color: #fff;
+    }
+    .card-body .table thead{
+        background-image:none;
+    }
+    .card-header{
+        background-image: linear-gradient(to top, #0ba360 0%, #3cba92 100%)!important;
+        color: #fff;
+    }
+    .card-header.d-flex .btn-group .btn.active{
+        background-image: linear-gradient(to top, #fff 0%, #fff 100%);
+        color:green;
     }
 </style>
 
@@ -2501,11 +2541,11 @@ try {
                         datasets: [{
                             data: [30, 25, 20, 15, 10],
                             backgroundColor: [
-                                '#7A90A8',  // 莫蘭迪藍
-                                '#8FA977',  // 莫蘭迪灰綠
-                                '#C69B97',  // 莫蘭迪玫瑰
-                                '#C4A687',  // 莫蘭迪沙
-                                '#A3C5C9'   // 莫蘭迪藍綠
+                                '#72afd3',  // 莫蘭迪藍
+                                '#c2ce9c',  // 莫蘭迪灰綠
+                                '#f78ca0',  // 莫蘭迪玫瑰
+                                '#b490ca',  // 莫蘭迪沙
+                                '#a6c0fe'   // 莫蘭迪藍綠
                             ],
                             borderWidth: 2,
                             borderColor: '#ffffff'
@@ -2541,7 +2581,7 @@ try {
                                 color: '#ffffff',
                                 font: {
                                     weight: 'bold',
-                                    size: 12
+                                    size: 14
                                 },
                                 textAlign: 'center',
                                 textStrokeColor: '#000000',

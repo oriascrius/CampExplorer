@@ -35,8 +35,37 @@ try {
     $camps = [];
 }
 ?>
-
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+<style>
+.card.shadow-sm{
+    border-radius:30px;
+    padding-top: 15px;
+}
+.table thead{
+    color:#fff;
+}
+.badge.bg-primary{
+    background-color: transparent !important;
+    border: 1px solid #007bff;
+    color: #007bff !important;
+    padding: 7px 23px;
+}
+.badge.bg-info{
+    background-color: transparent !important;
+    border: 1px solid #0dcaf0;
+    color: #0dcaf0 !important;
+    padding: 7px 23px;
+}
+.d-flex.justify-content-between{
+    margin: 0 75px;
+}
+.card.shadow-sm{
+    margin: 0 75px;
+}
+tr{
+    border-bottom-width: 1px;
+}
+</style>
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3">
     <h1 class="h2">已通過審核營地列表</h1>
 </div>
 
@@ -44,7 +73,7 @@ try {
     <div class="card-body">
         <div class="table-responsive">
             <table class="table table-hover align-middle">
-                <thead class="table-light">
+                <thead class="">
                     <tr>
                         <th scope="col" class="text-nowrap">營地編號</th>
                         <th scope="col" style="min-width: 200px;">營地資訊</th>
@@ -64,10 +93,10 @@ try {
                     <?php else: ?>
                         <?php foreach ($camps as $camp): ?>
                             <tr>
-                                <td class="text-nowrap">
-                                    <span class="badge bg-success">
-                                        #<?= htmlspecialchars($camp['application_id']) ?>
-                                    </span>
+                                <td class="text-nowrap ">
+                                   
+                                        <?= htmlspecialchars($camp['application_id']) ?>
+                               
                                 </td>
                                 <td>
                                     <div class="fw-bold mb-1"><?= htmlspecialchars($camp['camp_name']) ?></div>
