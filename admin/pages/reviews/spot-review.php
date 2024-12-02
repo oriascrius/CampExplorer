@@ -312,12 +312,14 @@ if (session_status() === PHP_SESSION_NONE) {
     border: 1px solid #007bff;
     color: #007bff !important;
     padding: 7px 23px;
+    font-size: 14px;
 }
 .badge.bg-info{
     background-color: transparent !important;
     border: 1px solid #ffc107;
     color: #efb300 !important;
     padding: 7px 23px;
+    font-size: 14px;
 }
 .d-flex.justify-content-between{
     margin: 0 75px;
@@ -361,6 +363,19 @@ tr{
     background-color: #ffc1076e;
     border: 0;
 }
+tbody tr:hover{
+            background: rgb(155 254 144 / 10%);
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0px 0px 10px 0px rgb(0 0 0 / 10%);
+            --bs-table-accent-bg: none!important;
+        }
+        .modal-header{
+    border-radius: 10px 10px 0 0;
+    background-image: linear-gradient(to top, #0ba360 0%, #3cba92 100%)!important;
+}
+.modal-footer .btn.btn-primary{
+    background-color: #ffc1076e;
+}
 </style>
 <div class="container-fluid">
     <h1 class="page-title">待審核營位管理</h1>
@@ -371,16 +386,16 @@ tr{
                 <table class="table table-bordered">
                     <thead>
                         <tr>
-                            <th>申請編號</th>
-                            <th>營地名稱</th>
-                            <th>營主名稱</th>
-                            <th>營位名稱</th>
-                            <th>容納人數</th>
-                            <th>價格</th>
-                            <th>申請時間</th>
-                            <th>狀態</th>
-                            <th>營地狀態</th>
-                            <th>操作</th>
+                            <th class="text-center">申請編號</th>
+                            <th class="text-center">營地名稱</th>
+                            <th class="text-center">營主名稱</th>
+                            <th class="text-center">營位名稱</th>
+                            <th class="text-center">容納人數</th>
+                            <th class="text-center">價格</th>
+                            <th class="text-center">申請時間</th>
+                            <th class="text-center">狀態</th>
+                            <th class="text-center">營地狀態</th>
+                            <th class="text-center">操作</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -431,16 +446,16 @@ tr{
                                     };
                         ?>
                                     <tr>
-                                        <td><span><?= htmlspecialchars($spot['application_id']) ?></span></td>
-                                        <td><span><?= htmlspecialchars($spot['camp_name']) ?></span></td>
-                                        <td><span><?= htmlspecialchars($spot['owner_name']) ?></span></td>
-                                        <td><span><?= htmlspecialchars($spot['spot_name']) ?></span></td>
-                                        <td><span><?= htmlspecialchars($spot['capacity']) ?></span></td>
-                                        <td><span>NT$ <?= number_format($spot['price']) ?></span></td>
-                                        <td><span><?= date('Y-m-d H:i', strtotime($spot['created_at'])) ?></span></td>
-                                        <td><?= $statusBadge ?></td>
-                                        <td><?= $campStatusBadge ?></td>
-                                        <td>
+                                        <td class="text-center"><span><?= htmlspecialchars($spot['application_id']) ?></span></td>
+                                        <td class="text-center"><span><?= htmlspecialchars($spot['camp_name']) ?></span></td>
+                                        <td class="text-center"><span><?= htmlspecialchars($spot['owner_name']) ?></span></td>
+                                        <td class="text-center"><span><?= htmlspecialchars($spot['spot_name']) ?></span></td>
+                                        <td class="text-center"><span><?= htmlspecialchars($spot['capacity']) ?></span></td>
+                                        <td class="text-center"><span>NT$ <?= number_format($spot['price']) ?></span></td>
+                                        <td class="text-center"><span><?= date('Y-m-d H:i', strtotime($spot['created_at'])) ?></span></td>
+                                        <td class="text-center"><?= $statusBadge ?></td>
+                                        <td class="text-center"><?= $campStatusBadge ?></td>
+                                        <td class="text-center">
                                             <button class="btn btn-sm btn-primary"
                                                 onclick="viewSpotDetails(<?= $spot['spot_id'] ?>)">
                                                 編輯

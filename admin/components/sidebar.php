@@ -309,6 +309,17 @@
         background-image: linear-gradient(to top, #0ba360 0%, #3cba92 100%);
         color: #fff;
     }
+    .swal2-icon-success .swal2-title{
+        background-image: none;
+        color: green;
+    }
+    .swal2-icon-warning .swal2-title{
+        background-image: none;
+        color: green;
+    } 
+    .swal2-icon-warning .swal2-default-outline{
+        background: #ecba82!important;
+    }
     .swal2-title{
         background-image: linear-gradient(to top, #0ba360 0%, #3cba92 100%);
         color: #fff;

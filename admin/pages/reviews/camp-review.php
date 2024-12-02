@@ -99,6 +99,19 @@ tr{
     background-color: #ffc1076e;
     border: 0;
 }
+.modal-header{
+    border-radius: 10px 10px 0 0;
+    background-image: linear-gradient(to top, #0ba360 0%, #3cba92 100%)!important;
+}
+tbody tr:hover{
+            background: rgb(155 254 144 / 10%);
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0px 0px 10px 0px rgb(0 0 0 / 10%);
+            --bs-table-accent-bg: none!important;
+        }
+.modal-footer .btn.btn-primary{
+    background-color: #ecba82;
+}
 </style>
 <!-- 只保留內容部分，移除所有 JavaScript -->
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3">
@@ -119,11 +132,11 @@ tr{
             <table class="table table-hover align-middle">
                 <thead class="">
                     <tr>
-                        <th scope="col" class="text-nowrap">申請編號</th>
-                        <th scope="col" style="min-width: 200px;">營地資訊</th>
-                        <th scope="col" style="min-width: 180px;">營主資訊</th>
+                        <th scope="col" class="text-nowrap text-center">申請編號</th>
+                        <th scope="col" class="text-center" style="min-width: 200px;">營地資訊</th>
+                        <th scope="col" class="text-center" style="min-width: 180px;">營主資訊</th>
                         <th scope="col" class="text-center">申請內容</th>
-                        <th scope="col" class="text-nowrap">申請時間</th>
+                        <th scope="col" class="text-nowrap text-center">申請時間</th>
                         <th scope="col" class="text-center">狀態</th>
                         <th scope="col" class="text-center">操作</th>
                     </tr>
@@ -139,19 +152,19 @@ tr{
                     <?php else: ?>
                         <?php foreach ($applications as $app): ?>
                             <tr>
-                                <td class="text-nowrap">
+                                <td class="text-nowrap text-center">
                                
                                         <?= htmlspecialchars($app['application_id']) ?>
                        
                                 </td>
-                                <td>
+                                <td class="text-center">
                                     <div class="fw-bold mb-1"><?= htmlspecialchars($app['camp_name']) ?></div>
                                     <small class="text-muted">
                                         <i class="bi bi-geo-alt"></i>
                                         <?= htmlspecialchars($app['address']) ?>
                                     </small>
                                 </td>
-                                <td>
+                                <td class="text-center">
                                     <div class="mb-1"><?= htmlspecialchars($app['owner_name']) ?></div>
                                     <small class="text-muted d-block">
                                         <i class="bi bi-building"></i>
@@ -172,7 +185,7 @@ tr{
                                         <?= $app['image_count'] ?> 張圖片
                                     </span>
                                 </td>
-                                <td class="text-nowrap">
+                                <td class="text-nowrap text-center">
                                     <small>
                                         <i class="bi bi-clock"></i>
                                         <?= date('Y/m/d H:i', strtotime($app['created_at'])) ?>

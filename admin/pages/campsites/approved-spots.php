@@ -60,6 +60,12 @@ try {
 tr{
     border-bottom-width: 1px;
 }
+tbody tr:hover{
+            background: rgb(155 254 144 / 10%);
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0px 0px 10px 0px rgb(0 0 0 / 10%);
+            --bs-table-accent-bg: none!important;
+        }
 </style>
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3">
     <h1 class="h2">已通過審核營位列表</h1>
@@ -71,11 +77,11 @@ tr{
             <table class="table table-hover align-middle">
                 <thead class="">
                     <tr>
-                        <th scope="col" class="text-nowrap">營位編號</th>
-                        <th scope="col" style="min-width: 200px;">所屬營地</th>
-                        <th scope="col" style="min-width: 180px;">營位資訊</th>
+                        <th scope="col" class="text-nowrap text-center">營位編號</th>
+                        <th scope="col" class="text-center" style="min-width: 200px;">所屬營地</th>
+                        <th scope="col" class="text-center" style="min-width: 180px;">營位資訊</th>
                         <th scope="col" class="text-center">價格/容納人數</th>
-                        <th scope="col" class="text-nowrap">通過時間</th>
+                        <th scope="col" class="text-nowrap text-center">通過時間</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -89,19 +95,19 @@ tr{
                     <?php else: ?>
                         <?php foreach ($spots as $spot): ?>
                             <tr>
-                                <td class="text-nowrap">
+                                <td class="text-nowrap text-center">
                             
                                         <?= htmlspecialchars($spot['spot_id']) ?>
                            
                                 </td>
-                                <td>
+                                <td class="text-center">
                                     <div class="fw-bold mb-1"><?= htmlspecialchars($spot['camp_name']) ?></div>
                                     <small class="text-muted">
                                         <i class="bi bi-person"></i>
                                         <?= htmlspecialchars($spot['owner_name']) ?>
                                     </small>
                                 </td>
-                                <td>
+                                <td class="text-center">
                                     <div class="fw-bold mb-1"><?= htmlspecialchars($spot['spot_name']) ?></div>
                                     <small class="text-muted">
                                         <?= htmlspecialchars(mb_substr($spot['description'], 0, 30)) ?>...
@@ -117,7 +123,7 @@ tr{
                                         <?= $spot['capacity'] ?> 人
                                     </span>
                                 </td>
-                                <td class="text-nowrap">
+                                <td class="text-nowrap text-center">
                                     <small>
                                         <i class="bi bi-clock"></i>
                                         <?= date('Y/m/d H:i', strtotime($spot['created_at'])) ?>
