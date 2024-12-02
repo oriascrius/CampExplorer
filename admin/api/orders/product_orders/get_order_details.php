@@ -23,19 +23,13 @@ try {
         throw new Exception('找不到訂單資料');
     }
 
-    // 查詢訂單明細，修正圖片路徑處理
+    // 查詢訂單明細，移除 main_image 相關邏輯
     $sql = "SELECT pod.*, 
             p.name as product_name, 
-            CASE 
-                WHEN pi.image_path IS NOT NULL AND pi.is_main = 1 
-                    THEN pi.image_path
-                WHEN p.main_image IS NOT NULL 
-                    THEN p.main_image
-                ELSE 'no-image.jpg'
-            END as product_image
+            COALESCE(pi.image_path, 'no-image.jpg') as product_image
             FROM product_order_details pod
             LEFT JOIN products p ON pod.product_id = p.id
-            LEFT JOIN product_images pi ON p.id = pi.product_id
+            LEFT JOIN product_images pi ON p.id = pi.product_id AND pi.is_main = 1
             WHERE pod.order_id = ?";
             
     $stmt = $db->prepare($sql);

@@ -81,8 +81,8 @@ function getFieldLabel($field) {
     <?php endif; ?>
 
     <!-- 頁面標題和新增按鈕 -->
-    <div class="d-flex justify-content-center align-items-center mb-4">
-        <h1 class=" mt-5 fw-bold text-center me-5">營主管理</h1>
+    <div class="d-flex  align-items-center mb-4">
+        <h1 class="mt-5 fw-bold text-center me-5">營主管理</h1>
     </div>
     <div class="d-flex justify-content-between align-items-end m-3 flex-wrap">
         <button type="button" class="btn btn-success mb-2 mb-md-0" data-action="add">
@@ -118,13 +118,13 @@ function getFieldLabel($field) {
     <div class="card">
         <div class="" id="ownerTableContainer">
             <div class="table-responsive ">
-                <table class="table table-striped table-bordered ">
-                    <thead class="table-dark ">
+                <table class="table">
+                    <thead class="">
                         <tr>
                             <?php foreach ($allowed_fields as $field): ?>
                                 <th class="sortable" data-field="<?= $field ?>" data-order="<?= $sort_field === $field ? $sort_order : '' ?>">
                                     <?= getFieldLabel($field) ?>
-                                    <i class="bi bi-arrow-<?= $sort_field === $field ? ($sort_order === 'ASC' ? 'up' : 'down') : 'down-up' ?> sort-icon"></i>
+                                    <!-- <i class="bi bi-arrow-<?= $sort_field === $field ? ($sort_order === 'ASC' ? 'up' : 'down') : 'down-up' ?> sort-icon"></i> -->
                                 </th>
                             <?php endforeach; ?>
                             <th class="text-center edit">操作</th>
@@ -589,5 +589,63 @@ th.name, td.name {
 
     .pagedata{
         margin: 30px 131px;
+    }
+    /* ********************************* */
+    .table thead{
+        color: #fefefe;
+    }
+    .justify-content-between.align-items-end{
+        background: #fefefe;
+        margin: 0px !important;
+        padding: 15px;
+        border-radius: 30px 30px 0 0;
+        box-shadow: 0px 18px 10px rgba(0, 0, 0, 0.1);
+    }
+    .card{
+        border: 0;
+        padding: 0 15px;
+        border-radius: 0px 0px 30px 30px;
+        box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.1);
+    }
+    .badge.bg-success{
+        background-color: transparent !important;
+        border: 1px solid #0080005c;
+        color: #008000 !important;
+        padding: 7px 23px;
+    }
+    .btn-outline-success{
+        background-color: #0080003b !important;
+        color: green !important;
+        border: 0;
+    }
+    .btn-outline-primary.btn-sm{
+        color: #8b6a09;
+        background-color: #ffc1076e;
+        border: 0;
+    }
+    .btn-sm.btn-outline-danger{
+        background-color: #f5000029 !important;
+        color: #db0000 !important;
+        border: 0;
+    }
+    .btn-success{
+        background-color: #ecba82;
+        border: 0;
+    }
+    .container{
+        padding: 4rem;
+        padding-top: 1rem;
+        max-width: 100%;
+        margin: 0;
+        padding-bottom: 1rem; 
+    }
+    .badge.bg-danger{
+        background-color: transparent !important;
+        border: 1px solid #ff000040;
+        color: #db0000 !important;
+        padding: 7px 23px;
+    }
+    tr{
+        border-bottom-width: 1px;
     }
 </style>
