@@ -29,7 +29,7 @@ try {
             COALESCE(pi.image_path, 'no-image.jpg') as product_image
             FROM product_order_details pod
             LEFT JOIN products p ON pod.product_id = p.id
-            LEFT JOIN product_images pi ON p.id = pi.product_id AND pi.is_main = 1
+            LEFT JOIN product_images pi ON p.id = pi.product_id AND pi.is_main = 1 AND pi.status = 1
             WHERE pod.order_id = ?";
             
     $stmt = $db->prepare($sql);

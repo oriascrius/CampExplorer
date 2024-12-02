@@ -203,7 +203,7 @@ if (isset($error_message)): ?>
                 const items = order.items.map(item => `
                 <tr>
                     <td>
-                        <img src="${item.product_image.startsWith('/') ? '' : '/CampExplorer/uploads/products/main/'}${item.product_image}" 
+                        <img src="${item.product_image.startsWith('/') ? '' : '/CampExplorer/uploads/products/img/'}${item.product_image}" 
                              alt="${item.product_name}" 
                              style="width: 50px; height: 50px; object-fit: cover;">
                     </td>
@@ -243,7 +243,7 @@ if (isset($error_message)): ?>
                         </div>
                     </div>
                 `,
-                    width: '800px'
+                    width: '1600px'
                 });
             } catch (error) {
                 console.error('Error:', error);
