@@ -168,7 +168,7 @@ function getFieldLabel($field) {
                     <?php else: ?>
                         <?php foreach ($owners as $owner): ?>
                             <tr>
-                            <td class="id"><?= htmlspecialchars($owner['id']) ?></td>
+                            <td class="id ps-2"><?= htmlspecialchars($owner['id']) ?></td>
                 <td class="name"><?= htmlspecialchars($owner['name']) ?></td>
                 <td class="company_name"><?= htmlspecialchars($owner['company_name']) ?></td>
                 <td class="email"><?= htmlspecialchars($owner['email']) ?></td>
@@ -584,6 +584,7 @@ th.id, td.id {
 
 th.status, td.status {
     width: 7em; 
+    text-align: center;
 }
 .table .created_at,
 th.name, td.name {
@@ -619,7 +620,7 @@ th.name, td.name {
         /* 顯示錯誤訊息 */
     }
     .table {
-        border-radius: 10px; /* 調整圓角半徑 */
+        /* border-radius: 10px; */
         overflow: hidden; /* 確保內容不會超出圓角邊界 */
     }
 
@@ -687,4 +688,6 @@ th.name, td.name {
     .flex-wrap .mb-2.mb-md-0{
         margin-right: 15px;
     }
+
+
 </style>

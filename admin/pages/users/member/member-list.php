@@ -199,7 +199,7 @@ function translateGender($gender)
                     <?php else: ?>
                         <?php foreach ($users as $user): ?>
                             <tr class="user-row" data-id="<?= $user['id'] ?>">
-                            <td class="id"><?= htmlspecialchars($user['id']) ?></td>
+                            <td class="id ps-2"><?= htmlspecialchars($user['id']) ?></td>
                             <td class="email"><?= htmlspecialchars($user['email']) ?></td>
                             <td><?= htmlspecialchars($user['name']) ?></td>
                             <td><?= htmlspecialchars($user['phone']) ?></td>
@@ -900,5 +900,9 @@ document.querySelectorAll('.email').forEach(function (element) {
     .flex-wrap .mb-2.mb-md-0{
         margin-right: 15px;
     }
+    .table tbody tr:hover {
+        background-color: #f5f5f5;
+    }
+   
 
 </style>
