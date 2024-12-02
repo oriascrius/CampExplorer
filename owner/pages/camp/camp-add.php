@@ -769,7 +769,7 @@ if (!isset($_SESSION['owner_id'])) {
         validateNumber(value, fieldName, min = 0) {
             const num = Number(value);
             if (isNaN(num) || num < min) {
-                throw new Error(`${fieldName}必���是大於${min}的數字`);
+                throw new Error(`${fieldName}必須是大於${min}的數字`);
             }
             return true;
         }
@@ -849,7 +849,7 @@ if (!isset($_SESSION['owner_id'])) {
         nextStep() {
             if (this.currentStep >= 3) return;
 
-            // 淡出前步���
+            // 淡出前步驟
             this.sections[this.currentStep - 1].style.opacity = '0';
 
             setTimeout(() => {
@@ -1335,7 +1335,7 @@ if (!isset($_SESSION['owner_id'])) {
                 Swal.fire({
                     icon: 'error',
                     title: '錯誤',
-                    text: '請上傳���片檔案'
+                    text: '請上傳圖片檔案'
                 });
                 return;
             }

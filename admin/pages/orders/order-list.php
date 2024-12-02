@@ -54,8 +54,9 @@ if (isset($error_message)): ?>
         color: #fff;
     }
     .card{
-        padding: 15px;
+        padding: 20px;
         border-radius: 30px;
+        box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.1);
     }
     .bg-success{
         background-color: transparent !important;
@@ -63,35 +64,50 @@ if (isset($error_message)): ?>
         color: #008000 !important;
         padding: 7px 23px;
     }
+    .badge.bg-secondary{
+        background-color: transparent !important;
+        border: 1px solid #6c757d40;
+        color: #6c757d !important;
+        padding: 7px 23px;
+        font-size: 14px;
+    }
     .badge.bg-danger{
         background-color: transparent !important;
         border: 1px solid #ff000040;
         color: #db0000 !important;
         padding: 7px 23px;
+        font-size: 14px;
     }
     .badge.bg-warning{
         background-color: transparent !important;
         border: 1px solid #ffc107;
         color: #efb300 !important;
         padding: 7px 23px;
+        font-size: 14px;
     }
     .badge.bg-primary{
         background-color: transparent!important;
         border: 1px solid #007bff;
         color: #007bff!important;
         padding: 7px 23px;
+        font-size: 14px;
+    }
+    .badge.bg-success{
+        font-size: 14px!important;
     }
     .bg-danger{
         background-color: transparent !important;
         border: 1px solid #ff000040;
         color: #db0000 !important;
         padding: 7px 23px;
+        font-size: 14px;
     }
     .bg-info{
         background-color: transparent !important;
         border: 1px solid #0dcaf0;
         color: #0dcaf0 !important;
         padding: 7px 23px;
+        font-size: 14px;
     }
     .btn-outline-primary{
         color: #8b6a09;
@@ -106,7 +122,13 @@ if (isset($error_message)): ?>
     }
     tbody tr{
             border-bottom-width: 1px;
-        }
+    }
+    tbody tr:hover{
+        background: rgb(155 254 144 / 10%);
+        transition: all 0.2s ease-in-out;
+        box-shadow: 0px 0px 10px 0px rgb(0 0 0 / 10%);
+        --bs-table-accent-bg: none!important;
+    }
 </style>
 <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -117,38 +139,38 @@ if (isset($error_message)): ?>
             <table class="table">
                 <thead class="header-style">
                     <tr>
-                        <th>
+                        <th class="text-center">
 
                             訂單編號
 
                         </th>
-                        <th>
+                        <th class="text-center">
 
                             會員名稱
 
                         </th>
-                        <th>商品數量</th>
-                        <th>
+                        <th class="text-center">商品數量</th>
+                        <th class="text-center">
 
                             總金額
 
                         </th>
-                        <th>
+                        <th class="text-center">
 
                             付款狀態
 
                         </th>
-                        <th>
+                        <th class="text-center">
 
                             訂單狀態
 
                         </th>
-                        <th>
+                        <th class="text-center">
 
                             建立時間
 
                         </th>
-                        <th>操作</th>
+                        <th class="text-center">操作</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -159,14 +181,14 @@ if (isset($error_message)): ?>
                     <?php else: ?>
                         <?php foreach ($orders as $order): ?>
                             <tr>
-                                <td><?= str_pad($order['order_id'], 5, '0', STR_PAD_LEFT) ?></td>
-                                <td><?= htmlspecialchars($order['username'] ?? '未知會員') ?></td>
-                                <td><?= $order['items_count'] ?? 0 ?></td>
-                                <td>NT$ <?= number_format($order['total_amount'] ?? 0) ?></td>
-                                <td><?= getPaymentStatusBadge($order['payment_status'] ?? 0) ?></td>
-                                <td><?= getOrderStatusBadge($order['order_status'] ?? 0) ?></td>
-                                <td><?= date('Y-m-d H:i:s', strtotime($order['created_at'])) ?></td>
-                                <td>
+                                <td class="px-2 text-center"><?= str_pad($order['order_id'], 5, '0', STR_PAD_LEFT) ?></td>
+                                <td class="text-center"><?= htmlspecialchars($order['username'] ?? '未知會員') ?></td>
+                                <td class="text-center"><?= $order['items_count'] ?? 0 ?></td>
+                                <td class="text-center">NT$ <?= number_format($order['total_amount'] ?? 0) ?></td>
+                                <td class="text-center"><?= getPaymentStatusBadge($order['payment_status'] ?? 0) ?></td>
+                                <td class="text-center"><?= getOrderStatusBadge($order['order_status'] ?? 0) ?></td>
+                                <td class="text-center"><?= date('Y-m-d H:i:s', strtotime($order['created_at'])) ?></td>
+                                <td class="text-center">
                                     <div class="btn-group">
                                         <button class="btn btn-sm btn-outline-primary"
                                             onclick="OrderList.viewOrderDetails(<?= $order['order_id'] ?>)">

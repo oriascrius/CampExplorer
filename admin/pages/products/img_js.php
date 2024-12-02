@@ -78,12 +78,12 @@
                         imgElement.classList.add('position-relative');
                         if (image.is_main == 0) {
                             imgElement.innerHTML = `
-                            <img src="../uploads/products/img/${image.image_path}" alt="" class="img-thumbnail" width="100">
+                            <img style="width:150px" src="../uploads/products/img/${image.image_path}" alt="" class="img-thumbnail" width="100">
                             <button class="btn btn-danger btn-sm position-absolute top-0 end-0 delete-image-btn" data-id="${image.id}">X</button>
                         `;
                         } else if (image.is_main == 1) {
                             imgElement.innerHTML = `
-                            <img src="../uploads/products/img/${image.image_path}" alt="" class="img-thumbnail" width="100">
+                            <img style="width:150px" src="../uploads/products/img/${image.image_path}" alt="" class="img-thumbnail" width="100">
                         `;
                         }
                         productImagesContainer.appendChild(imgElement);

@@ -64,6 +64,12 @@ try {
 tr{
     border-bottom-width: 1px;
 }
+tbody tr:hover{
+            background: rgb(155 254 144 / 10%);
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0px 0px 10px 0px rgb(0 0 0 / 10%);
+            --bs-table-accent-bg: none!important;
+        }
 </style>
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3">
     <h1 class="h2">已通過審核營地列表</h1>
@@ -75,11 +81,11 @@ tr{
             <table class="table table-hover align-middle">
                 <thead class="">
                     <tr>
-                        <th scope="col" class="text-nowrap">營地編號</th>
-                        <th scope="col" style="min-width: 200px;">營地資訊</th>
-                        <th scope="col" style="min-width: 180px;">營主資訊</th>
+                        <th scope="col" class="text-center text-nowrap">營地編號</th>
+                        <th scope="col" class="text-center" style="min-width: 200px;">營地資訊</th>
+                        <th scope="col" class="text-center" style="min-width: 180px;">營主資訊</th>
                         <th scope="col" class="text-center">營地內容</th>
-                        <th scope="col" class="text-nowrap">通過時間</th>
+                        <th scope="col" class="text-nowrap text-center">通過時間</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -93,19 +99,19 @@ tr{
                     <?php else: ?>
                         <?php foreach ($camps as $camp): ?>
                             <tr>
-                                <td class="text-nowrap ">
+                                <td class="text-nowrap text-center">
                                    
                                         <?= htmlspecialchars($camp['application_id']) ?>
                                
                                 </td>
-                                <td>
+                                <td class="text-center">
                                     <div class="fw-bold mb-1"><?= htmlspecialchars($camp['camp_name']) ?></div>
                                     <small class="text-muted">
                                         <i class="bi bi-geo-alt"></i>
                                         <?= htmlspecialchars($camp['address']) ?>
                                     </small>
                                 </td>
-                                <td>
+                                <td class="text-center">
                                     <div class="mb-1"><?= htmlspecialchars($camp['owner_name']) ?></div>
                                     <small class="text-muted d-block">
                                         <i class="bi bi-building"></i>
@@ -126,7 +132,7 @@ tr{
                                         <?= $camp['image_count'] ?> 張圖片
                                     </span>
                                 </td>
-                                <td class="text-nowrap">
+                                <td class="text-nowrap text-center">
                                     <small>
                                         <i class="bi bi-clock"></i>
                                         <?= date('Y/m/d H:i', strtotime($camp['created_at'])) ?>

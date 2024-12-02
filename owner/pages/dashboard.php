@@ -912,7 +912,7 @@ try {
                     <h6 class="text-muted mb-2">營收概況</h6>
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <div>
-                            <h3 class="mb-0" id="totalRevenue">NT$ 0</h3>
+                            <h4 class="mb-0" id="totalRevenue">NT$ 0</h4>
                             <small class="text-muted">總營收</small>
                         </div>
                         <div class="text-end">

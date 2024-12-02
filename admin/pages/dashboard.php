@@ -214,7 +214,7 @@ try {
         background: linear-gradient(135deg, #9D91A9 0%, #AEA3B9 100%);
     }
 
-    /* 圖標圓圈樣��優化 */
+    /* 圖標圓圈樣式優化 */
     .icon-circle {
         height: 60px;
         width: 60px;
@@ -447,7 +447,7 @@ try {
         color: #5B8A5B;
     }
 
-    /* 活���內容樣式 */
+    /* 活動內容樣式 */
     .timeline-content {
         background: white;
         border-radius: 8px;
@@ -504,7 +504,7 @@ try {
         box-shadow: 0 0 0 2px var(--morandi-blue-light);
     }
 
-    /* 活動內容��器 */
+    /* 活動內容容器 */
     .timeline-content {
         background: rgba(255, 255, 255, 0.5);
         border-radius: 8px;
@@ -546,7 +546,7 @@ try {
         background: var(--morandi-blue);
     }
 
-    /* 活動��標樣式 */
+    /* 活動圖標樣式 */
     .activity-icon {
         width: 32px;
         height: 32px;
@@ -642,7 +642,7 @@ try {
         /* border-color: #6B7A8F; */
     }
 
-    /* 動畫��果 */
+    /* 動畫效果 */
     @keyframes fadeInUp {
         from {
             opacity: 0;
@@ -774,7 +774,7 @@ try {
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     }
 
-    /* 莫蘭���按鈕樣式 */
+    /* 莫蘭迪按鈕樣式 */
     .btn-monofondi-sage {
         /* background-color: var(--monofondi-sage); */
         background-image: linear-gradient(to top, #37ecba 0%, #72afd3 100%);
@@ -2329,7 +2329,7 @@ try {
     // 匯出功能的基本框架
     function exportDashboardData() {
         try {
-            // 收集���有統計數據
+            // 收集所有統計數據
             const statsData = {
                 '用戶統計': {
                     '總用戶數': document.querySelector('.bg-morandi-blue-gradient h2')?.textContent,
@@ -2372,7 +2372,7 @@ try {
                 throw new Error('無法獲取統計數據');
             }
 
-            // 下載檔���
+            // 下載檔案
             const blob = new Blob(['\ufeff' + csv], {
                 type: 'text/csv;charset=utf-8;'
             });
@@ -2531,7 +2531,7 @@ try {
                 });
             }
 
-            // 營地���布圖
+            // 營地分布圖
             const distributionCtx = document.getElementById('campDistributionChart');
             if (distributionCtx) {
                 charts.distribution = new Chart(distributionCtx.getContext('2d'), {
@@ -2701,7 +2701,7 @@ try {
         // 移原有的 preventDefault AJAX 
         document.querySelectorAll('.quick-action').forEach(button => {
             button.addEventListener('click', function(e) {
-                // 不阻止默認行為��讓連結正常跳轉
+                // 不阻止默認行為讓連結正常跳轉
                 const url = this.getAttribute('href');
                 window.location.href = url;
             });
@@ -2746,7 +2746,7 @@ try {
         element.classList.remove('loading');
     }
 
-    // 新增資���更新通知
+    // 新增資料更新通知
     function showUpdateNotification(message) {
         const toast = new bootstrap.Toast(document.getElementById('liveToast'));
         document.querySelector('#liveToast .toast-body').textContent = message;
@@ -2808,7 +2808,7 @@ try {
         animateTimeline();
     });
 
-    // 過濾活��
+    // 過濾活動
     function filterActivities(type) {
         const items = document.querySelectorAll('.timeline-item');
         items.forEach(item => {
@@ -2866,7 +2866,7 @@ try {
         const isCollapsed = content.style.maxHeight === '0px' || !content.style.maxHeight;
 
         if (isCollapsed) {
-            // 展���
+            // 展開
             content.style.maxHeight = `${content.scrollHeight}px`;
             content.style.opacity = '1';
             icon.classList.replace('fa-chevron-up', 'fa-chevron-down');
@@ -2881,7 +2881,7 @@ try {
         updateMainButtonState();
     }
 
-    // 新增：更新主按鈕狀��的函數
+    // 新增：更新主按鈕狀態的函數
     function updateMainButtonState() {
         const allContents = document.querySelectorAll('.timeline-content-body');
         const mainButton = document.getElementById('collapseAllBtn');
@@ -2897,7 +2897,7 @@ try {
             mainButton.title = '全部展開';
         } else if (allExpanded) {
             mainIcon.classList.replace('fa-expand-alt', 'fa-compress-alt');
-            mainButton.title = '全部��疊';
+            mainButton.title = '全部折疊';
         }
     }
 
@@ -2941,7 +2941,7 @@ try {
             button.addEventListener('click', function() {
                 // 移除所有按鈕的 active 狀態
                 filterButtons.forEach(btn => btn.classList.remove('active'));
-                // 添加當前按鈕的 active ���態
+                // 添加當前按鈕的 active 狀態
                 this.classList.add('active');
 
                 // 執行篩選
@@ -2987,7 +2987,7 @@ try {
             }
         });
 
-        // 如果沒有顯示的項目，顯示��示訊息
+        // 如果沒有顯示的項目，顯示無資料訊息
         const visibleActivities = document.querySelectorAll('.timeline-item[style="display: none;"]');
         const timelineContainer = document.querySelector('.timeline');
         const noDataMessage = timelineContainer.querySelector('.no-data-message');
@@ -3005,9 +3005,9 @@ try {
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-        // 修改：添��元素存在性检查
+        // 修改：添加元素存在性檢查
         const timeline = document.querySelector('.timeline');
-        const toggleBtn = document.getElementById('collapseAllBtn'); // 更正ID名称
+        const toggleBtn = document.getElementById('collapseAllBtn'); // 更正ID名稱
         const filterBtns = document.querySelectorAll('[data-filter]');
 
         // 只在元素存在时执行相关代码
@@ -3033,7 +3033,7 @@ try {
         }
     });
 
-    // 修��：移除重复��事件监听器
+    // 修改：移除重複的 DOMContentLoaded 事件監聽器
     // 删除或合并重复的 DOMContentLoaded 事件处理程序
 
     // 将所有辅助函数移到全局作用域
@@ -3247,6 +3247,6 @@ try {
     // 每 30 秒檢查一次
     setInterval(checkPendingChanges, 30000);
 
-    // 頁面載入��先執行一次
+    // 頁面載入時先執行一次
     document.addEventListener('DOMContentLoaded', checkPendingChanges);
 </script>

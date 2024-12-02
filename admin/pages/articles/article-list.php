@@ -159,16 +159,15 @@ function truncateText($text, $length = 10)
 }
 ?>
 <style>
-    .badge.bg-secondary {
-        font-size: 12px !important;
+    .badge.bg-secondary{
+        font-size: 14px !important;
         background-color: transparent !important;
         border: 1px solid #ff000040;
         color: red !important;
         padding: 8px 20px;
     }
-
-    .badge.bg-success {
-        font-size: 12px !important;
+    .badge.bg-success{
+        font-size: 14px !important;
         background-color: transparent !important;
         border: 1px solid #0080005c;
         color: #008000 !important;
@@ -180,71 +179,70 @@ function truncateText($text, $length = 10)
         max-width: 100%;
         padding-bottom: 2rem;
     }
+.header-style{
+    background-color: #fefefe;
+    padding: 0 15px;
+    box-shadow: 0px 18px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 30px 30px 0 0;
+}
+.bg-style_a{
+    width: 100%;
+    justify-content: space-between;
+}    
+.bg-style{
+    padding: 0 15px;
+    background-color: #fefefe;
+    padding-bottom: 7px;
+    box-shadow: 0px 18px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 0 0 30px 30px;
+}
+thead.bg-light{
+    color: #fefefe;
+}
+tbody tr{
+    border-width: 1px 0;
+}
+tbody tr:hover{
+    background: rgb(155 254 144 / 10%);
+        transition: all 0.2s ease-in-out;
+        box-shadow: 0px 0px 10px 0px rgb(0 0 0 / 10%);
+        --bs-table-accent-bg: none!important;
+}
+tbody td{
+    padding: 6px 0 !important;
+}
+.m-29{
+    margin-top: 29px;
+}
+.btn.btn-warning{
+    height: 38px;
+}
+.btn-primary.fs-6{
+    font-size: 14px !important;
+    border-radius: 5px !important;
+    margin: 0 5px;
+    color: #8b6a09;
+    background-color: #ffc1076e;
+}
 
-    .header-style {
-        background-color: #fefefe;
-        padding: 0 15px;
-        box-shadow: 0px 18px 10px rgba(0, 0, 0, 0.1);
-        border-radius: 30px 30px 0 0;
-    }
-
-    .bg-style_a {
-        width: 100%;
-        justify-content: space-between;
-    }
-
-    .bg-style {
-        padding: 0 15px;
-        background-color: #fefefe;
-        padding-bottom: 7px;
-        box-shadow: 0px 18px 10px rgba(0, 0, 0, 0.1);
-        border-radius: 0 0 30px 30px;
-    }
-
-    thead.bg-light {
-        color: #fefefe;
-    }
-
-    tbody tr {
-        border-width: 1px 0;
-    }
-
-    tbody td {
-        padding: 6px 0 !important;
-    }
-
-    .m-29 {
-        margin-top: 29px;
-    }
-
-    .btn.btn-warning {
-        height: 38px;
-    }
-
-    .btn-primary.fs-6 {
-        font-size: 14px !important;
-        border-radius: 5px !important;
-        margin: 0 5px;
-        color: #8b6a09;
-        background-color: #ffc1076e;
-    }
-
-    .fs-6.btn-success {
-        font-size: 14px !important;
-        border-radius: 5px !important;
-        margin: 0 5px;
-        background-color: #0080003b !important;
-        color: green !important;
-        border: 0;
-    }
-
-    .fs-6.btn-danger {
-        background-color: #f5000029 !important;
-        color: #db0000 !important;
-        font-size: 14px !important;
-        border-radius: 5px !important;
-        border: 0;
-    }
+.fs-6.btn-success{
+    font-size: 14px !important;
+    border-radius: 5px !important;
+    margin: 0 5px;
+    background-color: #0080003b !important;
+    color: green !important;
+    border: 0;
+}
+.fs-6.btn-danger{
+    background-color: #f5000029 !important;
+    color: #db0000 !important;
+    font-size: 14px !important;
+    border-radius: 5px !important;
+    border: 0;
+}
+.form-label{
+    font-size: 14px;
+}
 </style>
 
 
@@ -282,69 +280,70 @@ function truncateText($text, $length = 10)
 
                             <!-- 文章類型 -->
                             <div class="">
-                                <label for="" class="form-label">文章類型:</label>
-                                <select name="category" class="form-select rounded-0 rounded-start" onchange="this.form.submit()">
-                                    <option value="0">文章類型</option>
-                                    <?php foreach ($categories as $category): ?>
-                                        <option value="<?= $category['id'] ?>" <?= $category['id'] == $category_filter ? 'selected' : '' ?>>
-                                            <?= htmlspecialchars($category['name']) ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
+                            <label for="" class="form-label">文章類型:</label>
+                            <select name="category" class="form-select rounded-0 rounded-start" onchange="this.form.submit()">
+                                <option value="0">--未選擇--</option>
+                                <?php foreach ($categories as $category): ?>
+                                    <option value="<?= $category['id'] ?>" <?= $category['id'] == $category_filter ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars($category['name']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
                             </div>
                             <div class="">
-                                <!-- 狀態 -->
-                                <label for="" class="form-label">文章類型:</label>
-                                <select name="status" class="form-select rounded-0" onchange="this.form.submit()">
-                                    <option value="-1">文章狀態</option>
-                                    <option value="1" <?= $status_filter == '1' ? 'selected' : '' ?>>啟用中</option>
-                                    <option value="0" <?= $status_filter == '0' ? 'selected' : '' ?>>停用中</option>
-                                </select>
+                            <!-- 狀態 -->
+                            <label for="" class="form-label">文章類型:</label>
+                            <select name="status" class="form-select rounded-0" onchange="this.form.submit()">
+                                <option value="-1">--未選擇--</option>
+                                <option value="1" <?= $status_filter == '1' ? 'selected' : '' ?>>啟用中</option>
+                                <option value="0" <?= $status_filter == '0' ? 'selected' : '' ?>>停用中</option>
+                            </select>
                             </div>
                             <div class="">
-                                <label for="" class="form-label">作者:</label>
-                                <!-- 作者 -->
-                                <select name="author" class="form-select rounded-0" onchange="this.form.submit()">
-                                    <option value="0">作者</option>
-                                    <?php foreach ($authors as $author): ?>
-                                        <option value="<?= $author['id'] ?>" <?= $author['id'] == $author_filter ? 'selected' : '' ?>>
-                                            <?= htmlspecialchars($author['name']) ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
+                            <label for="" class="form-label">作者:</label>
+                            <!-- 作者 -->
+                            <select name="author" class="form-select rounded-0" onchange="this.form.submit()">
+                                <option value="0">--未選擇--</option>
+                                <?php foreach ($authors as $author): ?>
+                                    <option value="<?= $author['id'] ?>" <?= $author['id'] == $author_filter ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars($author['name']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
                             </div>
                             <div class="">
-                                <label for="" class="form-label">選擇排序:</label>
-                                <!-- 排序選單 -->
-                                <div class="d-flex">
-                                    <select id="sort-select" name="sort_by" class="form-select rounded-0" style="width: 120px;">
-                                        <option value="" selected>選擇排序</option>
-                                        <option value="views" <?php echo isset($_GET['sort_by']) && $_GET['sort_by'] == 'views' ? 'selected' : ''; ?>>瀏覽次數</option>
-                                        <option value="like_count" <?php echo isset($_GET['sort_by']) && $_GET['sort_by'] == 'like_count' ? 'selected' : ''; ?>>按讚次數</option>
-                                        <option value="articles.updated_at" <?php echo isset($_GET['sort_by']) && $_GET['sort_by'] == 'articles.updated_at' ? 'selected' : ''; ?>>更新時間</option>
-                                    </select>
-                                    <!-- 切換排序順序按鈕 -->
-                                    <button type="submit" id="sort-toggle-btn" class="btn btn-secondary text-nowrap rounded-0 rounded-end">
-                                        <i class="bi bi-arrow-down-up"></i>
-                                    </button>
-                                </div>
+                            <label for="" class="form-label">選擇排序:</label>
+                            <!-- 排序選單 -->
+                             <div class="d-flex">
+                                <select id="sort-select" name="sort_by" class="form-select rounded-0" style="width: 120px;">
+                                    <option value="" selected>--未選擇--</option>
+                                    <option value="views" <?php echo isset($_GET['sort_by']) && $_GET['sort_by'] == 'views' ? 'selected' : ''; ?>>瀏覽次數</option>
+                                    <option value="like_count" <?php echo isset($_GET['sort_by']) && $_GET['sort_by'] == 'like_count' ? 'selected' : ''; ?>>按讚次數</option>
+                                    <option value="articles.updated_at" <?php echo isset($_GET['sort_by']) && $_GET['sort_by'] == 'articles.updated_at' ? 'selected' : ''; ?>>更新時間</option>
+                                </select>
+                                <!-- 切換排序順序按鈕 -->
+                                <button type="submit" id="sort-toggle-btn" class="btn btn-secondary text-nowrap rounded-0 rounded-end">
+                                    <i class="bi bi-arrow-down-up"></i>
+                                </button>
+                             </div>
                             </div>
 
                             <!-- 清除按鈕 -->
                             <button type="button" class="btn btn-warning text-nowrap ms-2" id="clear-filters-btn">清除篩選</button>
                         </form>
+                        <div class="d-flex">          
+                            <button type="button" class="btn btn-secondary rounded-0 rounded-start m-29" data-action="add_category">
+                                <i class="fa-solid fa-list me-1"></i>新增分類
+                            </button>
 
-                        <button type="button" class="btn btn-secondary rounded-0 rounded-start m-29" data-action="add_category">
-                            <i class="fa-solid fa-list me-1"></i>新增分類
-                        </button>
+                            <button type="button" class="btn btn-secondary rounded-0 m-29" data-action="edit_category">
+                                <i class="fa-solid fa-pen me-1"></i>編輯分類
+                            </button>
 
-                        <button type="button" class="btn btn-secondary rounded-0 m-29" data-action="edit_category">
-                            <i class="fa-solid fa-pen me-1"></i>編輯分類
-                        </button>
-
-                        <button type="button" class="btn btn-primary rounded-0 rounded-end m-29" data-action="add">
-                            <i class="bi bi-plus-lg me-1"></i>新增文章
-                        </button>
+                            <button type="button" class="btn btn-primary rounded-0 rounded-end m-29" data-action="add">
+                                <i class="bi bi-plus-lg me-1"></i>新增文章
+                            </button>
+                        </div>
                     </div>
 
                 </div>
@@ -355,19 +354,19 @@ function truncateText($text, $length = 10)
                                 <tr>
                                     <th class="text-center">封面圖片</th>
                                     <th class="text-center">文章類型</th>
-                                    <th>標題</th>
+                                    <th class="text-center">標題</th>
                                     <th class="text-center">狀態</th>
-                                    <th class="text-center" style="width: 120px;">瀏覽次數</th>
-                                    <th class="text-center" style="width: 120px;">按讚次數</th>
-                                    <th style="width: 120px;">作者</th>
-                                    <th>更新時間</th>
-                                    <th>操作</th>
+                                    <th class="text-center">瀏覽次數</th>
+                                    <th class="text-center">按讚次數</th>
+                                    <th class="text-center">作者</th>
+                                    <th class="text-center">更新時間</th>
+                                    <th class="text-center">操作</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php foreach ($articles as $article): ?>
                                     <tr>
-                                        <td class="article-image-cell">
+                                        <td class="article-image-cell text-center">
 
                                             <?php if ($article['image_name']): ?>
                                                 <div class="article-image-wrapper mx-3">
@@ -378,26 +377,26 @@ function truncateText($text, $length = 10)
                                             <?php endif; ?>
 
                                         </td>
-                                        <td class="text-center"><?= htmlspecialchars($article['category_name']) ?></td>
-                                        <td><?= htmlspecialchars(truncateText($article['title'])) ?></td>
+                                        <td class="px-2 text-center"><?= htmlspecialchars($article['category_name']) ?></td>
+                                        <td class="text-center"><?= htmlspecialchars(truncateText($article['title'])) ?></td>
                                         <td class="text-center">
                                             <span class="fs-6 badge <?= $article['status'] ? 'bg-success' : 'bg-secondary' ?>">
                                                 <?= $article['status'] ? '啟用中' : '停用中' ?>
                                             </span>
                                         </td>
-                                        <td class="text-end pe-3"><span class="pe-2"><?= $article['views'] ?></span></td>
-                                        <td class="text-end pe-3"><span class="pe-2"><?= $article['like_count'] ?></span></td>
-                                        <td class="ps-2"><?= htmlspecialchars($article['admin_name']) ?></td>
-                                        <td><?= date('Y-m-d H:i', strtotime($article['updated_at'])) ?></td>
-                                        <td>
+                                        <td class="text-center"><?= $article['views'] ?></td>
+                                        <td class="text-center"><?= $article['like_count'] ?></td>
+                                        <td class="text-center"><?= htmlspecialchars($article['admin_name']) ?></td>
+                                        <td class="text-center"><?= date('Y-m-d H:i', strtotime($article['updated_at'])) ?></td>
+                                        <td class="text-center">
                                             <div class="btn-group">
-                                                <button type="button" class="btn btn-sm btn-primary fs-6"
+                                                <button type="button" class="mx-3 btn btn-sm btn-primary fs-6"
                                                     data-action="edit"
                                                     data-id="<?= $article['id'] ?>">
                                                     <i class="bi bi-pencil-square me-1"></i>編輯
                                                 </button>
                                                 <button type="button"
-                                                    class="btn btn-sm fs-6 <?= $article['status'] ? 'btn-danger' : 'btn-success' ?>"
+                                                    class="mx-3 btn btn-sm fs-6 <?= $article['status'] ? 'btn-danger' : 'btn-success' ?>"
                                                     data-action="toggle-status"
                                                     data-id="<?= $article['id'] ?>"
                                                     data-status="<?= $article['status'] ?>">
@@ -450,8 +449,6 @@ function truncateText($text, $length = 10)
                             <span>共 <?= $total_items ?> 筆資料，分 <?= $total_pages ?> 頁</span>
                         </div>
                     </div>
-
-
                 </div>
             </div>
         </div>
@@ -1099,7 +1096,7 @@ function truncateText($text, $length = 10)
         async handleToggleStatus(id, currentStatus) {
             try {
                 const result = await Swal.fire({
-                    title: '確認作',
+                    title: '確認操作',
                     text: `確定要${currentStatus ? '停用' : '啟用'}此文章嗎？`,
                     icon: 'warning',
                     showCancelButton: true,

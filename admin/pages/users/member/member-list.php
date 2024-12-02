@@ -59,10 +59,17 @@ try {
 
     // 獲取會員總數
     $totalSql = "SELECT COUNT(*) FROM users WHERE 1=1";
+    if (!empty($search)) {
+        $totalSql .= " AND (name LIKE :search OR email LIKE :search OR phone LIKE :search)";
+    }
     if (isset($_GET['hideStatusZero']) && $_GET['hideStatusZero'] == '1') {
         $totalSql .= " AND status != 0";
     }
-    $totalStmt = $db->query($totalSql);
+    $totalStmt = $db->prepare($totalSql);
+    if (!empty($search)) {
+        $totalStmt->bindValue(':search', '%' . $search . '%', PDO::PARAM_STR);
+    }
+    $totalStmt->execute();
     $totalUsers = $totalStmt->fetchColumn();
     $totalPages = ceil($totalUsers / $perPage);
 
@@ -159,7 +166,7 @@ function translateGender($gender)
             <div class="table-responsive ">
                 <table class="table table-bordered ">
                     <thead class="">
-                        <tr>
+                        <tr class="text-center">
                             <?php
                             $headers = [
                                 'id' => '編號',
@@ -187,21 +194,26 @@ function translateGender($gender)
                         </tr>
                     </thead>
                     <tbody>
+                    <?php if (empty($users)): ?>
+                        <tr><td colspan="12" class="text-center">目前沒有會員資料</td></tr>
+                    <?php else: ?>
                         <?php foreach ($users as $user): ?>
                             <tr class="user-row" data-id="<?= $user['id'] ?>">
-                            <td class="id"><?= htmlspecialchars($user['id']) ?></td>
+                            <td class="id ps-2"><?= htmlspecialchars($user['id']) ?></td>
                             <td class="email"><?= htmlspecialchars($user['email']) ?></td>
                             <td><?= htmlspecialchars($user['name']) ?></td>
                             <td><?= htmlspecialchars($user['phone']) ?></td>
                             <td><?= htmlspecialchars($user['birthday']) ?></td>
                             <td class="gender text-center"><?= htmlspecialchars(translateGender($user['gender'])) ?></td>
                             <td><?= htmlspecialchars($user['address']) ?></td>
+                           
                             <td class="status text-center">
                                 <span class="badge <?= $user['status'] ? 'bg-success' : 'bg-danger' ?>">
                                     <?= $user['status'] ? '啟用' : '停用' ?>
                                 </span>
                             </td>
                             <td><?= date('Y-m-d', strtotime($user['created_at'])) ?></td>
+                        
                             <td>
                                 <div class="d-flex gap-2 justify-content-center">
                                     <button type="button" class="btn btn-sm btn-outline-primary" data-action="edit" data-id="<?= $user['id'] ?>">
@@ -218,6 +230,7 @@ function translateGender($gender)
                             </td>
                         </tr>
                     <?php endforeach; ?>
+                <?php endif; ?>
                 </tbody>
             </table>
         </div>
@@ -235,32 +248,57 @@ function translateGender($gender)
             if (isset($_GET['hideStatusZero']) && $_GET['hideStatusZero'] == '1') {
                 $queryArray['hideStatusZero'] = 1;
             }
+            if (!empty($search)) {
+                $queryArray['search'] = $search;
+            }
             $queryString = http_build_query($queryArray);
 
             // 上一頁按鈕
             $prevPage = max(1, $p - 1);
+            $startPage = max(1, $p - 1);
             $endPage = min($totalPages, $p + 1);
             ?>
             <li class="page-item <?php if ($p == 1) echo "disabled"; ?>">
-                <a class="page-link" href="?<?= $queryString ?>&p=<?= 1 ?>" aria-label="Previous">
-                    <span aria-hidden="true">&laquo;</span>
+                <a class="page-link" href="?<?= $queryString ?>&p=<?= $prevPage ?>" aria-label="Previous">
+                    <span aria-hidden="true">&lt;</span>
                 </a>
             </li>
 
-            <?php
-            for ($i = $prevPage; $i <= $endPage; $i++): ?>
+            <?php if ($startPage > 1): ?>
+                <li class="page-item">
+                    <a class="page-link" href="?<?= $queryString ?>&p=1">1</a>
+                </li>
+                <?php if ($startPage > 2): ?>
+                    <li class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+                <?php endif; ?>
+            <?php endif; ?>
+
+            <?php for ($i = $startPage; $i <= $endPage; $i++): ?>
                 <li class="page-item <?php if ($i == $p) echo "active"; ?>">
                     <a class="page-link" href="?<?= $queryString ?>&p=<?= $i ?>"><?= $i ?></a>
                 </li>
             <?php endfor; ?>
+
+            <?php if ($endPage < $totalPages): ?>
+                <?php if ($endPage < $totalPages - 1): ?>
+                    <li class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+                <?php endif; ?>
+                <li class="page-item">
+                    <a class="page-link" href="?<?= $queryString ?>&p=<?= $totalPages ?>"><?= $totalPages ?></a>
+                </li>
+            <?php endif; ?>
 
             <?php
             // 下一頁按鈕
             $nextPage = min($totalPages, $p + 1);
             ?>
             <li class="page-item <?php if ($p == $totalPages) echo "disabled"; ?>">
-                <a class="page-link" href="?<?= $queryString ?>&p=<?= $totalPages ?>" aria-label="End">
-                    <span aria-hidden="true">&raquo;</span>
+                <a class="page-link" href="?<?= $queryString ?>&p=<?= $nextPage ?>" aria-label="End">
+                    <span aria-hidden="true">&gt;</span>
                 </a>
             </li>
         </ul>
@@ -731,7 +769,7 @@ document.querySelectorAll('.email').forEach(function (element) {
         word-wrap: break-word;
         /* 自動換行 */
         word-break: break-all;
-        /* 允許在任何字符處換行 */
+        /* 在任何字符處換行 */
     }
     .table td{
         height: 4.54rem;
@@ -782,7 +820,6 @@ document.querySelectorAll('.email').forEach(function (element) {
     .form-floating {
         position: relative;
     }
-
     .invalid-feedback {
         position: absolute;
         bottom: -20px;
@@ -792,7 +829,6 @@ document.querySelectorAll('.email').forEach(function (element) {
         display: none;
        
     }
-
     .invalid-feedback.show {
         display: block;
         /* 顯示錯誤訊息 */
@@ -864,5 +900,9 @@ document.querySelectorAll('.email').forEach(function (element) {
     .flex-wrap .mb-2.mb-md-0{
         margin-right: 15px;
     }
+    .table tbody tr:hover {
+        background-color: #f5f5f5;
+    }
+   
 
 </style>
