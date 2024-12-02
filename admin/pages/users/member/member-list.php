@@ -818,7 +818,6 @@ document.querySelectorAll('.email').forEach(function (element) {
     .form-floating {
         position: relative;
     }
-
     .invalid-feedback {
         position: absolute;
         bottom: -20px;
@@ -828,7 +827,6 @@ document.querySelectorAll('.email').forEach(function (element) {
         display: none;
        
     }
-
     .invalid-feedback.show {
         display: block;
         /* 顯示錯誤訊息 */

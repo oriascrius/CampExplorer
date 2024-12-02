@@ -10,7 +10,6 @@ try {
         'id', 'name', 'company_name', 'email', 
         'phone', 'address', 'status', 'created_at'
     ];
-
     $sort_field = isset($_GET['sort']) ? $_GET['sort'] : 'created_at';
     $sort_order = isset($_GET['order']) ? strtoupper($_GET['order']) : 'DESC';
     $p = isset($_GET['p']) ? (int)$_GET['p'] : 1;
