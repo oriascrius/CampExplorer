@@ -14,7 +14,7 @@ try {
     $sort_field = isset($_GET['sort']) ? $_GET['sort'] : 'created_at';
     $sort_order = isset($_GET['order']) ? strtoupper($_GET['order']) : 'DESC';
     $p = isset($_GET['p']) ? (int)$_GET['p'] : 1;
-    $perPage = 7; // 每頁顯示的營主數量
+    $perPage = 6; // 每頁顯示的營主數量
     $offset = max(0, ($p - 1) * $perPage);
     $search = isset($_GET['search']) ? $_GET['search'] : '';
 
@@ -77,7 +77,7 @@ function getFieldLabel($field) {
         'id' => '編號',
         'name' => '姓名',
         'company_name' => '公司名稱',
-        'email' => '信箱',
+        'email' => 'Email',
         'phone' => '電話',
         'address' => '地址',
         'status' => '狀態',
@@ -95,11 +95,11 @@ function getFieldLabel($field) {
     <?php endif; ?>
 
     <!-- 頁面標題和新增按鈕 -->
-    <div class="d-flex  align-items-center mb-4">
-        <h1 class="mt-5 fw-bold text-center me-5">營主管理</h1>
+    <div class="d-flex justify-content-start align-items-center mb-4">
+        <h1 class="mt-4 fw-bold  me-5">營主管理</h1>
     </div>
-    <div class="d-flex justify-content-between align-items-end m-3 flex-wrap">
-        <button type="button" class="btn btn-success mb-2 mb-md-0" data-action="add">
+    <div class="d-flex justify-content-between align-items-end  flex-wrap">
+        <button type="button" class="btn btn-success " data-action="add">
             <i class="bi bi-plus-lg"></i> 新增營主
         </button>
         
@@ -228,7 +228,7 @@ function getFieldLabel($field) {
             </li>
 
             <?php
-            for ($i = 1; $i <= $totalPages; $i++): ?>
+            for ($i =  $prevPage; $i <= $endPage; $i++): ?>
                 <li class="page-item <?php if ($i == $p) echo "active"; ?>">
                     <a class="page-link" href="?<?= $queryString ?>&p=<?= $i ?>"><?= $i ?></a>
                 </li>
@@ -533,7 +533,9 @@ document.addEventListener('DOMContentLoaded', function() {
     .pagination {
         margin-top: 20px;
     }
-
+    .fixed-width {
+    width: 9.1rem; /* 設置寬度為 5 個字元大小 */
+}
     @media (max-width: 768px) {
         .table-responsive {
             overflow-x: auto;
@@ -572,7 +574,8 @@ document.addEventListener('DOMContentLoaded', function() {
         word-wrap: break-word; /* 自動換行 */
     }
     .table td{
-        height: 4.54rem;
+        height: 5.54rem;
+        
     }
 
 th.id, td.id {
@@ -580,9 +583,9 @@ th.id, td.id {
 }
 
 th.status, td.status {
-    width: 5em; 
+    width: 7em; 
 }
-
+.table .created_at,
 th.name, td.name {
     width: 5em; 
 }
@@ -590,12 +593,13 @@ th.name, td.name {
         user-select: none; /* 禁止選取 */
     }
 .table .address,
-.table .email,
-.table .created_at,
 .table .company_name
 {
-    width: 12em; 
+    width: 13em; 
     
+}
+.table .email{
+    width: 17em; 
 }
 .table .phone{
     width: 9em; 
@@ -679,5 +683,8 @@ th.name, td.name {
     }
     tr{
         border-bottom-width: 1px;
+    }
+    .flex-wrap .mb-2.mb-md-0{
+        margin-right: 15px;
     }
 </style>
