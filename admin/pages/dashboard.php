@@ -172,472 +172,8 @@ try {
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"></script>
 
-<!-- Dashboard UI -->
-<div class="container-fluid px-4">
-    <!-- 頁面標題與工具列 -->
-    <div class="d-flex justify-content-between align-items-center mt-4 mb-4">
-        <div>
-            <h1 class="h3 mb-0"> 營運分析中心</h1>
-            <small class="text-muted">CampExplorer 營運數據即時監控</small>
-        </div>
-        <div class="dashboard-tools">
-            <span class="date-display me-3">
-                <i class="far fa-clock me-1"></i><?= date('Y-m-d H:i') ?>
-            </span>
-            <div class="btn-group">
-                <button class="btn btn-sm btn-outline-primary" onclick="location.reload()">
-                    <i class="fas fa-sync-alt"></i> 更新數據
-                </button>
-                <button class="btn btn-sm btn-outline-success" onclick="exportDashboardData()">
-                    <i class="fas fa-download"></i> 匯出報表
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 待處理事項提醒 -->
-    <div class="alert alert-warning alert-dismissible fade show" role="alert">
-        <h4 class="alert-heading"><i class="fas fa-exclamation-triangle"></i> 待處理事項提醒</h4>
-        <p class="mb-0">
-            您有
-            <span class="badge bg-danger"><?= $pending_stats['pending_camps'] ?></span> 個待審核營地、
-            <span class="badge bg-warning"><?= $pending_stats['low_stock_products'] ?></span> 個庫存不足商品、
-            <span class="badge bg-info"><?= $pending_stats['pending_discussions'] ?></span> 則待回覆評論
-        </p>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-
-    <!-- 快速操作按鈕 -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card h-100">
-                <div class="card-body p-3">
-                    <h5 class="card-title mb-3 text-monofondi">快速操作</h5>
-                    <div class="d-flex gap-2 flex-wrap">
-                        <a href="index.php?page=camps_review" class="btn btn-monofondi-sage btn-sm">
-                            <i class="fas fa-campground me-1"></i> 審核營地
-                        </a>
-                        <a href="index.php?page=approved_camps" class="btn btn-monofondi-blue btn-sm">
-                            <i class="fas fa-mountain me-1"></i> 營區管理
-                        </a>
-                        <a href="index.php?page=product_category" class="btn btn-monofondi-gray btn-sm">
-                            <i class="fas fa-tags me-1"></i> 商品類別
-                        </a>
-                        <a href="index.php?page=products_list" class="btn btn-monofondi-green btn-sm">
-                            <i class="fas fa-box me-1"></i> 商品管理
-                        </a>
-                        <a href="index.php?page=orders_list" class="btn btn-monofondi-sand btn-sm">
-                            <i class="fas fa-shopping-cart me-1"></i> 訂單管理
-                        </a>
-                        <a href="index.php?page=members_list" class="btn btn-monofondi-rose btn-sm">
-                            <i class="fas fa-users me-1"></i> 會員管理
-                        </a>
-                        <a href="index.php?page=coupons_list" class="btn btn-monofondi-purple btn-sm">
-                            <i class="fas fa-ticket-alt me-1"></i> 優惠券
-                        </a>
-                        <a href="index.php?page=articles_list" class="btn btn-monofondi-blue-gray btn-sm">
-                            <i class="fas fa-newspaper me-1"></i> 文章管理
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 統計卡片區 -->
-    <div class="row g-4 mb-4">
-        <!-- 會員統計卡片 -->
-        <div class="col-xl-3 col-md-6">
-            <div class="card stats-card bg-morandi-blue-gradient">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="card-title">
-                            <i class="fas fa-users me-2"></i>會員統計
-                        </h6>
-                        <h2 class="main-number"><?= number_format($users_stats['total_users']) ?></h2>
-                        <div class="stats-label">總會員數</div>
-                    </div>
-                    <div class="icon-circle">
-                        <i class="fas fa-user-chart fa-2x"></i>
-                    </div>
-                </div>
-                <hr>
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <div class="sub-number"><?= number_format($users_stats['new_users_today']) ?></div>
-                        <div class="stats-label">今日新增</div>
-                    </div>
-                    <div>
-                        <div class="sub-number"><?= number_format($users_stats['new_users_month']) ?></div>
-                        <div class="stats-label">本月新增</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 營地統計卡片 -->
-        <div class="col-xl-3 col-md-6">
-            <div class="card h-100 bg-morandi-sage-gradient">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="card-title mb-3">
-                                <i class="fas fa-campground me-2"></i>營地統計
-                            </h6>
-                            <h2 class="m-0" data-stat="total_camps"><?= number_format($camps_stats['total_camps']) ?></h2>
-                            <small>總營地數</small>
-                        </div>
-                        <div class="icon-circle">
-                            <i class="fas fa-mountain-sun fa-2x text-morandi-sage"></i>
-                        </div>
-                    </div>
-                    <hr>
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h4 class="mb-0 text-morandi-sage"><?= $camps_stats['pending_camps'] ?></h4>
-                            <small class="">待審核</small>
-                        </div>
-                        <div>
-                            <h4 class="mb-0 text-morandi-sage"><?= $camps_stats['operating_camps'] ?></h4>
-                            <small class="">營業中</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 文章統計片 -->
-        <div class="col-xl-3 col-md-6">
-            <div class="card h-100 bg-morandi-rose-gradient">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="card-title mb-3 text-morandi-rose">
-                                <i class="fas fa-newspaper me-2"></i>文章統計
-                            </h6>
-                            <h2 class="mb-0"><?= number_format($articles_stats['total_articles']) ?></h2>
-                            <small class="">總文章數</small>
-                        </div>
-                        <div class="icon-circle bg-morandi-rose">
-                            <i class="fas fa-newspaper text-white fa-2x"></i>
-                        </div>
-                    </div>
-                    <hr class="my-3">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h4 class="mb-0 text-morandi-rose"><?= number_format($articles_stats['total_views']) ?></h4>
-                            <small class="">總瀏覽</small>
-                        </div>
-                        <div>
-                            <h4 class="mb-0 text-morandi-rose"><?= $articles_stats['new_articles_month'] ?></h4>
-                            <small class="">本月新增</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 商品統計卡片 -->
-        <div class="col-xl-3 col-md-6">
-            <div class="card h-100 bg-morandi-mauve-gradient">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="card-title mb-3 text-morandi-mauve">
-                                <i class="fas fa-box me-2"></i>商品統計
-                            </h6>
-                            <h2 class="mb-0"><?= number_format($products_stats['total_products']) ?></h2>
-                            <small class="">總商品數</small>
-                        </div>
-                        <div class="icon-circle bg-morandi-mauve">
-                            <i class="fas fa-box text-white fa-2x"></i>
-                        </div>
-                    </div>
-                    <hr class="my-3">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h4 class="mb-0 text-morandi-mauve"><?= $products_stats['low_stock'] ?></h4>
-                            <small class="">庫存不足</small>
-                        </div>
-                        <div>
-                            <h4 class="mb-0 text-morandi-mauve">$<?= number_format($products_stats['avg_price']) ?></h4>
-                            <small class="">平均單價</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 營收統計卡片 -->
-        <div class="col-xl-3 col-md-6">
-            <div class="card h-100 bg-morandi-mint-gradient">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="card-title mb-3 text-morandi-mint">
-                                <i class="fas fa-dollar-sign me-2"></i>營收統計
-                            </h6>
-                            <h2 class="mb-0">$<?= number_format($revenue_stats['total_revenue'] ?? 0) ?></h2>
-                            <small class="">總營收</small>
-                        </div>
-                        <div class="icon-circle bg-morandi-mint">
-                            <i class="fas fa-dollar-sign text-white fa-2x"></i>
-                        </div>
-                    </div>
-                    <hr class="my-3">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h4 class="mb-0 text-morandi-mint">$<?= number_format($revenue_stats['today_revenue'] ?? 0) ?></h4>
-                            <small class="">今日營收</small>
-                        </div>
-                        <div>
-                            <h4 class="mb-0 text-morandi-mint"><?= number_format($revenue_stats['growth_rate'] ?? 0, 1) ?>%</h4>
-                            <small class=""><?= ($revenue_stats['growth_rate'] ?? 0) >= 0 ? '月增長' : '月下降' ?></small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 訂單統計卡片 -->
-        <div class="col-xl-3 col-md-6">
-            <div class="card h-100 bg-morandi-sand-gradient">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="card-title mb-3 text-morandi-sand">
-                                <i class="fas fa-shopping-cart me-2"></i>訂單統計
-                            </h6>
-                            <h2 class="mb-0"><?= number_format($order_stats['total_orders']) ?></h2>
-                            <small class="">總訂單數</small>
-                        </div>
-                        <div class="icon-circle bg-morandi-sand">
-                            <i class="fas fa-shopping-cart text-white fa-2x"></i>
-                        </div>
-                    </div>
-                    <hr class="my-3">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h4 class="mb-0 text-morandi-sand"><?= number_format($order_stats['pending_orders']) ?></h4>
-                            <small class="">待處理</small>
-                        </div>
-                        <div>
-                            <h4 class="mb-0 text-morandi-sand">$<?= number_format($revenue_stats['today_revenue'], 0) ?></h4>
-                            <small class="">今日營收</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 訂單轉換率卡片 -->
-        <div class="col-xl-3 col-md-6">
-            <div class="card h-100 bg-morandi-purple-gradient">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="card-title mb-3 text-morandi-purple">
-                                <i class="fas fa-chart-line me-2"></i>轉換率
-                            </h6>
-                            <h2 class="mb-0"><?= number_format($conversion_stats['conversion_rate'], 1) ?>%</h2>
-                            <small class="">購買轉換率</small>
-                        </div>
-                        <div class="icon-circle bg-morandi-purple">
-                            <i class="fas fa-percentage text-white fa-2x"></i>
-                        </div>
-                    </div>
-                    <hr class="my-3">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h4 class="mb-0 text-morandi-purple"><?= number_format($conversion_stats['total_buyers']) ?></h4>
-                            <small class="">總購買人數</small>
-                        </div>
-                        <div>
-                            <h4 class="mb-0 text-morandi-purple">$<?= number_format($conversion_stats['avg_order_amount']) ?></h4>
-                            <small class="">平均訂單金額</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 會員活躍卡片 -->
-        <div class="col-xl-3 col-md-6">
-            <div class="card h-100 bg-morandi-gray-gradient">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="card-title mb-3 text-morandi-gray">
-                                <i class="fas fa-user-check me-2"></i>活躍度
-                            </h6>
-                            <h2 class="mb-0"><?= number_format($activity_stats['active_rate'], 1) ?>%</h2>
-                            <small class="">月活躍率</small>
-                        </div>
-                        <div class="icon-circle bg-morandi-gray">
-                            <i class="fas fa-chart-bar text-white fa-2x"></i>
-                        </div>
-                    </div>
-                    <hr class="my-3">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h4 class="mb-0 text-morandi-gray"><?= number_format($activity_stats['active_users_today']) ?></h4>
-                            <small class="">今日活動</small>
-                        </div>
-                        <div>
-                            <h4 class="mb-0 text-morandi-gray"><?= number_format($activity_stats['active_users_week']) ?></h4>
-                            <small class="">週活躍</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 圖表區域 -->
-    <div class="row mb-4">
-        <div class="col-xl-8">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h6 class="mb-0">營收趨勢</h6>
-                    <div class="btn-group">
-                        <button class="btn btn-sm btn-outline-secondary active" data-period="week">週</button>
-                        <button class="btn btn-sm btn-outline-secondary" data-period="month">月</button>
-                        <button class="btn btn-sm btn-outline-secondary" data-period="year">年</button>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <canvas id="revenueChart"></canvas>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-4">
-            <div class="card">
-                <div class="card-header">
-                    <h6 class="mb-0">營地分布</h6>
-                </div>
-                <div class="card-body">
-                    <canvas id="campDistributionChart"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 圖表區域 -->
-    <div class="row mb-4">
-        <div class="col-xl-8">
-            <div class="card">
-                <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                    <h6 class="mb-0">近期活動紀錄</h6>
-                    <div class="d-flex gap-2">
-                        <select class="form-select form-select-sm" style="width: auto;" id="activityFilter">
-                            <option value="all">全部活動</option>
-                            <option value="camp_review">營地審核</option>
-                            <option value="article">文章管理</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="card-body p-0">
-                    <div class="timeline">
-                        <?php while ($activity = $result_activities->fetch(PDO::FETCH_ASSOC)): ?>
-                            <div class="timeline-item" data-type="<?= $activity['type'] ?>">
-                                <div class="timeline-marker">
-                                    <div class="timeline-icon bg-<?= $activity['type'] === 'camp_review' ? 'morandi-blue' : 'morandi-sage' ?>">
-                                        <i class="fas fa-<?= $activity['type'] === 'camp_review' ? 'campground' : 'newspaper' ?>"></i>
-                                    </div>
-                                </div>
-                                <div class="timeline-content">
-                                    <div class="timeline-header p-3 border-bottom">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <span class="badge bg-<?= $activity['type'] === 'camp_review' ? 'info' : 'success' ?> rounded-pill">
-                                                    <?= $activity['type'] === 'camp_review' ? '營地審核' : '文章管理' ?>
-                                                </span>
-                                                <small class="text-muted ms-2">
-                                                    <time datetime="<?= $activity['time'] ?>"><?= date('F j, Y g:i A', strtotime($activity['time'])) ?></time>
-                                                </small>
-                                            </div>
-                                            <small class="text-muted">
-                                                <i class="fas fa-user-edit me-1"></i><?= htmlspecialchars($activity['admin_name']) ?>
-                                            </small>
-                                        </div>
-                                    </div>
-                                    <div class="timeline-body p-3">
-                                        <h6 class="mb-2"><?= htmlspecialchars($activity['description']) ?></h6>
-                                        <div class="activity-detail p-2 bg-light rounded">
-                                            <?= htmlspecialchars($activity['detail']) ?>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        <?php endwhile; ?>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-4">
-            <!-- 商品分類統計卡片 -->
-            <div class="card mb-4">
-                <div class="card-header bg-morandi-teal d-flex justify-content-between align-items-center">
-                    <h6 class="mb-0">商品分類統計</h6>
-                    <span class="badge bg-morandi-teal-light"><?= $result_categories->rowCount() ?> 個分類</span>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead class="bg-morandi-gray-light">
-                                <tr>
-                                    <th>分類名稱</th>
-                                    <th class="text-center">商品數量</th>
-                                    <th class="text-end">平均單價</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php while ($category = $result_categories->fetch(PDO::FETCH_ASSOC)): ?>
-                                    <tr>
-                                        <td>
-                                            <span class="category-name"><?= htmlspecialchars($category['category_name']) ?></span>
-                                        </td>
-                                        <td class="text-center">
-                                            <span class="badge bg-morandi-teal"><?= number_format($category['total_products']) ?></span>
-                                        </td>
-                                        <td class="text-end">
-                                            <span class="text-morandi-teal">$<?= number_format($category['avg_price']) ?></span>
-                                        </td>
-                                    </tr>
-                                <?php endwhile; ?>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 新增快速篩選器 -->
-    <div class="mb-4">
-        <div class="btn-group">
-            <button class="btn btn-outline-morandi-teal active" data-filter="all">全部</button>
-            <button class="btn btn-outline-morandi-teal" data-filter="today">今日</button>
-            <button class="btn btn-outline-morandi-teal" data-filter="week">本週</button>
-            <button class="btn btn-outline-morandi-teal" data-filter="month">本月</button>
-        </div>
-    </div>
-
-    <!-- 新增互動式提 -->
-    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
-        <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="toast-header">
-                <i class="fas fa-bell me-2"></i>
-                <strong class="me-auto">系統通知</strong>
-                <small>剛</small>
-                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-            </div>
-            <div class="toast-body">
-                新的系統通知...
-            </div>
-        </div>
-    </div>
-</div>
+<!-- 在 Font Awesome CDN 後面添加 -->
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
 <!-- 自定義 CSS -->
 <style>
@@ -929,7 +465,7 @@ try {
         color: #6c757d;
     }
 
-    /* 莫蘭迪配��� */
+    /* 莫蘭迪配色 */
     .bg-morandi-blue {
         background: linear-gradient(135deg, #6B7A8F 0%, #8299B5 100%);
     }
@@ -1798,7 +1334,8 @@ try {
         --morandi-blue: #A8C0D3;
         --morandi-green: #B8C4B8;
         --morandi-rose: #D4B9B9;
-        --morandi-teal: #A3C5C9;  /* 新增藍綠色 */
+        --morandi-teal: #A3C5C9;
+        /* 新增藍綠色 */
         --morandi-sand: #D3C1B1;
         --morandi-mint: #B5C7C0;
     }
@@ -1960,7 +1497,8 @@ try {
         --morandi-blue: #A8C0D3;
         --morandi-green: #B8C4B8;
         --morandi-rose: #D4B9B9;
-        --morandi-teal: #A3C5C9;  /* 新增藍綠色 */
+        --morandi-teal: #A3C5C9;
+        /* 新增藍綠色 */
         --morandi-sand: #D3C1B1;
         --morandi-mint: #B5C7C0;
         --morandi-purple: #C5B8CC;
@@ -2081,15 +1619,22 @@ try {
     /* 統一顏色變量 */
     :root {
         /* 文字顏色層級 */
-        --text-primary: rgba(255, 255, 255, 0.95);    /* 主標題、大數字 */
-        --text-secondary: rgba(255, 255, 255, 0.85);  /* 次要數字 */
-        --text-tertiary: rgba(255, 255, 255, 0.75);   /* 小標題 */
-        --text-quaternary: rgba(255, 255, 255, 0.65); /* 說明文字 */
-        --text-muted: rgba(255, 255, 255, 0.55);      /* 最淺層文字 */
-        
+        --text-primary: rgba(255, 255, 255, 0.95);
+        /* 主標題、大數字 */
+        --text-secondary: rgba(255, 255, 255, 0.85);
+        /* 次要數字 */
+        --text-tertiary: rgba(255, 255, 255, 0.75);
+        /* 小標題 */
+        --text-quaternary: rgba(255, 255, 255, 0.65);
+        /* 說明文字 */
+        --text-muted: rgba(255, 255, 255, 0.55);
+        /* 最淺層文字 */
+
         /* 圖標顏色 */
-        --icon-primary: rgba(255, 255, 255, 0.9);     /* 主要圖標 */
-        --icon-secondary: rgba(255, 255, 255, 0.7);   /* 次要圖標 */
+        --icon-primary: rgba(255, 255, 255, 0.9);
+        /* 主要圖標 */
+        --icon-secondary: rgba(255, 255, 255, 0.7);
+        /* 次要圖標 */
     }
 
     /* 文字層級樣式 */
@@ -2134,12 +1679,18 @@ try {
 
     :root {
         /* 莫蘭迪藍綠色系 */
-        --morandi-blue: #A8C0D3;      /* 主色調：柔和藍 */
-        --morandi-sage: #B8C4B8;      /* 灰綠色 */
-        --morandi-mint: #B5C7C0;      /* 薄荷綠 */
-        --morandi-teal: #A3C5C9;      /* 藍綠色 取代紫色 */
-        --morandi-gray: #B8C0C8;      /* 灰藍色 */
-        --morandi-sand: #D3C1B1;      /* 沙色 */
+        --morandi-blue: #A8C0D3;
+        /* 主色調：柔和藍 */
+        --morandi-sage: #B8C4B8;
+        /* 灰綠色 */
+        --morandi-mint: #B5C7C0;
+        /* 薄荷綠 */
+        --morandi-teal: #A3C5C9;
+        /* 藍綠色 取代紫色 */
+        --morandi-gray: #B8C0C8;
+        /* 灰藍色 */
+        --morandi-sand: #D3C1B1;
+        /* 沙色 */
     }
 
     /* 文字顏色類 */
@@ -2199,7 +1750,486 @@ try {
         color: var(--morandi-gray);
         padding: 1rem;
     }
+
+    .sub-menu {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        padding-left: 2rem;
+        background: rgba(255, 255, 255, 0.05);
+        /* 改為較淺的背景 */
+        border-left: 2px solid rgba(52, 152, 219, 0.3);
+        /* 調整邊框透明度 */
+    }
 </style>
+
+
+<!-- Dashboard UI -->
+<div class="container-fluid px-4">
+    <!-- 頁面標題與工具列 -->
+    <div class="d-flex justify-content-between align-items-center mt-4 mb-4">
+        <div>
+            <h1 class="h3 mb-0"> 營運分析中心</h1>
+            <small class="text-muted">CampExplorer 營運數據即時監控</small>
+        </div>
+        <div class="dashboard-tools">
+            <span class="date-display me-3">
+                <i class="far fa-clock me-1"></i><?= date('Y-m-d H:i') ?>
+            </span>
+            <div class="btn-group">
+                <button class="btn btn-sm btn-outline-primary" onclick="location.reload()">
+                    <i class="fas fa-sync-alt"></i> 更新數據
+                </button>
+                <button class="btn btn-sm btn-outline-success" onclick="exportDashboardData()">
+                    <i class="fas fa-download"></i> 匯出報表
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 待處理事項提醒 -->
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        <h4 class="alert-heading"><i class="fas fa-exclamation-triangle"></i> 待處理事項提醒</h4>
+        <p class="mb-0">
+            您有
+            <span class="badge bg-danger"><?= $pending_stats['pending_camps'] ?></span> 個待審核營地、
+            <span class="badge bg-warning"><?= $pending_stats['low_stock_products'] ?></span> 個庫存不足商品、
+            <span class="badge bg-info"><?= $pending_stats['pending_discussions'] ?></span> 則待回覆評論
+        </p>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <!-- 快速操作按鈕 -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card h-100">
+                <div class="card-body p-3">
+                    <h5 class="card-title mb-3 text-monofondi">快速操作</h5>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <a href="index.php?page=camps_review" class="btn btn-monofondi-sage btn-sm">
+                            <i class="fas fa-campground me-1"></i> 審核營地
+                        </a>
+                        <a href="index.php?page=approved_camps" class="btn btn-monofondi-blue btn-sm">
+                            <i class="fas fa-mountain me-1"></i> 營區管理
+                        </a>
+                        <a href="index.php?page=product_category" class="btn btn-monofondi-gray btn-sm">
+                            <i class="fas fa-tags me-1"></i> 商品類別
+                        </a>
+                        <a href="index.php?page=products_list" class="btn btn-monofondi-green btn-sm">
+                            <i class="fas fa-box me-1"></i> 商品管理
+                        </a>
+                        <a href="index.php?page=orders_list" class="btn btn-monofondi-sand btn-sm">
+                            <i class="fas fa-shopping-cart me-1"></i> 訂單管理
+                        </a>
+                        <a href="index.php?page=members_list" class="btn btn-monofondi-rose btn-sm">
+                            <i class="fas fa-users me-1"></i> 會員管理
+                        </a>
+                        <a href="index.php?page=coupons_list" class="btn btn-monofondi-purple btn-sm">
+                            <i class="fas fa-ticket-alt me-1"></i> 優惠券
+                        </a>
+                        <a href="index.php?page=articles_list" class="btn btn-monofondi-blue-gray btn-sm">
+                            <i class="fas fa-newspaper me-1"></i> 文章管理
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 統計卡片區 -->
+    <div class="row g-4 mb-4">
+        <!-- 會員統計卡片 -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card stats-card bg-morandi-blue-gradient">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title">
+                            <i class="fas fa-users me-2"></i>會員統計
+                        </h6>
+                        <h2 class="main-number"><?= number_format($users_stats['total_users']) ?></h2>
+                        <div class="stats-label">總會員數</div>
+                    </div>
+                    <div class="icon-circle">
+                        <i class="fas fa-user-chart fa-2x"></i>
+                    </div>
+                </div>
+                <hr>
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <div class="sub-number"><?= number_format($users_stats['new_users_today']) ?></div>
+                        <div class="stats-label">今日新增</div>
+                    </div>
+                    <div>
+                        <div class="sub-number"><?= number_format($users_stats['new_users_month']) ?></div>
+                        <div class="stats-label">本月新增</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 營地統計卡片 -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card h-100 bg-morandi-sage-gradient">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title mb-3">
+                                <i class="fas fa-campground me-2"></i>營地統計
+                            </h6>
+                            <h2 class="m-0" data-stat="total_camps"><?= number_format($camps_stats['total_camps']) ?></h2>
+                            <small>總營地數</small>
+                        </div>
+                        <div class="icon-circle">
+                            <i class="fas fa-mountain-sun fa-2x text-morandi-sage"></i>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0 text-morandi-sage"><?= $camps_stats['pending_camps'] ?></h4>
+                            <small class="">待審核</small>
+                        </div>
+                        <div>
+                            <h4 class="mb-0 text-morandi-sage"><?= $camps_stats['operating_camps'] ?></h4>
+                            <small class="">營業中</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 文章統計片 -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card h-100 bg-morandi-rose-gradient">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title mb-3 text-morandi-rose">
+                                <i class="fas fa-newspaper me-2"></i>文章統計
+                            </h6>
+                            <h2 class="mb-0"><?= number_format($articles_stats['total_articles']) ?></h2>
+                            <small class="">總文章數</small>
+                        </div>
+                        <div class="icon-circle bg-morandi-rose">
+                            <i class="fas fa-newspaper text-white fa-2x"></i>
+                        </div>
+                    </div>
+                    <hr class="my-3">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0 text-morandi-rose"><?= number_format($articles_stats['total_views']) ?></h4>
+                            <small class="">總瀏覽</small>
+                        </div>
+                        <div>
+                            <h4 class="mb-0 text-morandi-rose"><?= $articles_stats['new_articles_month'] ?></h4>
+                            <small class="">本月新增</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 商品統計卡片 -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card h-100 bg-morandi-mauve-gradient">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title mb-3 text-morandi-mauve">
+                                <i class="fas fa-box me-2"></i>商品統計
+                            </h6>
+                            <h2 class="mb-0"><?= number_format($products_stats['total_products']) ?></h2>
+                            <small class="">總商品數</small>
+                        </div>
+                        <div class="icon-circle bg-morandi-mauve">
+                            <i class="fas fa-box text-white fa-2x"></i>
+                        </div>
+                    </div>
+                    <hr class="my-3">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0 text-morandi-mauve"><?= $products_stats['low_stock'] ?></h4>
+                            <small class="">庫存不足</small>
+                        </div>
+                        <div>
+                            <h4 class="mb-0 text-morandi-mauve">$<?= number_format($products_stats['avg_price']) ?></h4>
+                            <small class="">平均單價</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 營收統計卡片 -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card h-100 bg-morandi-mint-gradient">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title mb-3 text-morandi-mint">
+                                <i class="fas fa-dollar-sign me-2"></i>營收統計
+                            </h6>
+                            <h2 class="mb-0">$<?= number_format($revenue_stats['total_revenue'] ?? 0) ?></h2>
+                            <small class="">總營收</small>
+                        </div>
+                        <div class="icon-circle bg-morandi-mint">
+                            <i class="fas fa-dollar-sign text-white fa-2x"></i>
+                        </div>
+                    </div>
+                    <hr class="my-3">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0 text-morandi-mint">$<?= number_format($revenue_stats['today_revenue'] ?? 0) ?></h4>
+                            <small class="">今日營收</small>
+                        </div>
+                        <div>
+                            <h4 class="mb-0 text-morandi-mint"><?= number_format($revenue_stats['growth_rate'] ?? 0, 1) ?>%</h4>
+                            <small class=""><?= ($revenue_stats['growth_rate'] ?? 0) >= 0 ? '月增長' : '月下降' ?></small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 訂單統計卡片 -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card h-100 bg-morandi-sand-gradient">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title mb-3 text-morandi-sand">
+                                <i class="fas fa-shopping-cart me-2"></i>訂單統計
+                            </h6>
+                            <h2 class="mb-0"><?= number_format($order_stats['total_orders']) ?></h2>
+                            <small class="">總訂單數</small>
+                        </div>
+                        <div class="icon-circle bg-morandi-sand">
+                            <i class="fas fa-shopping-cart text-white fa-2x"></i>
+                        </div>
+                    </div>
+                    <hr class="my-3">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0 text-morandi-sand"><?= number_format($order_stats['pending_orders']) ?></h4>
+                            <small class="">待處理</small>
+                        </div>
+                        <div>
+                            <h4 class="mb-0 text-morandi-sand">$<?= number_format($revenue_stats['today_revenue'], 0) ?></h4>
+                            <small class="">今日營收</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 訂單轉換率卡片 -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card h-100 bg-morandi-purple-gradient">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title mb-3 text-morandi-purple">
+                                <i class="fas fa-chart-line me-2"></i>轉換率
+                            </h6>
+                            <h2 class="mb-0"><?= number_format($conversion_stats['conversion_rate'], 1) ?>%</h2>
+                            <small class="">購買轉換率</small>
+                        </div>
+                        <div class="icon-circle bg-morandi-purple">
+                            <i class="fas fa-percentage text-white fa-2x"></i>
+                        </div>
+                    </div>
+                    <hr class="my-3">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0 text-morandi-purple"><?= number_format($conversion_stats['total_buyers']) ?></h4>
+                            <small class="">總購買人數</small>
+                        </div>
+                        <div>
+                            <h4 class="mb-0 text-morandi-purple">$<?= number_format($conversion_stats['avg_order_amount']) ?></h4>
+                            <small class="">平均訂單金額</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 會員活躍卡片 -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card h-100 bg-morandi-gray-gradient">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title mb-3 text-morandi-gray">
+                                <i class="fas fa-user-check me-2"></i>活躍度
+                            </h6>
+                            <h2 class="mb-0"><?= number_format($activity_stats['active_rate'], 1) ?>%</h2>
+                            <small class="">月活躍率</small>
+                        </div>
+                        <div class="icon-circle bg-morandi-gray">
+                            <i class="fas fa-chart-bar text-white fa-2x"></i>
+                        </div>
+                    </div>
+                    <hr class="my-3">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0 text-morandi-gray"><?= number_format($activity_stats['active_users_today']) ?></h4>
+                            <small class="">今日活動</small>
+                        </div>
+                        <div>
+                            <h4 class="mb-0 text-morandi-gray"><?= number_format($activity_stats['active_users_week']) ?></h4>
+                            <small class="">週活躍</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 圖表區域 -->
+    <div class="row mb-4">
+        <div class="col-xl-8">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">營收趨勢</h6>
+                    <div class="btn-group">
+                        <button class="btn btn-sm btn-outline-secondary active" data-period="week">週</button>
+                        <button class="btn btn-sm btn-outline-secondary" data-period="month">月</button>
+                        <button class="btn btn-sm btn-outline-secondary" data-period="year">年</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-4">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">營地分布</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="campDistributionChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 圖表區域 -->
+    <div class="row mb-4">
+        <div class="col-xl-8 mb-4">
+            <div class="card">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">近期活動紀錄</h6>
+                    <div class="d-flex gap-2">
+                        <select class="form-select form-select-sm" style="width: auto;" id="activityFilter">
+                            <option value="all">全部活動</option>
+                            <option value="camp_review">營地審核</option>
+                            <option value="article">文章管理</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="timeline">
+                        <?php while ($activity = $result_activities->fetch(PDO::FETCH_ASSOC)): ?>
+                            <div class="timeline-item" data-type="<?= $activity['type'] ?>">
+                                <div class="timeline-marker">
+                                    <div class="timeline-icon bg-<?= $activity['type'] === 'camp_review' ? 'morandi-blue' : 'morandi-sage' ?>">
+                                        <i class="fas fa-<?= $activity['type'] === 'camp_review' ? 'campground' : 'newspaper' ?>"></i>
+                                    </div>
+                                </div>
+                                <div class="timeline-content">
+                                    <div class="timeline-header p-3 border-bottom">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <span class="badge bg-<?= $activity['type'] === 'camp_review' ? 'info' : 'success' ?> rounded-pill">
+                                                    <?= $activity['type'] === 'camp_review' ? '營地審核' : '文章管理' ?>
+                                                </span>
+                                                <small class="text-muted ms-2">
+                                                    <time datetime="<?= $activity['time'] ?>"><?= date('F j, Y g:i A', strtotime($activity['time'])) ?></time>
+                                                </small>
+                                            </div>
+                                            <small class="text-muted">
+                                                <i class="fas fa-user-edit me-1"></i><?= htmlspecialchars($activity['admin_name']) ?>
+                                            </small>
+                                        </div>
+                                    </div>
+                                    <div class="timeline-body p-3">
+                                        <h6 class="mb-2"><?= htmlspecialchars($activity['description']) ?></h6>
+                                        <div class="activity-detail p-2 bg-light rounded">
+                                            <?= htmlspecialchars($activity['detail']) ?>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endwhile; ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-4">
+            <!-- 商品分類統計卡片 -->
+            <div class="card mb-4">
+                <div class="card-header bg-morandi-teal d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">商品分類統計</h6>
+                    <span class="badge bg-morandi-teal-light"><?= $result_categories->rowCount() ?> 個分類</span>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="bg-morandi-gray-light">
+                                <tr>
+                                    <th>分類名稱</th>
+                                    <th class="text-center">商品數量</th>
+                                    <th class="text-end">平均單價</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php while ($category = $result_categories->fetch(PDO::FETCH_ASSOC)): ?>
+                                    <tr>
+                                        <td>
+                                            <span class="category-name"><?= htmlspecialchars($category['category_name']) ?></span>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge bg-morandi-teal"><?= number_format($category['total_products']) ?></span>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="text-morandi-teal">$<?= number_format($category['avg_price']) ?></span>
+                                        </td>
+                                    </tr>
+                                <?php endwhile; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新增快速篩選器 -->
+    <div class="mb-4">
+        <div class="btn-group">
+            <button class="btn btn-outline-morandi-teal active" data-filter="all">全部</button>
+            <button class="btn btn-outline-morandi-teal" data-filter="today">今日</button>
+            <button class="btn btn-outline-morandi-teal" data-filter="week">本週</button>
+            <button class="btn btn-outline-morandi-teal" data-filter="month">本月</button>
+        </div>
+    </div>
+
+    <!-- 新增互動式提 -->
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+        <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <i class="fas fa-bell me-2"></i>
+                <strong class="me-auto">系統通知</strong>
+                <small>剛</small>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body">
+                新的系統通知...
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -2208,7 +2238,7 @@ try {
 
 <!-- 自定義 JavaScript -->
 <script>
-    // 匯出 CSV ���能
+    // 匯出 CSV
     function exportTableToCSV(tableId) {
         const table = document.getElementById(tableId);
         let csv = [];
@@ -2471,11 +2501,11 @@ try {
                         datasets: [{
                             data: [30, 25, 20, 15, 10],
                             backgroundColor: [
-                                '#4e73df',
-                                '#1cc88a',
-                                '#36b9cc',
-                                '#f6c23e',
-                                '#e74a3b'
+                                '#7A90A8',  // 莫蘭迪藍
+                                '#8FA977',  // 莫蘭迪灰綠
+                                '#C69B97',  // 莫蘭迪玫瑰
+                                '#C4A687',  // 莫蘭迪沙
+                                '#A3C5C9'   // 莫蘭迪藍綠
                             ],
                             borderWidth: 2,
                             borderColor: '#ffffff'
@@ -2572,12 +2602,59 @@ try {
         });
     });
 
-    // 增即時數更新
-    setInterval(async () => {
-        const response = await fetch('api/dashboard/stats');
-        const stats = await response.json();
-        updateDashboardStats(stats);
-    }, 60000);
+    // 將原有的setInterval部分修改為:
+    function updateDashboardStats(stats) {
+        // 更新會員統計
+        if (stats.users) {
+            const totalUsersEl = document.querySelector('.stats-card .main-number');
+            const newUsersTodayEl = document.querySelector('.stats-card .sub-number');
+
+            if (totalUsersEl) totalUsersEl.textContent = stats.users.total.toLocaleString();
+            if (newUsersTodayEl) newUsersTodayEl.textContent = stats.users.today.toLocaleString();
+        }
+
+        // 更新待處理事項提醒
+        if (stats.pending) {
+            const pendingCampsEl = document.querySelector('.alert .badge.bg-danger');
+            const lowStockEl = document.querySelector('.alert .badge.bg-warning');
+            const pendingDiscussionsEl = document.querySelector('.alert .badge.bg-info');
+
+            if (pendingCampsEl) pendingCampsEl.textContent = stats.camps.pending;
+            if (lowStockEl) lowStockEl.textContent = stats.products.low_stock;
+            if (pendingDiscussionsEl) pendingDiscussionsEl.textContent = stats.discussions.pending;
+        }
+
+        // 更新時間顯示
+        const timeDisplay = document.querySelector('.date-display');
+        if (timeDisplay) {
+            const now = new Date();
+            timeDisplay.innerHTML = `<i class="far fa-clock me-1"></i>${now.toLocaleString('zh-TW', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            })}`;
+        }
+    }
+
+    // 定時更新數據
+    async function fetchDashboardStats() {
+        try {
+            const response = await fetch('api/dashboard/stats.php');
+            if (!response.ok) throw new Error('Network response was not ok');
+            const stats = await response.json();
+            updateDashboardStats(stats);
+        } catch (error) {
+            console.error('更新儀表板數據失敗:', error);
+        }
+    }
+
+    // 每60秒更新一次數據
+    setInterval(fetchDashboardStats, 60000);
+
+    // 頁面載入時先執行一次
+    document.addEventListener('DOMContentLoaded', fetchDashboardStats);
 
     // 新增 SPA 路由處理
     document.addEventListener('DOMContentLoaded', function() {
@@ -2942,7 +3019,7 @@ try {
         if (!container.querySelector('.no-data-message')) {
             const message = document.createElement('div');
             message.className = 'no-data-message text-center py-4 text-muted';
-            message.innerHTML = '此时间范���内���活动记录';
+            message.innerHTML = '此時間範圍內無活動記錄';
             container.appendChild(message);
         }
     }
@@ -3006,12 +3083,12 @@ try {
         const toastTitle = toast.querySelector('strong');
         const toastBody = toast.querySelector('.toast-body');
         const time = toast.querySelector('small');
-        
+
         // 更新內容
         toastTitle.textContent = title;
         toastBody.textContent = message;
         time.textContent = new Date().toLocaleTimeString();
-        
+
         // 顯示通知
         const bsToast = new bootstrap.Toast(toast);
         bsToast.show();
@@ -3026,27 +3103,27 @@ try {
         try {
             const response = await axios.get('/CampExplorer/admin/api/dashboard/stats.php');
             const stats = response.data;
-            
+
             // 檢查營地審核
             if (stats.pending_camps > 0) {
                 showToastNotification(
-                    '待審核營地', 
+                    '待審核營地',
                     `有 ${stats.pending_camps} 個營地待審核`
                 );
             }
-            
+
             // 檢查庫存
             if (stats.low_stock_products > 0) {
                 showToastNotification(
-                    '庫存警告', 
+                    '庫存警告',
                     `有 ${stats.low_stock_products} 個商品庫存不足`
                 );
             }
-            
+
             // 檢查評論
             if (stats.pending_discussions > 0) {
                 showToastNotification(
-                    '待回覆評論', 
+                    '待回覆評論',
                     `有 ${stats.pending_discussions} 則評論待回覆`
                 );
             }
@@ -3094,34 +3171,34 @@ try {
         try {
             const response = await axios.get('/CampExplorer/admin/api/dashboard/check-pending.php');
             const currentStats = response.data;
-            
+
             // 檢查營地審核變化
             if (currentStats.pending_camps > previousStats.pending_camps) {
                 showNotification(
-                    '新待審核營地', 
+                    '新待審核營地',
                     `新增 ${currentStats.pending_camps - previousStats.pending_camps} 個待審核營地`
                 );
             }
-            
+
             // 檢查庫存變化
             if (currentStats.low_stock_products > previousStats.low_stock_products) {
                 showNotification(
-                    '庫存警告', 
+                    '庫存警告',
                     `新增 ${currentStats.low_stock_products - previousStats.low_stock_products} 個庫存不足商品`
                 );
             }
-            
+
             // 檢查評論變化
             if (currentStats.pending_discussions > previousStats.pending_discussions) {
                 showNotification(
-                    '新待回覆評論', 
+                    '新待回覆評論',
                     `新增 ${currentStats.pending_discussions - previousStats.pending_discussions} 則評論待回覆`
                 );
             }
-            
+
             // 更新先前狀態
             previousStats = currentStats;
-            
+
         } catch (error) {
             console.error('檢查更新失敗:', error);
         }
@@ -3130,6 +3207,6 @@ try {
     // 每 30 秒檢查一次
     setInterval(checkPendingChanges, 30000);
 
-    // 頁面載入時先執行一次
+    // 頁面載入��先執行一次
     document.addEventListener('DOMContentLoaded', checkPendingChanges);
 </script>

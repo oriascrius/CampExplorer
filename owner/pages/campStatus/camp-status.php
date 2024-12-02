@@ -182,12 +182,21 @@ foreach ($camps as $camp) {
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js"></script>
 
 <!-- Modal -->
-<div class="modal fade" id="campDetailModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
+<div class="modal fade" 
+     id="campDetailModal" 
+     tabindex="-1" 
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="campDetailModalLabel">
+    <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">營地詳細資訊</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <h5 class="modal-title" id="campDetailModalLabel">營地詳細資訊</h5>
+                <button type="button" 
+                        class="btn-close" 
+                        data-bs-dismiss="modal" 
+                        aria-label="關閉">
+                </button>
             </div>
             <div class="modal-body">
                 <div class="camp-info">
@@ -218,7 +227,10 @@ foreach ($camps as $camp) {
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+                <button type="button" 
+                        class="btn btn-secondary" 
+                        data-bs-dismiss="modal"
+                        aria-label="關閉對話框">關閉</button>
             </div>
         </div>
     </div>
@@ -265,10 +277,13 @@ foreach ($camps as $camp) {
 
         const campDetailModal = document.getElementById('campDetailModal');
         if (campDetailModal) {
+            // Modal 開啟時的處理
             campDetailModal.addEventListener('show.bs.modal', function(event) {
+                // 移除 aria-hidden 屬性
+                this.removeAttribute('aria-hidden');
+                
                 const button = event.relatedTarget;
-                const modalBody = this.querySelector('.modal-body');
-
+                
                 // 更新 Modal 內容
                 document.getElementById('modalCampName').textContent = button.dataset.campName || '無資料';
                 document.getElementById('modalCampAddress').textContent = button.dataset.campAddress || '無資料';
@@ -279,6 +294,23 @@ foreach ($camps as $camp) {
                 document.getElementById('modalCampRules').textContent = button.dataset.campRules || '無資料';
                 document.getElementById('modalCampNotice').textContent = button.dataset.campNotice || '無資料';
                 document.getElementById('modalCampComment').textContent = button.dataset.campComment || '無審核意見';
+            });
+
+            // Modal 關閉時的處理
+            campDetailModal.addEventListener('hide.bs.modal', function() {
+                // 使用 inert 屬性而不是 aria-hidden
+                this.setAttribute('inert', '');
+            });
+
+            // Modal 完全關閉後的處理
+            campDetailModal.addEventListener('hidden.bs.modal', function() {
+                // 移除 inert 屬性
+                this.removeAttribute('inert');
+                // 重置焦點到觸發按鈕
+                const triggerButton = document.querySelector('[data-bs-target="#campDetailModal"]');
+                if (triggerButton) {
+                    triggerButton.focus();
+                }
             });
         }
     });
@@ -385,31 +417,68 @@ foreach ($camps as $camp) {
         font-size: 0.875rem;
         font-weight: 500;
         display: inline-block;
-        margin-bottom: 0.5rem;
+        transition: all 0.3s ease;
     }
 
-    .status-success {
-        background-color: var(--camp-light);
-        color: var(--camp-primary);
-        border: 1px solid var(--camp-primary);
+    /* 審核中 - 使用明顯的藍灰色系 */
+    .status-0 {
+        background-color: #94A7AE;  /* 使用原本的 --camp-secondary */
+        color: white;
+        border: none;
     }
 
-    .status-warning {
-        background-color: #F8F6F4;
-        color: var(--camp-warning);
-        border: 1px solid var(--camp-warning);
+    /* 已通過 - 使用明顯的藍綠色系 */
+    .status-1 {
+        background-color: #4C6B74;  /* 使用原本的 --camp-primary */
+        color: white;
+        border: none;
     }
 
-    .status-danger {
-        background-color: #FFF5F6;
-        color: var(--camp-danger);
-        border: 1px solid var(--camp-danger);
+    /* 已退回 - 使用明顯的磚紅色系 */
+    .status-2 {
+        background-color: #B47B84;  /* 使用原本的 --camp-danger */
+        color: white;
+        border: none;
     }
 
-    .status-secondary {
-        background-color: var(--camp-light);
-        color: var(--camp-secondary);
-        border: 1px solid var(--camp-secondary);
+    /* 狀態卡片樣式對應更新 */
+    .stat-card[onclick="filterCamps('pending')"] .stat-icon {
+        color: white;
+        background-color: #94A7AE;
+    }
+
+    .stat-card[onclick="filterCamps('approved')"] .stat-icon {
+        color: white;
+        background-color: #4C6B74;
+    }
+
+    .stat-card[onclick="filterCamps('rejected')"] .stat-icon {
+        color: white;
+        background-color: #B47B84;
+    }
+
+    /* hover 效果加強 */
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    /* 狀態標籤 hover 效果 */
+    .status-badge:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .status-0:hover {
+        background-color: #7B8E95;  /* 深一點的藍灰色 */
+    }
+
+    .status-1:hover {
+        background-color: #3A545C;  /* 深一點的藍綠色 */
+    }
+
+    .status-2:hover {
+        background-color: #9B6A72;  /* 深一點的磚紅色 */
     }
 
     /* 按鈕樣式 */

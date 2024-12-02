@@ -60,10 +60,7 @@ $db = null;
 ?>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css" integrity="sha512-5Hs3dF2AEPkpNAR7UiOHba+lRSJNeM2ECkwxUIxC1Q/FLycGTbNapWXB4tP889k5T5Ju8fs4b1P5z/iB4nMfSQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 <style>
-    h1{
-        position: relative;
-        left: -30px;
-    }
+    
     .form-label {
         font-size: 14px;
     }
@@ -100,21 +97,39 @@ $db = null;
         text-align: center;
         border-radius: 5px;
     }
+    .status-style.bg-success{
+        background-color: transparent !important;
+        border: 1px solid #0080005c;
+        color: #008000 !important;
+    }
+    .status-style.bg-danger{
+        background-color: transparent !important;
+        border: 1px solid #ff000040;
+        color: red !important;
+    }
+    
 
     .edit-button {
         font-size: 14px;
     }
     .clear-btn{
         border-radius: 5px!important;
-
     }
+    .card.border-0{
+        border-radius: 0 0 30px 30px;
+    }
+    /* ************************************* */
+    
+  
+
+    /* ************************************* */
 </style>
 <!-- 主要內容 -->
-<div class="container py-4 mt-5">
+<div class="container py-4">
     <div class="row">
         <div class="col-12">
-            <h1 class="mb-5 text-center font-weight-bold">優惠券管理</h1>
-            <div class="card-header bg-transparent d-flex justify-content-between align-items-center py-3">
+            <h1 class="mb-5 font-weight-bold">優惠券管理</h1>
+            <div class="card-header d-flex justify-content-between align-items-center py-3">
                 <button type="button" class="btn btn-primary left-btn" data-bs-toggle="modal" data-bs-target="#exampleModal_2">
                     <i class="bi bi-plus-lg me-1"></i>新增優惠券
                 </button>
@@ -144,10 +159,10 @@ $db = null;
             </div>
 
             <div class="card border-0">
-                <div class="card-body p-0">
+                <div class="card-body">
                     <div class="table-responsive">
                         <?php if ($rowCount > 0): ?>
-                            <table class="table table-bordered table-striped">
+                            <table class="table table-bordered">
                                 <thead>
                                     <tr>
                                         <th scope="col">優惠券代碼</th>
@@ -191,7 +206,7 @@ $db = null;
                                 </nav>
                             <?php endif; ?>
                         <?php else: ?>
-                            目前沒有符合條件的優惠券
+                            <img class="w-100 m-auto" src="../../../../CampExplorer/images/1732783571139.jpg" alt="no data" class="no-data-img">
                         <?php endif; ?>
 
                     </div>
@@ -390,6 +405,10 @@ $db = null;
         // 点击按钮时触发
         document.getElementById("button-addon22").addEventListener("click", function() {
             const inputField = document.getElementById("code-input2");
+            inputField.value = generateRandomCode();
+        });
+        document.getElementById("button-addon2").addEventListener("click", function() {
+            const inputField = document.getElementById("code-input");
             inputField.value = generateRandomCode();
         });
 
