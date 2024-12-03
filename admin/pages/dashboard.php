@@ -1945,7 +1945,7 @@ try {
     </div>
 
     <!-- 統計卡片區 -->
-    <div class="row g-4 mb-4">
+    <div class="row g-4 mb-4" id="statsCards">
         <!-- 會員統計卡片 -->
         <div class="col-xl-3 col-md-6">
             <div class="card stats-card bg-morandi-blue-gradient">
@@ -2088,7 +2088,7 @@ try {
                     <div class="d-flex justify-content-between">
                         <div>
                             <h4 class="mb-0 text-morandi-mint">$<?= number_format($revenue_stats['today_revenue'] ?? 0) ?></h4>
-                            <small class="">今日營���</small>
+                            <small class="">今日營收</small>
                         </div>
                         <div>
                             <h4 class="mb-0 text-morandi-mint"><?= number_format($revenue_stats['growth_rate'] ?? 0, 1) ?>%</h4>
@@ -2344,6 +2344,8 @@ try {
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
 
+<!-- 在適當位置添加 Sortable.js CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
 
 <!-- 自定義 JavaScript -->
 <script>
@@ -3382,6 +3384,80 @@ try {
             setInterval(checkPendingChanges, 30000);
         }
     });
+
+    // 初始化拖曳功能
+    document.addEventListener('DOMContentLoaded', function() {
+        const statsCards = document.getElementById('statsCards');
+        if (statsCards) {
+            new Sortable(statsCards, {
+                animation: 150,  // 動畫時間(毫秒)
+                ghostClass: 'sortable-ghost',  // 拖曳時的樣式類
+                dragClass: 'sortable-drag',    // 拖曳中的樣式類
+                handle: '.card',  // 指定可拖曳的區域
+                onEnd: function(evt) {
+                    // 儲存新的排序順序到 localStorage
+                    const cards = Array.from(statsCards.children).map(card => {
+                        return card.querySelector('.card-title')?.textContent.trim() || '';
+                    });
+                    localStorage.setItem('statsCardsOrder', JSON.stringify(cards));
+                }
+            });
+
+            // 載入儲存的排序順序
+            const savedOrder = localStorage.getItem('statsCardsOrder');
+            if (savedOrder) {
+                try {
+                    const order = JSON.parse(savedOrder);
+                    const cardsArray = Array.from(statsCards.children);
+                    const orderedCards = [];
+                    
+                    order.forEach(title => {
+                        const card = cardsArray.find(card => 
+                            card.querySelector('.card-title')?.textContent.trim() === title
+                        );
+                        if (card) {
+                            orderedCards.push(card);
+                        }
+                    });
+
+                    // 重新排序卡片
+                    orderedCards.forEach(card => statsCards.appendChild(card));
+                } catch (e) {
+                    console.error('Error restoring cards order:', e);
+                }
+            }
+        }
+    });
+
+    // 添加拖曳時的視覺效果
+    const style = document.createElement('style');
+    style.textContent = `
+        .sortable-ghost {
+            opacity: 0.4;
+            background: #F0F0F0;
+        }
+
+        .sortable-drag {
+            opacity: 0.9;
+            transform: scale(1.05);
+            cursor: grabbing !important;
+        }
+
+        .card {
+            cursor: grab;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .card:active {
+            cursor: grabbing;
+        }
+    `;
+    document.head.appendChild(style);
 </script>
 
 <!-- 通知容器 -->
