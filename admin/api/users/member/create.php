@@ -60,8 +60,9 @@ function createMember() {
         }
         $hashed_password = md5($data['password']);
         $stmt = $db->prepare("INSERT INTO users (email, password, name, phone, birthday, 
-            gender, address, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+            gender, address, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             
+        $currentTime = date('Y-m-d H:i:s');
         $result = $stmt->execute([
             trim($data['email']),
             $hashed_password,
@@ -70,7 +71,9 @@ function createMember() {
             $data['birthday'] ?? null,
             $data['gender'] ?? 'other',
             $data['address'] ?? null,
-            $data['status'] ?? 1
+            $data['status'] ?? 1,
+            $currentTime, // 設置 created_at 欄位的值
+            $currentTime  // 設置 updated_at 欄位的值
         ]);
 
         if (!$result) {
