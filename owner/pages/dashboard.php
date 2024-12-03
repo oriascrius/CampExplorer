@@ -38,6 +38,112 @@ try {
 } catch (PDOException $e) {
     error_log("Dashboard Error: " . $e->getMessage());
 }
+
+// 在頁面開始處添加數據初始化
+try {
+    // 訂單概況統計
+    $sql_orders = "SELECT 
+        COUNT(*) as total_orders,
+        COUNT(CASE WHEN status = 'pending' THEN 1 END) as pending_orders,
+        COUNT(CASE WHEN status = 'processing' THEN 1 END) as processing_orders,
+        COUNT(CASE WHEN status = 'completed' THEN 1 END) as completed_orders,
+        COUNT(CASE WHEN DATE(created_at) = CURRENT_DATE() THEN 1 END) as today_orders
+    FROM bookings b
+    JOIN activity_spot_options aso ON b.option_id = aso.option_id
+    WHERE aso.application_id IN (
+        SELECT application_id 
+        FROM camp_applications 
+        WHERE owner_id = :owner_id
+    )";
+    
+    $stmt = $db->prepare($sql_orders);
+    $stmt->bindParam(':owner_id', $_SESSION['owner_id'], PDO::PARAM_INT);
+    $stmt->execute();
+    $order_stats = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    // 營收概況統計
+    $sql_revenue = "SELECT 
+        COALESCE(SUM(CASE WHEN DATE(created_at) = CURRENT_DATE() THEN total_price ELSE 0 END), 0) as today_revenue,
+        COALESCE(SUM(CASE WHEN MONTH(created_at) = MONTH(CURRENT_DATE()) THEN total_price ELSE 0 END), 0) as monthly_revenue,
+        COALESCE(SUM(total_price), 0) as total_revenue,
+        COALESCE(((SUM(CASE WHEN MONTH(created_at) = MONTH(CURRENT_DATE()) THEN total_price ELSE 0 END) / 
+            NULLIF(SUM(CASE WHEN MONTH(created_at) = MONTH(DATE_SUB(CURRENT_DATE(), INTERVAL 1 MONTH)) 
+            THEN total_price ELSE 0 END), 0)) - 1) * 100, 0) as growth_rate
+    FROM bookings b
+    JOIN activity_spot_options aso ON b.option_id = aso.option_id
+    WHERE aso.application_id IN (
+        SELECT application_id 
+        FROM camp_applications 
+        WHERE owner_id = :owner_id
+    )
+    AND b.status != 'cancelled'";
+
+    $stmt = $db->prepare($sql_revenue);
+    $stmt->bindParam(':owner_id', $_SESSION['owner_id'], PDO::PARAM_INT);
+    $stmt->execute();
+    $revenue_stats = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    // 客戶統計
+    $sql_customers = "SELECT 
+        COUNT(DISTINCT user_id) as total_customers,
+        COUNT(DISTINCT CASE WHEN DATE(created_at) = CURRENT_DATE() THEN user_id END) as new_customers,
+        ROUND((COUNT(DISTINCT CASE WHEN status != 'cancelled' THEN user_id END) * 100.0 / 
+            NULLIF(COUNT(DISTINCT user_id), 0)), 1) as retention_rate
+    FROM bookings b
+    JOIN activity_spot_options aso ON b.option_id = aso.option_id
+    WHERE aso.application_id IN (
+        SELECT application_id 
+        FROM camp_applications 
+        WHERE owner_id = :owner_id
+    )";
+
+    $stmt = $db->prepare($sql_customers);
+    $stmt->bindParam(':owner_id', $_SESSION['owner_id'], PDO::PARAM_INT);
+    $stmt->execute();
+    $customer_stats = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    // 營位統計
+    $sql_spots = "SELECT 
+        COUNT(DISTINCT cs.spot_id) as total_spots,
+        COUNT(DISTINCT CASE WHEN cs.status = 1 THEN cs.spot_id END) as active_spots,
+        ROUND((COUNT(DISTINCT CASE WHEN cs.status = 1 THEN cs.spot_id END) * 100.0 / 
+            NULLIF(COUNT(DISTINCT cs.spot_id), 0)), 1) as usage_rate
+    FROM camp_spot_applications cs
+    JOIN camp_applications ca ON cs.application_id = ca.application_id
+    WHERE ca.owner_id = :owner_id";
+
+    $stmt = $db->prepare($sql_spots);
+    $stmt->bindParam(':owner_id', $_SESSION['owner_id'], PDO::PARAM_INT);
+    $stmt->execute();
+    $spot_stats = $stmt->fetch(PDO::FETCH_ASSOC);
+
+} catch (PDOException $e) {
+    error_log("Error fetching dashboard stats: " . $e->getMessage());
+    // 設置預設值
+    $order_stats = [
+        'total_orders' => 0,
+        'pending_orders' => 0,
+        'processing_orders' => 0,
+        'completed_orders' => 0,
+        'today_orders' => 0
+    ];
+    $revenue_stats = [
+        'today_revenue' => 0,
+        'monthly_revenue' => 0,
+        'total_revenue' => 0,
+        'growth_rate' => 0
+    ];
+    $customer_stats = [
+        'total_customers' => 0,
+        'new_customers' => 0,
+        'retention_rate' => 0
+    ];
+    $spot_stats = [
+        'total_spots' => 0,
+        'active_spots' => 0,
+        'usage_rate' => 0
+    ];
+}
 ?>
 <!-- Font Awesome 6 CDN -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -556,6 +662,7 @@ try {
         padding: 1.5rem;
         box-shadow: 0 0.15rem 1.75rem rgba(0, 0, 0, 0.05);
         height: 100%;
+        min-height: 800px; /* 增加最小高度 */
     }
 
     .chart-header {
@@ -609,7 +716,7 @@ try {
         color: #666;
     }
 
-    /* 提示訊息樣式 */
+    /* 提訊息樣式 */
     .alert-message {
         position: fixed;
         top: 20px;
@@ -654,7 +761,7 @@ try {
         gap: 1.5rem;
     }
 
-    /* 營位卡基本樣式 */
+    /* 營位卡式 */
     .spot-card {
         background: var(--morandiLightBlue);  /* 使用較淡的灰藍色作為背景 */
         border-radius: 1rem;
@@ -676,7 +783,7 @@ try {
         margin-bottom: 1rem;
     }
 
-    /* 營位狀態標籤 */
+    /* 營位狀態籤 */
     .spot-status {
         display: inline-block;
         padding: 0.4rem 1rem;
@@ -809,6 +916,487 @@ try {
     .counting {
         animation: countAnimation 0.1s ease;
     }
+
+    /* 共用按鈕基本樣式 */
+    .custom-period-btn {
+        padding: 8px 15px;
+        font-size: 14px;
+        font-weight: 500;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+        margin: 0 4px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* 訂單趨勢分析按鈕樣式 */
+    .trend-period-selector .custom-period-btn {
+        background-color: #2C3E50;
+        color: #ECF0F1;
+    }
+    
+    .trend-period-selector .custom-period-btn:hover {
+        background-color: #34495E;
+        color: #FFF;
+        transform: translateY(-1px);
+    }
+    
+    .trend-period-selector .custom-period-btn.active {
+        background-color: #2980B9;
+        color: #FFF;
+        border-color: #3498DB;
+        box-shadow: 0 0 10px rgba(52, 152, 219, 0.3);
+    }
+
+    /* 熱門營位排行按鈕樣式 */
+    .spots-period-selector .custom-period-btn {
+        background-color: #2C3E50;
+        color: #ECF0F1;
+    }
+    
+    .spots-period-selector .custom-period-btn:hover {
+        background-color: #34495E;
+        color: #FFF;
+        transform: translateY(-1px);
+    }
+    
+    .spots-period-selector .custom-period-btn.active {
+        background-color: #16A085;
+        color: #FFF;
+        border-color: #1ABC9C;
+        box-shadow: 0 0 10px rgba(22, 160, 133, 0.3);
+    }
+
+    /* 按鈕文字樣式 */
+    .btn-text {
+        font-weight: 500;
+        letter-spacing: 0.5px;
+    }
+    
+    /* 按鈕圖標樣式 */
+    .btn-icon {
+        margin-right: 6px;
+        font-size: 12px;
+    }
+
+    /* 圖卡片樣式更新 */
+    .chart-card {
+        background: #fff;
+        border-radius: 1rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        padding: 1.5rem;
+        height: 100%;
+        min-height: 700px;  /* 增加最小高度 */
+    }
+
+    /* 圖表容器樣式 */
+    .order-trend-chart-container {
+        width: 100%;
+        height: 800px !important;  /* 增加圖表高度 */
+        position: relative;
+    }
+
+    /* 趨勢按鈕容器樣式 */
+    .order-trend-header {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.5rem;
+        padding: 1rem 0;      /* 增加上下內邊距 */
+    }
+
+    /* 趨勢按鈕樣式 */
+    .custom-period-btn {
+        padding: 0.5rem 1rem;
+        border: 1px solid var(--morandiPrimary);
+        background: transparent;
+        color: var(--morandiPrimary);
+        border-radius: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .custom-period-btn:hover,
+    .custom-period-btn.active {
+        background: var(--morandiPrimary);
+        color: #fff;
+    }
+
+    .custom-period-btn .btn-icon {
+        margin-right: 0.5rem;
+    }
+
+    /* 莫蘭迪色系變量 */
+    :root {
+        --morandi-blue: #A8C0D3;      /* 柔和藍 */
+        --morandi-sage: #B8C4B8;      /* 灰綠色 */
+        --morandi-mint: #B5C7C0;      /* 薄荷綠 */
+        --morandi-teal: #A3C5C9;      /* 藍綠色 */
+        --morandi-gray: #B8C0C8;      /* 灰藍色 */
+        --morandi-sand: #D3C1B1;      /* 沙色 */
+        --morandi-rose: #D4B9B9;      /* 玫瑰色 */
+        --morandi-purple: #C5B8CC;    /* 紫色 */
+    }
+
+    /* 統計卡片基本樣式 */
+    .stats-card {
+        background: #FFFFFF;
+        border-radius: 15px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+        border: none;
+    }
+
+    /* 背景漸層 */
+    .bg-morandi-blue-gradient {
+        background: linear-gradient(135deg, #A8C0D3 0%, #8DA5B8 100%);
+        color: white;
+    }
+
+    .bg-morandi-sage-gradient {
+        background: linear-gradient(135deg, #B8C4B8 0%, #9DAA9D 100%);
+        color: white;
+    }
+
+    .bg-morandi-mint-gradient {
+        background: linear-gradient(135deg, #B5C7C0 0%, #9AACA5 100%);
+        color: white;
+    }
+
+    .bg-morandi-rose-gradient {
+        background: linear-gradient(135deg, #D4B9B9 0%, #B99E9E 100%);
+        color: white;
+    }
+
+    /* 卡片內容樣式 */
+    .stats-card .card-title {
+        color: rgba(255, 255, 255, 0.95);
+        font-size: 1rem;
+        font-weight: 500;
+        margin-bottom: 1rem;
+    }
+
+    .stats-card .main-number {
+        color: white;
+        font-size: 2rem;
+        font-weight: 600;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .stats-card .stats-label {
+        color: rgba(255, 255, 255, 0.85);
+        font-size: 0.875rem;
+    }
+
+    /* 圖標樣式 */
+    .icon-circle {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+    }
+
+    /* 分隔線樣式 */
+    .stats-card hr {
+        border-color: rgba(255, 255, 255, 0.2);
+        margin: 1rem 0;
+    }
+
+    /* 卡片懸停效果 */
+    .stats-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    }
+
+    /* 管理區塊卡片樣式 */
+    .management-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+    }
+
+    .management-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    }
+
+    /* 更新更亮的莫蘭迪色系 */
+    :root {
+        --morandi-peach: #FFDFD3;     /* 蜜桃色 */
+        --morandi-sage: #E0EEE0;      /* 淺灰綠 */
+        --morandi-sky: #D6E9F3;       /* 天空藍 */
+        --morandi-lavender: #E6E6FA;  /* 薰衣草 */
+        --morandi-mint: #D0F0C0;      /* 薄荷綠 */
+        --morandi-cream: #FFF5EE;     /* 奶油色 */
+        --morandi-rose: #FFE4E1;      /* 玫瑰粉 */
+        --morandi-lilac: #E6E6FA;     /* 丁香紫 */
+    }
+
+    /* 更新漸層背景 */
+    .bg-morandi-peach-gradient {
+        background: linear-gradient(135deg, #FFDFD3 0%, #FFB6A3 100%);
+        color: #7B5B52;
+    }
+
+    .bg-morandi-sage-gradient {
+        background: linear-gradient(135deg, #E0EEE0 0%, #C1D9C1 100%);
+        color: #5B715B;
+    }
+
+    .bg-morandi-sky-gradient {
+        background: linear-gradient(135deg, #D6E9F3 0%, #B0D3E8 100%);
+        color: #4A6B8A;
+    }
+
+    .bg-morandi-lavender-gradient {
+        background: linear-gradient(135deg, #E6E6FA 0%, #C9C9F0 100%);
+        color: #5D5D8A;
+    }
+
+    /* 更新文字顏色為深色 */
+    .stats-card .card-title {
+        color: inherit;
+        opacity: 0.8;
+    }
+
+    .stats-card .main-number {
+        color: inherit;
+        text-shadow: none;
+    }
+
+    .stats-card .stats-label {
+        color: inherit;
+        opacity: 0.7;
+    }
+
+    .icon-circle {
+        background: rgba(0, 0, 0, 0.1);
+        color: inherit;
+    }
+
+    .order-status-container {
+        margin: 15px 0;
+    }
+
+    .order-status-bar {
+        height: 8px;
+        width: 100%;
+        border-radius: 4px;
+        background: #eee;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .order-status-labels {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 8px;
+        font-size: 0.9em;
+        color: #666;
+    }
+
+    .status-label {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+    }
+
+    .dot.confirmed {
+        background-color: #28a745;
+    }
+
+    .dot.pending {
+        background-color: #ffc107;
+    }
+
+    .dot.cancelled {
+        background-color: #dc3545;
+    }
+
+    .order-status-card {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 20px;
+    }
+
+    .order-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .total-orders, .today-orders {
+        text-align: center;
+    }
+
+    .total-orders span, .today-orders span {
+        display: block;
+        font-size: 24px;
+        font-weight: bold;
+    }
+
+    .order-status-numbers {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+    }
+
+    .status-number {
+        flex: 1;
+        text-align: center;
+        padding: 10px;
+        border-radius: 8px;
+    }
+
+    .status-number span {
+        display: block;
+        font-size: 20px;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    .status-number small {
+        color: #6c757d;
+    }
+
+    /* 狀態顏色 */
+    .status-number.confirmed {
+        background-color: rgba(40, 167, 69, 0.1);
+        color: #28a745;
+    }
+
+    .status-number.pending {
+        background-color: rgba(255, 193, 7, 0.1);
+        color: #ffc107;
+    }
+
+    .status-number.cancelled {
+        background-color: rgba(220, 53, 69, 0.1);
+        color: #dc3545;
+    }
+
+    /* 訂單狀態樣式 */
+    .order-status-numbers {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        margin-top: 15px;
+    }
+
+    .status-number {
+        flex: 1;
+        text-align: center;
+        padding: 8px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .status-number span {
+        display: block;
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 4px;
+    }
+
+    .status-number small {
+        font-size: 12px;
+        opacity: 0.8;
+    }
+
+    /* 狀態顏色 */
+    .status-number.confirmed {
+        background-color: rgba(40, 167, 69, 0.1);
+        color: #28a745;
+        border: 1px solid rgba(40, 167, 69, 0.2);
+    }
+
+    .status-number.pending {
+        background-color: rgba(255, 193, 7, 0.1);
+        color: #ffc107;
+        border: 1px solid rgba(255, 193, 7, 0.2);
+    }
+
+    .status-number.cancelled {
+        background-color: rgba(220, 53, 69, 0.1);
+        color: #dc3545;
+        border: 1px solid rgba(220, 53, 69, 0.2);
+    }
+
+    /* 懸停效果 */
+    .status-number:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    /* 統計卡片基本樣式 */
+    .stat-card {
+        background: #FFFFFF;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        height: 100%;
+    }
+
+    .stat-header {
+        margin-bottom: 15px;
+    }
+
+    /* 訂單狀態進度條 */
+    .order-status-bar {
+        height: 4px;
+        width: 100%;
+        background: linear-gradient(to right, 
+            #28a745 0%, 
+            #28a745 var(--confirmed-percent, 33%), 
+            #ffc107 var(--confirmed-percent, 33%), 
+            #ffc107 var(--pending-percent, 66%), 
+            #dc3545 var(--pending-percent, 66%), 
+            #dc3545 100%
+        );
+        border-radius: 2px;
+        margin: 15px 0;
+    }
+
+    /* 訂單狀態說明文字 */
+    .order-status-info {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.85rem;
+        color: #6c757d;
+        margin-top: 8px;
+    }
+
+    .status-text {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .status-text span {
+        font-weight: 600;
+    }
+
+    .status-text.confirmed span {
+        color: #28a745;
+    }
+
+    .status-text.pending span {
+        color: #ffc107;
+    }
+
+    .status-text.cancelled span {
+        color: #dc3545;
+    }
 </style>
 
 <div class="dashboard-container">
@@ -822,7 +1410,7 @@ try {
                     最後更<span id="lastUpdateTime"><?= date('Y-m-d H:i') ?></span>
                 </p>
             </div>
-            <div class="col-md-6 text-md-end">
+            <!-- <div class="col-md-6 text-md-end">
                 <div class="btn-group">
                     <button class="btn btn-refresh" onclick="refreshDashboard()">
                         <i class="fas fa-sync-alt me-2"></i>更新數據
@@ -831,7 +1419,7 @@ try {
                         <i class="fas fa-download"></i> 匯出報表
                     </button>
                 </div>
-            </div>
+            </div> -->
         </div>
     </div>
 
@@ -870,35 +1458,38 @@ try {
     </div>
 
     <!-- 主要統計區 -->
-    <div class="row g-4 mb-4">
+    <div class="row g-4 mb-4" id="statsCardContainer">
         <!-- 訂單統計 -->
-        <div class="col-md-3">
+        <div class="col-md-3" data-card-type="orders">
             <div class="stat-card orders">
-                <i class="fas fa-shopping-cart stat-icon"></i>
                 <div class="stat-content">
-                    <h6 class="text-muted mb-2">單概況</h6>
-                    <div class="stat-data">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="stat-header">
+                        <h6 class="text-muted mb-2">訂單概況</h6>
+                        <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h3 class="mb-0" id="totalBookings">0</h3>
+                                <h3 class="mb-0" id="totalOrders">0</h3>
                                 <small class="text-muted">訂單數</small>
                             </div>
                             <div class="text-end">
-                                <h5 class="mb-0" id="todayBookings">0</h5>
+                                <h5 class="mb-0" id="todayOrders">0</h5>
                                 <small class="text-muted">今日新增</small>
                             </div>
                         </div>
-                        <div class="progress-container">
-                            <div class="progress mb-2">
-                                <div class="progress-bar status-confirmed" id="confirmedBar" style="width: 0%"></div>
-                                <div class="progress-bar status-pending" id="pendingBar" style="width: 0%"></div>
-                                <div class="progress-bar status-cancelled" id="cancelledBar" style="width: 0%"></div>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <small id="confirmedOrders" class="status-confirmed status-text">0 已確認</small>
-                                <small id="pendingOrders" class="status-pending status-text">0 待處理</small>
-                                <small id="cancelledOrders" class="status-cancelled status-text">0 已取消</small>
-                            </div>
+                    </div>
+                    
+                    <!-- 訂單狀態進度條 -->
+                    <div class="order-status-bar mt-3"></div>
+                    
+                    <!-- 訂單狀態說明 -->
+                    <div class="order-status-info">
+                        <div class="status-text confirmed">
+                            <span id="confirmedOrders">14</span> 已確認
+                        </div>
+                        <div class="status-text pending">
+                            <span id="pendingOrders">10</span> 待處理
+                        </div>
+                        <div class="status-text cancelled">
+                            <span id="cancelledOrders">6</span> 已取消
                         </div>
                     </div>
                 </div>
@@ -906,7 +1497,7 @@ try {
         </div>
 
         <!-- 營收統計 -->
-        <div class="col-md-3">
+        <div class="col-md-3" data-card-type="revenue">
             <div class="stat-card revenue">
                 <div class="stat-content p-3">
                     <h6 class="text-muted mb-2">營收概況</h6>
@@ -926,7 +1517,7 @@ try {
                             <small class="text-muted">本月營收</small>
                         </div>
                         <div class="text-end">
-                            <span class="badge" id="revenueGrowth">0%</span>
+                            <span class="badge" id="growthRate">0%</span>
                             <small class="text-muted d-block">環比增長</small>
                         </div>
                     </div>
@@ -936,7 +1527,7 @@ try {
         </div>
 
         <!-- 客戶統計 -->
-        <div class="col-md-3">
+        <div class="col-md-3" data-card-type="customers">
             <div class="stat-card customers">
                 <div class="stat-content p-3">
                     <h6 class="text-muted mb-2">客戶概況</h6>
@@ -955,15 +1546,15 @@ try {
                     </div>
                     <div class="d-flex justify-content-between">
                         <small>戶留存率</small>
-                        <small id="customerRetentionRate">0%</small>
+                        <small id="retentionRate">0%</small>
                     </div>
                     <i class="fas fa-users stat-icon"></i>
                 </div>
             </div>
         </div>
 
-        <!-- 營位統計 -->
-        <div class="col-md-3">
+        <!-- 營位計 -->
+        <div class="col-md-3" data-card-type="spots">
             <div class="stat-card spots">
                 <div class="stat-content p-3">
                     <h6 class="text-muted mb-2">營位概況</h6>
@@ -973,7 +1564,7 @@ try {
                             <small class="text-muted">總營位</small>
                         </div>
                         <div class="text-end">
-                            <h5 class="mb-0" id="operatingSpots">0</h5>
+                            <h5 class="mb-0" id="activeSpots">0</h5>
                             <small class="text-muted">營運中</small>
                         </div>
                     </div>
@@ -982,7 +1573,7 @@ try {
                     </div>
                     <div class="d-flex justify-content-between">
                         <small>使用</small>
-                        <small id="spotOccupancyRate">0%</small>
+                        <small id="occupancyRate">0%</small>
                     </div>
                     <i class="fas fa-campground stat-icon"></i>
                 </div>
@@ -993,36 +1584,38 @@ try {
     <!-- 訂單趨勢圖卡 -->
     <div class="row mt-4">
         <!-- 訂單趨勢分析 -->
-        <div class="col-md-8">
+        <div class="col-md-12">
             <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">訂單趨勢分析</h5>
-                    <div class="btn-group">
-                        <button type="button" class="btn btn-outline-secondary btn-sm active" data-days="7">最近7天</button>
-                        <button type="button" class="btn btn-outline-secondary btn-sm" data-days="30">最近30天</button>
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">訂單趨勢分析</h5>
+                        <div class="order-trend-header">
+                            <!-- 這裡會由 JavaScript 插入按鈕 -->
+                        </div>
                     </div>
                 </div>
                 <div class="card-body">
-                    <canvas id="orderTrendChart"></canvas>
+                    <canvas id="orderTrendChart" style="height: 400px !important;"></canvas>
                 </div>
             </div>
         </div>
         
         <!-- 熱門營位排行 -->
-        <div class="col-md-4">
+        <!-- <div class="col-md-4">
             <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">熱門營位排行</h5>
-                    <div class="btn-group">
-                        <button type="button" class="btn btn-outline-secondary btn-sm active" data-period="week">本週</button>
-                        <button type="button" class="btn btn-outline-secondary btn-sm" data-period="month">本月</button>
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">熱門營位排行</h5>
+                        <div class="popular-spots-header">
+                           
+                        </div>
                     </div>
                 </div>
                 <div class="card-body">
                     <div id="popularSpotsTable"></div>
                 </div>
             </div>
-        </div>
+        </div> -->
     </div>
 
 
@@ -1053,7 +1646,7 @@ try {
                     <span>NT$ 30,000</span>
                 </p>
                 <p class="maintenance-date">
-                    <span>維護結束日期</span>
+                    <span>維護結束期</span>
                     <span>2024-03-15</span>
                 </p>
             </div>
@@ -1075,579 +1668,414 @@ try {
 </div>    <!-- 新增的詳細分析區域 -->
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 <script>
 // 在 script 區塊中設置 axios 默配置
 axios.defaults.withCredentials = true;
 
-// 初始化所有事件監聽器和圖表
-document.addEventListener('DOMContentLoaded', function() {
-    // 只初始化一次圖表
-    const charts = initializeCharts();
-    
-    // 初始化事件監聽器
-    initializeEventListeners();
-    
-    // 初始加載數據
-    updateOrderTrend(7);
-    updatePopularSpots('week');
-});
+// 定義趨勢按鈕 HTML
+const trendButtons = `
+    <div class="trend-period-selector d-flex gap-2">
+        <button type="button" class="btn custom-period-btn" data-days="7">
+            <i class="fas fa-calendar-week"></i> 近7天
+        </button>
+        <button type="button" class="btn custom-period-btn" data-days="30">
+            <i class="fas fa-calendar-alt"></i> 近30天
+        </button>
+        <button type="button" class="btn custom-period-btn" data-days="90">
+            <i class="fas fa-calendar"></i> 近90天
+        </button>
+    </div>
+`;
 
-// 初始化所有事件監聽器
-function initializeEventListeners() {
-    // 時間範圍選擇器
-    const dateRangeSelector = document.querySelector('.btn-group [data-period]');
-    if (dateRangeSelector) {
-        const periodButtons = document.querySelectorAll('.btn-group [data-period]');
-        periodButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                // 移除其他按鈕的 active 類
-                periodButtons.forEach(btn => btn.classList.remove('active'));
-                // 添加當前按鈕的 active 類
-                this.classList.add('active');
-                // 更新圖表數據
-                // updateAllCharts(this.dataset.period);
-            });
-        });
-    }
-
-    // 刷新按鈕
-    const refreshButton = document.querySelector('button[onclick="refreshDashboard()"]');
-    if (refreshButton) {
-        refreshButton.addEventListener('click', refreshDashboard);
-    }
-
-    // 匯出按鈕
-    const exportButton = document.querySelector('button[onclick="exportDashboardData()"]');
-    if (exportButton) {
-        exportButton.addEventListener('click', exportDashboardData);
-    }
-}
-
-
-
-// 刷新儀表板
-async function refreshDashboard() {
+// 更新訂單趨勢圖表
+async function updateOrderTrend(period = 7) {
+    const ctx = document.getElementById('orderTrendChart').getContext('2d');
     try {
-        showLoading();
-        const response = await axios.get('/CampExplorer/owner/api/dashboard/analytics.php', {
-            withCredentials: true,
-            headers: {
-                'Cache-Control': 'no-cache',
-                'Pragma': 'no-cache',
-                'Expires': '0',
+        // 顯示載入中狀態
+        ctx.canvas.style.opacity = '0.5';
+        
+        // 添加錯誤處理和超時設置
+        const response = await axios.get(`api/dashboard/order-trend.php?period=${period}`, {
+            timeout: 5000,
+            validateStatus: function (status) {
+                return status >= 200 && status < 500; // 只接受狀態碼在此範圍內的響應
             }
         });
-        
-        if (response.data.success) {
-            updateDashboardData(response.data.data);
-            showSuccess('數據已更新');
-        } else {
-            throw new Error(response.data.message);
-        }
-    } catch (error) {
-        console.error('刷新失敗:', error);
-        if (error.response && error.response.status === 401) {
-            window.location.href = '../owner-login.php';
-        } else {
-            showError('刷新數據失敗');
-        }
-    } finally {
-        hideLoading();
-    }
-}
 
-// 匯出報表
-async function exportDashboardData() {
-    try {
-        showLoading();
-        
-        // 準備 CSV 內容
-        const rows = [];
-        
-        // 添加標題
-        rows.push(['營運數據報表']);
-        rows.push(['報表生成時間：' + new Date().toLocaleString('zh-TW')]);
-        rows.push([]);  // 空行
-        
-        // 訂單統計
-        rows.push(['訂單統計']);
-        rows.push(['總訂單數', document.getElementById('totalBookings').textContent]);
-        rows.push(['已確認訂單', document.getElementById('confirmedOrders').textContent]);
-        rows.push(['待處理訂單', document.getElementById('pendingOrders').textContent]);
-        rows.push(['已取消訂單', document.getElementById('cancelledOrders').textContent]);
-        rows.push([]);
-        
-        // 營收統計
-        rows.push(['營收統計']);
-        rows.push(['總營收', document.getElementById('totalRevenue').textContent]);
-        rows.push(['本月營收', document.getElementById('monthlyRevenue').textContent]);
-        rows.push(['今日營收', document.getElementById('todayRevenue').textContent]);
-        rows.push([]);
-        
-        // 客戶統計
-        rows.push(['客戶統計']);
-        rows.push(['總客戶數', document.getElementById('totalCustomers').textContent]);
-        rows.push(['回訪客戶', document.getElementById('returningCustomers').textContent]);
-        rows.push([]);
-        
-        // 營位統計
-        rows.push(['營位統計']);
-        rows.push(['總營位數', document.getElementById('totalSpots').textContent]);
-        rows.push(['營運中營位', document.getElementById('operatingSpots').textContent]);
-        
-        // 轉換為 CSV 字串
-        const csvContent = rows.map(row => 
-            row.map(cell => 
-                typeof cell === 'string' && cell.includes(',') ? 
-                `"${cell}"` : cell
-            ).join(',')
-        ).join('\n');
-        
-        // 創建 Blob
-        const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
-        
-        // 創建下載連結
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = `營運報表_${formatDate(new Date())}.csv`;
-        
-        // 觸發下載
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        
-        showSuccess('報表匯出成功');
-    } catch (error) {
-        console.error('匯出失敗:', error);
-        showError('匯出報表失敗');
-    } finally {
-        hideLoading();
-    }
-}
+        console.log('API Response:', response.data); // 添加日誌
 
-// 格式化日期
-function formatDate(date) {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const hour = String(date.getHours()).padStart(2, '0');
-    const minute = String(date.getMinutes()).padStart(2, '0');
-    const second = String(date.getSeconds()).padStart(2, '0');
-    
-    return `${year}${month}${day}_${hour}${minute}${second}`;
-}
-
-// 載入狀態管理
-function showLoading() {
-    // 添加載入動畫
-    document.querySelector('.dashboard-container').classList.add('loading');
-}
-
-function hideLoading() {
-    // 移除載入動畫
-    document.querySelector('.dashboard-container').classList.remove('loading');
-}
-
-// 提示訊息
-function showSuccess(message) {
-    // 可以使用 Toast 或其他提示元件
-    alert(message);
-}
-
-function showError(message) {
-    const errorDiv = document.createElement('div');
-    errorDiv.className = 'alert alert-danger alert-dismissible fade show';
-    errorDiv.innerHTML = `
-        <strong>錯誤！</strong> ${message}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    `;
-    
-    const container = document.querySelector('.dashboard-container');
-    container.insertBefore(errorDiv, container.firstChild);
-    
-    // 5秒後自動消失
-    setTimeout(() => {
-        errorDiv.remove();
-    }, 5000);
-}
-
-// 初始載入數據
-// updateAllCharts();
-
-// 更新儀表板數據函數
-async function updateDashboardData(data) {
-    // 更新訂單統計卡
-    document.getElementById('totalBookings').textContent = data.bookings.total;
-    document.getElementById('todayBookings').textContent = data.bookings.today;
-    document.getElementById('confirmedOrders').textContent = `${data.bookings.confirmed} 已確認`;
-    document.getElementById('pendingOrders').textContent = `${data.bookings.pending} 待處理`;
-    document.getElementById('cancelledOrders').textContent = `${data.bookings.cancelled} 已取消`;
-
-    // 更新進度條
-    const totalOrders = data.bookings.total || 1; // 避免除以零
-    document.getElementById('confirmedBar').style.width = `${(data.bookings.confirmed / totalOrders) * 100}%`;
-    document.getElementById('pendingBar').style.width = `${(data.bookings.pending / totalOrders) * 100}%`;
-    document.getElementById('cancelledBar').style.width = `${(data.bookings.cancelled / totalOrders) * 100}%`;
-
-    // 更新營收統計卡
-    document.getElementById('totalRevenue').textContent = `NT$ ${formatNumber(data.revenue.total)}`;
-    document.getElementById('todayRevenue').textContent = `NT$ ${formatNumber(data.revenue.today)}`;
-    document.getElementById('monthlyRevenue').textContent = `NT$ ${formatNumber(data.revenue.monthly)}`;
-    
-    // 計算環比增長
-    const growth = data.revenue.monthly > 0 ? 
-        ((data.revenue.monthly - data.revenue.last_month) / data.revenue.last_month * 100).toFixed(1) : 0;
-    document.getElementById('revenueGrowth').textContent = `${growth}%`;
-    document.getElementById('revenueGrowth').className = `badge ${growth >= 0 ? 'bg-success' : 'bg-danger'}`;
-
-    // 更新客戶統計卡
-    document.getElementById('totalCustomers').textContent = data.customers.total;
-    document.getElementById('returningCustomers').textContent = data.customers.returning;
-    
-    // 更新客戶留存率進度條
-    const retentionRate = data.customers.total > 0 ? 
-        (data.customers.returning / data.customers.total * 100).toFixed(1) : 0;
-    document.getElementById('customerRetentionBar').style.width = `${retentionRate}%`;
-    document.getElementById('customerRetentionRate').textContent = `${retentionRate}%`;
-
-    // 更新營位統計卡
-    document.getElementById('totalSpots').textContent = data.spots.total;
-    document.getElementById('operatingSpots').textContent = data.spots.operating;
-    
-    // 更新營位使用率進度
-    const occupancyRate = data.spots.total > 0 ? 
-        (data.spots.operating / data.spots.total * 100).toFixed(1) : 0;
-    document.getElementById('spotOccupancyBar').style.width = `${occupancyRate}%`;
-    document.getElementById('spotOccupancyRate').textContent = `${occupancyRate}%`;
-}
-
-// 格式化數字的輔助函數
-function formatNumber(number) {
-    return new Intl.NumberFormat('zh-TW').format(number);
-}
-
-// 初始化儀表板
-async function initializeDashboard() {
-    try {
-        showLoading();
-        const response = await axios.get('/CampExplorer/owner/api/dashboard/analytics.php', {
-            withCredentials: true,
-            headers: {
-                'Cache-Control': 'no-cache',
-                'Pragma': 'no-cache',
-                'Expires': '0',
-            }
-        });
-        
-        if (response.data.success) {
-            updateDashboardData(response.data.data);
-        }
-    } catch (error) {
-        console.error('初始化儀表板失敗:', error);
-        if (error.response && error.response.status === 401) {
-            window.location.href = '../owner-login.php';
-        } else {
-            showError('載入數據失敗: ' + error.message);
-        }
-    } finally {
-        hideLoading();
-    }
-}
-
-// 在文檔加載完成後只初始化儀表板
-document.addEventListener('DOMContentLoaded', initializeDashboard);
-
-// 初始化圖表
-function initializeCharts() {
-    // 先檢查並銷毀已存在的圖表
-    const existingChart = Chart.getChart('orderTrendChart');
-    if (existingChart) {
-        existingChart.destroy();
-    }
-
-    // 訂單趨勢圖
-    const orderTrendCtx = document.getElementById('orderTrendChart').getContext('2d');
-    const orderTrendChart = new Chart(orderTrendCtx, {
-        type: 'line',
-        data: {
-            labels: [],
-            datasets: [{
-                label: '訂單數量',
-                data: [],
-                borderColor: 'rgba(156, 155, 122, 0.8)',
-                tension: 0.4,
-                fill: true,
-                backgroundColor: 'rgba(156, 155, 122, 0.1)'
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: false
-                },
-                tooltip: {
-                    mode: 'index',
-                    intersect: false,
-                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                    titleColor: '#666',
-                    bodyColor: '#666',
-                    borderColor: 'rgba(156, 155, 122, 0.2)',
-                    borderWidth: 1,
-                    padding: 10,
-                    displayColors: false,
-                    callbacks: {
-                        label: function(context) {
-                            return `訂單數: ${context.parsed.y}`;
-                        }
-                    }
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    grid: {
-                        color: 'rgba(0, 0, 0, 0.05)'
-                    },
-                    ticks: {
-                        stepSize: 1
-                    }
-                },
-                x: {
-                    grid: {
-                        display: false
-                    }
-                }
-            },
-            interaction: {
-                intersect: false,
-                mode: 'index'
-            }
-        }
-    });
-
-    return {
-        orderTrendChart
-    };
-}
-
-// 更新熱門營位表格
-function updatePopularSpotsTable(data) {
-    const container = document.getElementById('popularSpotsTable');
-    container.innerHTML = `
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th>營位名稱</th>
-                        <th>預訂數</th>
-                        <th>營收</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${data.map(spot => `
-                        <tr>
-                            <td>${spot.name || '未命名營位'}</td>
-                            <td>${spot.bookings}</td>
-                            <td>NT$ ${formatNumber(spot.revenue)}</td>
-                        </tr>
-                    `).join('')}
-                </tbody>
-            </table>
-        </div>
-    `;
-}
-
-// 事件監聽器
-document.addEventListener('DOMContentLoaded', function() {
-    const charts = initializeCharts();
-    
-    // 訂單趨勢時間範圍切換按鈕
-    const trendButtons = document.querySelectorAll('.card-header .btn-group [data-days]');
-    trendButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            // 移除其他按鈕的 active 類
-            trendButtons.forEach(btn => btn.classList.remove('active'));
-            // 添加當前按鈕的 active 類
-            this.classList.add('active');
-            // 更新訂單趨勢圖
-            updateOrderTrend(this.dataset.days);
-        });
-    });
-    
-    // 初始加載數據
-    updateOrderTrend(7); // 預設顯示最近7天
-});
-
-// 更新訂單趨勢圖的函數
-async function updateOrderTrend(days) {
-    try {
-        showLoading();
-        const response = await axios.get(`/CampExplorer/owner/api/dashboard/order-trend.php?days=${days}`);
-        
-        if (response.data.success) {
-            const chart = Chart.getChart('orderTrendChart');
-            if (chart) {
-                chart.data.labels = response.data.data.dates;
-                chart.data.datasets[0].data = response.data.data.orders;
-                chart.update();
-            }
-        } else {
+        if (!response.data.success) {
             throw new Error(response.data.message || '無法載入訂單趨勢數據');
         }
-    } catch (error) {
-        console.error('更新訂單趨勢失敗:', error);
-        showError(error.response?.data?.message || '無法載入訂單趨勢數據');
-    } finally {
-        hideLoading();
-    }
-}
 
-async function updatePopularSpots(period) {
-    try {
-        const response = await axios.get(`/CampExplorer/owner/api/dashboard/popular-spots.php?period=${period}`);
-        if (response.data.success) {
-            updatePopularSpotsTable(response.data.data);
-        } else {
-            throw new Error(response.data.message || '無法載入熱門營位數據');
+        const data = response.data.data;
+        
+        // 驗證數據格式
+        if (!data || !Array.isArray(data.dates) || !Array.isArray(data.orders) || !Array.isArray(data.revenue)) {
+            throw new Error('數據格式不正確');
         }
-    } catch (error) {
-        console.error('更新熱門營位失敗:', error);
-        showError(error.response?.data?.message || '無法載入熱門營位數據');
-    }
-}
 
-// 提示訊息處理
-function showMessage(message, type = 'success') {
-    const alertDiv = document.createElement('div');
-    alertDiv.className = `alert-message ${type}`;
-    alertDiv.textContent = message;
-    document.body.appendChild(alertDiv);
+        ctx.canvas.style.opacity = '1';
 
-    // 顯示動畫
-    setTimeout(() => alertDiv.classList.add('show'), 10);
-
-    // 自動消失
-    setTimeout(() => {
-        alertDiv.classList.remove('show');
-        setTimeout(() => alertDiv.remove(), 300);
-    }, 3000);
-}
-
-function showError(message) {
-    showMessage(message, 'error');
-}
-
-function showSuccess(message) {
-    showMessage(message, 'success');
-}
-
-// 初始化營位數據
-async function initializeSpotsData() {
-    try {
-        const response = await axios.get('/CampExplorer/owner/api/dashboard/spot-status.php');
-        if (response.data.success) {
-            updateSpotsDisplay(response.data.data);
-            // initializeSpotChart(response.data.data.summary);
+        // 如果已存在圖表，先銷毀
+        if (window.orderTrendChart instanceof Chart) {
+            window.orderTrendChart.destroy();
         }
-    } catch (error) {
-        console.error('獲取營位數據失敗:', error);
-        showError('無法載入營位數據');
-    }
-}
 
-// 更新營位顯示
-function updateSpotsDisplay(data) {
-    const container = document.getElementById('spotsContainer');
-    container.innerHTML = data.spots.map(spot => `
-        <div class="spot-card">
-            <i class="fas fa-campground spot-icon"></i>
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h6>${spot.spot_name}</h6>
-                <span class="spot-status status-${spot.status.toLowerCase().replace(/\s+/g, '-')}">
-                    ${getStatusText(spot.status)}
-                </span>
-            </div>
-            <div class="spot-info">
-                <p>
-                    <span>容納人數</span>
-                    <span>${spot.capacity}人</span>
-                </p>
-                <p class="price-info">
-                    <span>價格</span>
-                    <span>NT$ ${formatNumber(spot.price)}</span>
-                </p>
-                <p>
-                    <span>本月預訂</span>
-                    <span>${spot.bookings}次</span>
-                </p>
-                <p class="revenue-info">
-                    <span>本月營收</span>
-                    <span>NT$ ${formatNumber(spot.monthly_revenue)}</span>
-                </p>
-                ${spot.maintenance_end_date ? `
-                    <p class="maintenance-date">
-                        <span>維護結束日期</span>
-                        <span>${spot.maintenance_end_date}</span>
-                    </p>
-                ` : ''}
-            </div>
-        </div>
-    `).join('');
-}
-
-// 狀態文字轉換函數
-function getStatusText(status) {
-    const statusMap = {
-        'available': '可預訂',
-        'occupied': '已預訂',
-        'maintenance': '維護中'
-    };
-    return statusMap[status.toLowerCase()] || status;
-}
-
-// 初始化營位使用趨勢圖表
-function initializeSpotChart(data) {
-    const ctx = document.getElementById('spotsChart').getContext('2d');
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: data.dates,
-            datasets: [{
-                label: '使用率',
-                data: data.occupancy_rates,
-                borderColor: '#9C9B7A',
-                tension: 0.4
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    display: false
-                }
+        // 創建新圖表
+        window.orderTrendChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: data.dates,
+                datasets: [
+                    {
+                        label: '訂單數量',
+                        data: data.orders,
+                        borderColor: '#2980B9',
+                        backgroundColor: 'rgba(41, 128, 185, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        yAxisID: 'orders'
+                    },
+                    {
+                        label: '營收金額',
+                        data: data.revenue,
+                        borderColor: '#16A085',
+                        backgroundColor: 'rgba(22, 160, 133, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        yAxisID: 'revenue'
+                    }
+                ]
             },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    max: 100,
-                    ticks: {
-                        callback: value => value + '%'
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 20
+                        }
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.datasetIndex === 1) {
+                                    label += '$' + Number(context.raw).toLocaleString();
+                                } else {
+                                    label += context.raw;
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    },
+                    orders: {
+                        type: 'linear',
+                        position: 'left',
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        },
+                        ticks: {
+                            precision: 0
+                        }
+                    },
+                    revenue: {
+                        type: 'linear',
+                        position: 'right',
+                        beginAtZero: true,
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + Number(value).toLocaleString();
+                            }
+                        }
+                    }
+                },
+                layout: {
+                    padding: {
+                        top: 20,
+                        right: 20,
+                        bottom: 20,
+                        left: 20
                     }
                 }
             }
+        });
+
+    } catch (error) {
+        console.error('更新訂單趨勢失敗:', error);
+        console.log('完整錯誤信息:', error.response?.data || error.message);
+        
+        // 清除畫布並顯示錯誤信息
+        ctx.canvas.style.opacity = '1';
+        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#dc3545';
+        ctx.font = '14px Arial';
+        ctx.fillText('載入數據時發生錯誤', ctx.canvas.width / 2, ctx.canvas.height / 2);
+    }
+}
+
+// 初始化趨勢按鈕
+function initializeTrendButtons() {
+    const trendContainer = document.querySelector('.order-trend-header');
+    if (!trendContainer) {
+        console.error('找不到趨勢按鈕容器');
+        return;
+    }
+
+    trendContainer.innerHTML = trendButtons;
+    
+    // 添加點擊事件
+    trendContainer.querySelectorAll('.custom-period-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            trendContainer.querySelectorAll('.custom-period-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            this.classList.add('active');
+            updateOrderTrend(parseInt(this.dataset.days));
+        });
+    });
+
+    // 預設選中第一個按鈕
+    trendContainer.querySelector('.custom-period-btn').classList.add('active');
+}
+
+// 確保在頁面載入時初始化
+document.addEventListener('DOMContentLoaded', () => {
+    initializeTrendButtons();
+    updateOrderTrend(7); // 預設顯示7天數據
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    // 初始化儀表板
+    initializeDashboard();
+    
+    // 每5分鐘更新一次數據
+    setInterval(initializeDashboard, 300000);
+});
+
+async function initializeDashboard() {
+    try {
+        const response = await axios.get('api/dashboard/analytics.php');
+        if (!response.data.success) {
+            throw new Error(response.data.message || '獲取數據失敗');
+        }
+
+        // 更新概況數據
+        updateOverview(response.data.data.overview);
+        
+        // 更新最後更新時���
+        const lastUpdateElement = document.getElementById('lastUpdateTime');
+        if (lastUpdateElement) {
+            lastUpdateElement.textContent = new Date().toLocaleString('zh-TW');
+        }
+
+    } catch (error) {
+        console.error('儀表板���始化失敗:', error);
+    }
+}
+
+function updateOverview(data) {
+    // 檢查數據是否存在
+    if (!data) {
+        console.error('No data received');
+        return;
+    }
+
+    // 訂單概況
+    const orderElements = {
+        'totalOrders': data.orders?.total || 0,
+        'todayOrders': data.orders?.today || 0,
+        'confirmedOrders': data.orders?.confirmed || 0,
+        'pendingOrders': data.orders?.pending || 0,
+        'cancelledOrders': data.orders?.cancelled || 0
+    };
+
+    // 營收概況
+    const revenueElements = {
+        'totalRevenue': data.revenue?.total || 0,
+        'todayRevenue': data.revenue?.today || 0,
+        'monthlyRevenue': data.revenue?.monthly || 0,
+        'growthRate': data.revenue?.growth_rate || 0
+    };
+
+    // 客戶概況
+    const customerElements = {
+        'totalCustomers': data.customers?.total || 0,
+        'returningCustomers': data.customers?.returning || 0,
+        'retentionRate': data.customers?.retention_rate || 0
+    };
+
+    // 營位概況
+    const spotElements = {
+        'totalSpots': data.spots?.total || 0,
+        'activeSpots': data.spots?.active || 0,
+        'occupancyRate': data.spots?.occupancy_rate || 0
+    };
+
+    // 更��訂單概況
+    Object.entries(orderElements).forEach(([id, value]) => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.textContent = value.toString();
+        }
+    });
+
+    // 更新營收概況
+    Object.entries(revenueElements).forEach(([id, value]) => {
+        const element = document.getElementById(id);
+        if (element) {
+            if (id.includes('Revenue')) {
+                // 營收金額格式化：移除小數點，加上千分位
+                element.textContent = `NT$ ${Math.round(value).toLocaleString('zh-TW')}`;
+            } else {
+                // 增長率保留一位小數
+                element.textContent = `${value.toFixed(1)}%`;
+            }
+        }
+    });
+
+    // 更新客戶概況
+    Object.entries(customerElements).forEach(([id, value]) => {
+        const element = document.getElementById(id);
+        if (element) {
+            if (id.includes('Rate')) {
+                element.textContent = `${value.toFixed(1)}%`;
+            } else {
+                element.textContent = value.toString();
+            }
+        }
+    });
+
+    // 更新營位概況
+    Object.entries(spotElements).forEach(([id, value]) => {
+        const element = document.getElementById(id);
+        if (element) {
+            if (id.includes('Rate')) {
+                element.textContent = `${value.toFixed(1)}%`;
+            } else {
+                element.textContent = value.toString();
+            }
+        }
+    });
+
+    // 計算訂單狀態比例
+    const totalOrders = data.orders.total || 0;
+    const confirmedOrders = data.orders.confirmed || 0;
+    const pendingOrders = data.orders.pending || 0;
+    const cancelledOrders = data.orders.cancelled || 0;
+
+    // 計算百分比
+    const confirmedPercent = totalOrders ? (confirmedOrders / totalOrders * 100) : 0;
+    const pendingPercent = totalOrders ? (pendingOrders / totalOrders * 100) : 0;
+    const cancelledPercent = totalOrders ? (cancelledOrders / totalOrders * 100) : 0;
+
+    // 更新進度條
+    const progressBar = document.querySelector('.order-status-bar');
+    if (progressBar) {
+        progressBar.style.background = `linear-gradient(to right, 
+            #28a745 0%, 
+            #28a745 ${confirmedPercent}%, 
+            #ffc107 ${confirmedPercent}%, 
+            #ffc107 ${confirmedPercent + pendingPercent}%, 
+            #dc3545 ${confirmedPercent + pendingPercent}%, 
+            #dc3545 100%
+        )`;
+    }
+
+    // 更新比例標籤
+    const statusLabels = document.querySelector('.order-status-labels');
+    if (statusLabels) {
+        statusLabels.innerHTML = `
+            <div class="status-label">
+                <span class="dot confirmed"></span>
+                已確認 ${confirmedPercent.toFixed(1)}%
+            </div>
+            <div class="status-label">
+                <span class="dot pending"></span>
+                待處理 ${pendingPercent.toFixed(1)}%
+            </div>
+            <div class="status-label">
+                <span class="dot cancelled"></span>
+                已取消 ${cancelledPercent.toFixed(1)}%
+            </div>
+        `;
+    }
+}
+
+function updateOrderStatusBar(data) {
+    const totalOrders = data.orders.total || 0;
+    if (totalOrders === 0) return;
+
+    const confirmedPercent = (data.orders.confirmed / totalOrders * 100);
+    const pendingPercent = confirmedPercent + (data.orders.pending / totalOrders * 100);
+
+    const statusBar = document.querySelector('.order-status-bar');
+    if (statusBar) {
+        statusBar.style.setProperty('--confirmed-percent', `${confirmedPercent}%`);
+        statusBar.style.setProperty('--pending-percent', `${pendingPercent}%`);
+    }
+}
+
+// 初始化拖放功能
+function initializeDraggableCards() {
+    const container = document.getElementById('statsCardContainer');
+    if (!container) return;
+
+    // 初始化 Sortable
+    new Sortable(container, {
+        animation: 150,
+        draggable: '.col-md-3',
+        handle: '.stat-card', // 使用卡片本身作為拖動把手
+        ghostClass: 'sortable-ghost', // 拖動時的樣式
+        chosenClass: 'sortable-chosen', // 被選中時的樣式
+        dragClass: 'sortable-drag', // 拖動中的樣式
+        
+        // 保存順序到 localStorage
+        store: {
+            set: function(sortable) {
+                const order = sortable.toArray();
+                localStorage.setItem('statsCardOrder', JSON.stringify(order));
+            },
+            get: function() {
+                const order = localStorage.getItem('statsCardOrder');
+                return order ? JSON.parse(order) : ['orders', 'revenue', 'customers', 'spots'];
+            }
+        },
+
+        onEnd: function(evt) {
+            // 可以在這裡添加拖放完成後的回調
+            console.log('Card order updated');
         }
     });
 }
 
-// 頁面載入時初始化
-document.addEventListener('DOMContentLoaded', function() {
-    initializeSpotsData();
-    
-    // 圖表期間選擇
-    // document.getElementById('chartPeriod').addEventListener('change', function() {
-    //     updateSpotChart(this.value);
-    // });
+// 在頁面載入時初始化
+document.addEventListener('DOMContentLoaded', () => {
+    initializeDraggableCards();
+    initializeDashboard();
 });
 </script>
