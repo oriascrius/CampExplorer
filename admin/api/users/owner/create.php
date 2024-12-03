@@ -24,7 +24,16 @@ function createOwner() {
     $required_fields = ['email', 'password', 'name', 'company_name'];
     foreach ($required_fields as $field) {
         if (empty($data[$field])) {
-            throw new Exception($field . ' 為必填欄位');
+            if ($field == 'name') {
+                throw new Exception('名字為必填欄位');
+            } elseif ($field == 'company_name') {
+                throw new Exception('公司名稱為必填欄位');
+            } elseif ($field == 'password') {
+                throw new Exception('密碼為必填欄位');
+            }
+            else {
+                throw new Exception($field . ' 為必填欄位');
+            }
         }
     }
 
@@ -56,7 +65,6 @@ function createOwner() {
         $result = $stmt->execute([
             trim($data['email']),
             $hashed_password,
-         
             trim($data['name']),
             trim($data['company_name']),
             $data['phone'] ?? null,

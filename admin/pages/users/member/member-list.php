@@ -24,7 +24,7 @@ try {
     ];
 
     $sort_field = isset($_GET['sort']) ? $_GET['sort'] : 'created_at';
-    $sort_order = isset($_GET['order']) ? strtoupper($_GET['order']) : 'ASC';
+    $sort_order = isset($_GET['order']) ? strtoupper($_GET['order']) : 'DESC';
     $p = isset($_GET['p']) ? (int)$_GET['p'] : 1;
     $perPage = 7; // 每頁顯示的會員數量
     $offset = max(0, ($p - 1) * $perPage);
