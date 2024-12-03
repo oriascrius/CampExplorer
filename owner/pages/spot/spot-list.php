@@ -802,7 +802,7 @@ require_once __DIR__ . '/../../../camping_db.php';
             color: #4C6B74;
         }
 
-        /* 深藍綠色 */
+        /* 深藍綠��� */
         .stat-card.active .stat-label {
             color: #A8C2B3;
         }
@@ -1852,7 +1852,7 @@ require_once __DIR__ . '/../../../camping_db.php';
             }
         }
 
-        // 切營位狀態（啟用/停用）
+        // 切營位狀態（啟用/���用）
         async function toggleSpotStatus(spotId, isActive) {
             try {
                 // 先顯示確認對話框
@@ -2218,64 +2218,66 @@ require_once __DIR__ . '/../../../camping_db.php';
         document.querySelectorAll('.sortable').forEach(th => {
             th.addEventListener('click', function() {
                 const field = this.dataset.sort;
+                console.log('Sorting by:', field); // 调试用
 
-                // 檢查當前排序狀態
+                // 移除其他列的排序标记
+                document.querySelectorAll('.sortable').forEach(el => {
+                    if (el !== this) {
+                        el.classList.remove('asc', 'desc');
+                    }
+                });
+
+                // 切换当前列的排序方向
                 if (currentSort.field === field) {
-                    // 如果是同一列，切換排序方向
-                    const direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
-                    document.querySelectorAll('.sortable').forEach(el => {
-                        if (el !== this) {
-                            el.classList.remove('asc', 'desc');
-                        }
-                    });
-                    this.classList.remove('asc', 'desc');
-                    this.classList.add(direction);
-                    currentSort = {
-                        field,
-                        direction
-                    };
+                    currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+                    this.classList.toggle('asc', currentSort.direction === 'asc');
+                    this.classList.toggle('desc', currentSort.direction === 'desc');
                 } else {
-                    // 如果是不同列，設置新的排序列為降序
-                    document.querySelectorAll('.sortable').forEach(el => {
-                        if (el !== this) {
-                            el.classList.remove('asc', 'desc');
-                        }
-                    });
-                    this.classList.remove('asc', 'desc');
-                    this.classList.add('desc');
-                    currentSort = {
-                        field,
-                        direction: 'desc'
-                    };
+                    currentSort.field = field;
+                    currentSort.direction = 'asc';
+                    this.classList.remove('desc');
+                    this.classList.add('asc');
                 }
 
-                // 執行排序
-                sortSpots(currentSort.field, currentSort.direction);
+                console.log('Current sort:', currentSort); // 调试用
+                sortSpots();
             });
         });
 
-        // 排序邏輯
-        function sortSpots(field, direction) {
-            const spots = [...filteredSpots];
-            spots.sort((a, b) => {
-                let valueA = a[field];
-                let valueB = b[field];
+        // 修改排序函数
+        function sortSpots() {
+            console.log('Sorting spots...', filteredSpots.length); // 调试用
 
-                // 數字類型轉換
-                if (field === 'price' || field === 'capacity') {
-                    valueA = Number(valueA);
-                    valueB = Number(valueB);
+            const sortedSpots = [...filteredSpots].sort((a, b) => {
+                let valueA = a[currentSort.field];
+                let valueB = b[currentSort.field];
+
+                // 处理空值
+                if (valueA === null || valueA === undefined) valueA = '';
+                if (valueB === null || valueB === undefined) valueB = '';
+
+                // 数字类型比较
+                if (currentSort.field === 'price' || currentSort.field === 'capacity') {
+                    valueA = Number(valueA) || 0;
+                    valueB = Number(valueB) || 0;
+                    return currentSort.direction === 'asc' ? valueA - valueB : valueB - valueA;
                 }
 
-                if (direction === 'asc') {
-                    return valueA > valueB ? 1 : -1;
-                } else {
-                    return valueA < valueB ? 1 : -1;
-                }
+                // 字符串比较
+                valueA = String(valueA).toLowerCase();
+                valueB = String(valueB).toLowerCase();
+                
+                const compareResult = valueA.localeCompare(valueB);
+                return currentSort.direction === 'asc' ? compareResult : -compareResult;
             });
 
-            // 更新 UI 但保持排序狀態
-            updateUI(spots);
+            console.log('Sorted spots:', sortedSpots); // 调试用
+            
+            // 更新过滤后的数据
+            filteredSpots = sortedSpots;
+            
+            // 更新显示
+            updateUI(sortedSpots);
         }
 
         // 分頁控制
@@ -2319,14 +2321,20 @@ require_once __DIR__ . '/../../../camping_db.php';
             updatePagination();
         }
 
-        // 修改 updateUI 函數以支持分頁
+        // 修改 updateUI 函数确保正确更新
         function updateUI(spots) {
+            console.log('Updating UI with spots:', spots.length); // 调试用
+            
             const start = (currentPage - 1) * itemsPerPage;
             const end = start + itemsPerPage;
             const paginatedSpots = spots.slice(start, end);
 
-            // 更新表格內容
             const spotList = document.querySelector('#spot-list');
+            if (!spotList) {
+                console.error('Spot list element not found');
+                return;
+            }
+
             spotList.innerHTML = paginatedSpots.map(spot => {
                 let imagePath = spot.image_path && spot.image_path.trim() !== '' ?
                     (spot.image_path.includes('/CampExplorer/') ?
