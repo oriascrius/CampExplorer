@@ -341,6 +341,7 @@ require_once __DIR__ . '/../../../camping_db.php';
 
 
 
+
         .activity-table th:first-child {
             border-radius: 8px 0 0 8px;
         }
@@ -701,7 +702,7 @@ require_once __DIR__ . '/../../../camping_db.php';
             color: #D4B5B5;
         }
 
-        /* Hover 效果 - 更輕微的變化 */
+        /* Hover 效果 - 更輕微的變�� */
         .stat-card:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
@@ -971,7 +972,7 @@ require_once __DIR__ . '/../../../camping_db.php';
             padding: 0 1.5rem;
         }
 
-        /* 標題樣式 */
+        /* ���題樣式 */
         .page-title {
             color: var(--camp-primary);
             font-size: 2rem;
@@ -1683,7 +1684,7 @@ require_once __DIR__ . '/../../../camping_db.php';
         }
 
         .form-select {
-            height: 100%;
+            /* height: 100%; */
             border-radius: 8px;
             border: 2px solid;
         }
@@ -1944,14 +1945,14 @@ require_once __DIR__ . '/../../../camping_db.php';
                 Swal.fire({
                     icon: 'error',
                     title: '載入失敗',
-                    text: error.response?.data?.message || '無法載入活動列表'
+                    text: error.response?.data?.message || '無法載入���動列表'
                 });
             }
         }
 
         // 格式化日期
         function formatDate(dateString) {
-            if (!dateString) return '無日期';
+            if (!dateString) return '無日���';
             try {
                 const date = new Date(dateString);
                 if (isNaN(date.getTime())) return '無效日期';
@@ -2259,7 +2260,7 @@ require_once __DIR__ . '/../../../camping_db.php';
                 }
 
             } catch (error) {
-                console.error('表單驗���錯誤:', error);
+                console.error('表單驗證錯誤:', error);
                 Swal.showValidationMessage(error.message);
                 return false;
             }
@@ -2477,7 +2478,7 @@ require_once __DIR__ . '/../../../camping_db.php';
             if (!window.availableSpots || window.availableSpots.length === 0) {
                 Swal.fire({
                     icon: 'warning',
-                    title: '無法新增',
+                    title: '無法��增',
                     text: '請先選擇擇營地，或目前營地無可用營位'
                 });
                 return;
@@ -2509,7 +2510,7 @@ require_once __DIR__ . '/../../../camping_db.php';
                 <div class="row g-2">
                     <div class="col-md-4">
                         <select name="spot_options[${selectedSpots.length}][spot_id]" 
-                                class="form-select" required>
+                                class="form-select" style="height:100%;" required>
                             <option value="">選擇營位</option>
                             ${availableSpots.map(spot => `
                                 <option value="${spot.spot_id}">${spot.name}</option>
@@ -2925,7 +2926,9 @@ require_once __DIR__ . '/../../../camping_db.php';
                     <td>
                         <div>${formatPrice(activity.min_price)}~ ${formatPrice(activity.max_price)}</div>
                     </td>
-                    <td>${activity.total_quantity || 0}</td>
+                    <td class="text-center">
+                        ${activity.total_quantity || 0}
+                    </td>
                     <td>
                         <span class="status-badge ${statusClass}">
                             ${statusIcon}${statusText}
@@ -3445,7 +3448,7 @@ require_once __DIR__ . '/../../../camping_db.php';
                     await Swal.fire({
                         icon: 'success',
                         title: '新增成功',
-                        text: '活動已成功新增',
+                        text: '活動已成��新增',
                         timer: 1500
                     });
                     loadActivities();
@@ -3668,7 +3671,7 @@ require_once __DIR__ . '/../../../camping_db.php';
             newOption.innerHTML = `
                 <div class="row g-2">
                     <div class="col-md-4">
-                        <select class="form-select spot-select" required>
+                        <select class="form-select spot-select " required>
                             <option value="">選擇營位</option>
                             ${availableSpots.map(spot => `
                                 <option value="${spot.spot_id}">${spot.spot_name}</option>
@@ -3704,7 +3707,7 @@ require_once __DIR__ . '/../../../camping_db.php';
             });
         }
 
-        // 添加點擊效果
+        // 添加點��效果
         document.querySelectorAll('.info-item').forEach(item => {
             item.addEventListener('click', () => {
                 // 點擊時的視覺反饋
@@ -3755,45 +3758,125 @@ require_once __DIR__ . '/../../../camping_db.php';
             renderPagination();
         }
 
-        // 排序功能
-        document.querySelectorAll('.sortable').forEach(header => {
-            header.addEventListener('click', function() {
-                const field = this.dataset.sort;
-                if (sortField === field) {
-                    sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
-                } else {
-                    sortField = field;
-                    sortDirection = 'asc';
-                }
-
-                // 更新排序圖標
-                document.querySelectorAll('.sortable').forEach(h => h.classList.remove('active'));
-                this.classList.add('active');
-
-                sortActivities();
-                renderActivitiesWithPagination();
-            });
+        // 確保在文檔加載完成後初始化排序功能
+        document.addEventListener('DOMContentLoaded', () => {
+            // 初始化排序事件監聽
+            initializeSorting();
+            
+            // ... 其他初始化代碼 ...
         });
 
-        // 排序活動
-        function sortActivities() {
-            filteredActivities.sort((a, b) => {
-                let valueA = a[sortField];
-                let valueB = b[sortField];
+        // 初始化排序功能
+        function initializeSorting() {
+            document.querySelectorAll('.sortable').forEach(header => {
+                header.addEventListener('click', function() {
+                    const field = this.dataset.sort;
+                    console.log('Sorting by:', field); // 調試用
+                    
+                    // 切換排序方向
+                    if (sortField === field) {
+                        sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+                    } else {
+                        sortField = field;
+                        sortDirection = 'asc';
+                    }
 
-                // 特殊處理價格和日期
-                if (sortField === 'price') {
-                    valueA = parseFloat(a.min_price);
-                    valueB = parseFloat(b.min_price);
-                } else if (sortField === 'start_date') {
-                    valueA = new Date(a.start_date);
-                    valueB = new Date(b.start_date);
+                    // 更新排序圖標
+                    updateSortIcons();
+
+                    // 執行排序
+                    sortActivities();
+                    
+                    // 重新渲染表格
+                    renderActivitiesWithPagination();
+                });
+            });
+        }
+
+        // 修改排序邏輯
+        function sortActivities() {
+            console.log('Sorting field:', sortField, 'Direction:', sortDirection); // 調試用
+            
+            filteredActivities.sort((a, b) => {
+                let valueA, valueB;
+
+                switch(sortField) {
+                    case 'price':
+                        // 確保從 spot_options 中獲取價格
+                        valueA = getMinPrice(a.spot_options || []);
+                        valueB = getMinPrice(b.spot_options || []);
+                        console.log('Comparing prices:', valueA, valueB); // 調試用
+                        break;
+
+                    case 'status':
+                        // 直接使用活動狀態
+                        valueA = getStatusWeight(a.activity_status);
+                        valueB = getStatusWeight(b.activity_status);
+                        console.log('Comparing status weights:', valueA, valueB); // 調試用
+                        break;
+
+                    case 'quantity':
+                        valueA = parseInt(a.total_quantity || 0);
+                        valueB = parseInt(b.total_quantity || 0);
+                        break;
+
+                    case 'start_date':
+                    case 'end_date':
+                        valueA = new Date(a[sortField] || '1970-01-01').getTime();
+                        valueB = new Date(b[sortField] || '1970-01-01').getTime();
+                        break;
+
+                    default:
+                        valueA = (a[sortField] || '').toString().toLowerCase();
+                        valueB = (b[sortField] || '').toString().toLowerCase();
                 }
 
-                if (valueA < valueB) return sortDirection === 'asc' ? -1 : 1;
-                if (valueA > valueB) return sortDirection === 'asc' ? 1 : -1;
-                return 0;
+                // 排序比較
+                let comparison = 0;
+                if (valueA < valueB) comparison = -1;
+                if (valueA > valueB) comparison = 1;
+
+                // 根據排序方向返回結果
+                return sortDirection === 'asc' ? comparison : -comparison;
             });
+        }
+
+        // 更新排序圖標
+        function updateSortIcons() {
+            document.querySelectorAll('.sortable').forEach(header => {
+                const icon = header.querySelector('.bi');
+                if (header.dataset.sort === sortField) {
+                    // 根據排序方向更新圖標
+                    icon.className = sortDirection === 'asc' 
+                        ? 'bi bi-arrow-up' 
+                        : 'bi bi-arrow-down';
+                } else {
+                    // 重置其他圖標
+                    icon.className = 'bi bi-arrow-down-up';
+                }
+            });
+        }
+
+        // 修改狀態權重計算
+        function getStatusWeight(status) {
+            const weights = {
+                '進行中': 1,
+                '即將開始': 2,
+                '下架中': 3,
+                '已結束': 4,
+                '營地審核中': 5,
+                '營地未通過': 6
+            };
+            return weights[status] || 999;
+        }
+
+        // 修改最小價格獲取函數
+        function getMinPrice(spotOptions) {
+            if (!spotOptions || !Array.isArray(spotOptions) || spotOptions.length === 0) {
+                return 0;
+            }
+            const prices = spotOptions.map(option => parseFloat(option.price) || 0);
+            return Math.min(...prices);
         }
     </script>
 </body>

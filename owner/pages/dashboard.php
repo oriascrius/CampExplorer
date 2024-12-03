@@ -1047,22 +1047,22 @@ try {
 
     /* 背景漸層 */
     .bg-morandi-blue-gradient {
-        background: linear-gradient(135deg, #A8C0D3 0%, #8DA5B8 100%);
+        background: linear-gradient(135deg, #A8C0D3 0%, #7A9BB7 100%);
         color: white;
     }
 
     .bg-morandi-sage-gradient {
-        background: linear-gradient(135deg, #B8C4B8 0%, #9DAA9D 100%);
+        background: linear-gradient(135deg, #B8C4B8 0%, #8FA898 100%);
         color: white;
     }
 
     .bg-morandi-mint-gradient {
-        background: linear-gradient(135deg, #B5C7C0 0%, #9AACA5 100%);
+        background: linear-gradient(135deg, #B5C7C0 0%, #89A69B 100%);
         color: white;
     }
 
     .bg-morandi-rose-gradient {
-        background: linear-gradient(135deg, #D4B9B9 0%, #B99E9E 100%);
+        background: linear-gradient(135deg, #D4B9B9 0%, #B79292 100%);
         color: white;
     }
 
@@ -1397,6 +1397,108 @@ try {
     .status-text.cancelled span {
         color: #dc3545;
     }
+
+    /* 在現有的 style 標籤中添加 */
+    .stats-card {
+        height: 100%;
+        padding: 1.5rem;
+        border-radius: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .stats-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .stats-card .card-title {
+        font-size: 1rem;
+        color: rgba(255, 255, 255, 0.9);
+        margin-bottom: 1rem;
+    }
+
+    .stats-card .stat-data h3 {
+        font-size: 2rem;
+        font-weight: 600;
+        color: white;
+        margin-bottom: 0.5rem;
+    }
+
+    .stats-card .stat-data small {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 0.875rem;
+    }
+
+    .stats-card i {
+        opacity: 0.8;
+    }
+
+    /* 更新營位管理概況卡片樣式 */
+    .stats-card {
+        height: 100%;
+        padding: 1.5rem;
+        border-radius: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    /* 更新卡片標題樣式 */
+    .stats-card .card-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.95) !important; /* 提高不透明度 */
+        margin-bottom: 1.2rem;
+        letter-spacing: 0.5px;
+    }
+
+    /* 更新數字樣式 */
+    .stats-card .stat-data h3 {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: #FFFFFF !important; /* 純白色 */
+        margin-bottom: 0.5rem;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); /* 添加文字陰影 */
+    }
+
+    /* 更新說明文字樣式 */
+    .stats-card .stat-data small {
+        color: rgba(255, 255, 255, 0.9) !important; /* 提高不透明度 */
+        font-size: 0.95rem;
+        font-weight: 500;
+        letter-spacing: 0.3px;
+    }
+
+    /* 更新圖標樣式 */
+    .stats-card i {
+        opacity: 0.9; /* 提高圖標不透明度 */
+        color: #FFFFFF;
+    }
+
+    /* 更新背景漸層，使文字更容易閱讀 */
+    .bg-morandi-blue-gradient {
+        background: linear-gradient(135deg, #A8C0D3 0%, #7A9BB7 100%);
+    }
+
+    .bg-morandi-sage-gradient {
+        background: linear-gradient(135deg, #B8C4B8 0%, #8FA898 100%);
+    }
+
+    .bg-morandi-mint-gradient {
+        background: linear-gradient(135deg, #B5C7C0 0%, #89A69B 100%);
+    }
+
+    .bg-morandi-rose-gradient {
+        background: linear-gradient(135deg, #D4B9B9 0%, #B79292 100%);
+    }
+
+    /* 添加卡片陰影效果 */
+    .stats-card {
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .stats-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    }
 </style>
 
 <div class="dashboard-container">
@@ -1450,7 +1552,7 @@ try {
                     </div>
                     <div class="col-md-3">
                         <small class="text-muted">營位使用率</small>
-                        <h5 class="mb-0"><span id="occupancyRate">0</span>%</h5>
+                        <h5 class="mb-0"><span id="occupancyRate">0</span></h5>
                     </div>
                 </div>
             </div>
@@ -1620,51 +1722,68 @@ try {
 
 
     <!-- 營位管理區塊 -->
-    <div class="spots-management" id="spotsContainer">
-        <!-- 動態生成的營位卡片範例 -->
-        <div class="spot-card">
-            <i class="fas fa-campground spot-icon"></i>
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h6>營位名稱</h6>
-                <span class="spot-status status-available">可預訂</span>
+    <div class="spots-management mt-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">營位管理概況</h5>
             </div>
-            <div class="spot-info">
-                <p>
-                    <span>容納人數</span>
-                    <span>4人</span>
-                </p>
-                <p class="price-info">
-                    <span>價格</span>
-                    <span>NT$ 2,000</span>
-                </p>
-                <p>
-                    <span>本月預訂</span>
-                    <span>15次</span>
-                </p>
-                <p class="revenue-info">
-                    <span>本月營收</span>
-                    <span>NT$ 30,000</span>
-                </p>
-                <p class="maintenance-date">
-                    <span>維護結束期</span>
-                    <span>2024-03-15</span>
-                </p>
+            <div class="card-body">
+                <div class="row g-4" id="spotsContainer">
+                    <!-- 總營位數 -->
+                    <div class="col-md-3">
+                        <div class="stats-card bg-morandi-blue-gradient">
+                            <div class="card-title">
+                                <i class="fas fa-campground me-2"></i>總營位數
+                            </div>
+                            <div class="stat-data">
+                                <h3><?= number_format($spot_stats['total_spots']) ?></h3>
+                                <small>個營位</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 可用營位數 -->
+                    <div class="col-md-3">
+                        <div class="stats-card bg-morandi-sage-gradient">
+                            <div class="card-title">
+                                <i class="fas fa-check-circle me-2"></i>可用營位
+                            </div>
+                            <div class="stat-data">
+                                <h3><?= number_format($spot_stats['active_spots']) ?></h3>
+                                <small>個營位可預訂</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 使用率 -->
+                    <div class="col-md-3">
+                        <div class="stats-card bg-morandi-mint-gradient">
+                            <div class="card-title">
+                                <i class="fas fa-chart-line me-2"></i>營位使用率
+                            </div>
+                            <div class="stat-data">
+                                <h3><?= number_format($spot_stats['usage_rate'], 1) ?>%</h3>
+                                <small>平均使用率</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 本月預訂 -->
+                    <div class="col-md-3">
+                        <div class="stats-card bg-morandi-rose-gradient">
+                            <div class="card-title">
+                                <i class="fas fa-calendar-check me-2"></i>本月預訂
+                            </div>
+                            <div class="stat-data">
+                                <h3><?= number_format($order_stats['today_orders']) ?></h3>
+                                <small>筆預訂</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-
-    <!-- 圖表區域 -->
-    <!-- <div class="chart-container">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h5>營位使用趨勢</h5>
-            <select id="chartPeriod" class="form-select" style="width: auto;">
-                <option value="7">最近 7 天</option>
-                <option value="30">最近 30 天</option>
-                <option value="90">最近 90 天</option>
-            </select>
-        </div>
-        <canvas id="spotsChart"></canvas>
-    </div> -->
 </div>    <!-- 新增的詳細分析區域 -->
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
