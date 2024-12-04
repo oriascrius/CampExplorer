@@ -11,56 +11,77 @@ header('Content-Type: application/json');
 try {
     session_start();
     
-    error_log('=== API 訪問開始 ===');
-    error_log('Session ID: ' . session_id());
-    error_log('Session 數據: ' . print_r($_SESSION, true));
-    
     if (!isset($_SESSION['owner_id'])) {
         throw new Exception('尚未登入，請先登入系統');
     }
 
     $owner_id = $_SESSION['owner_id'];
-    error_log('Current owner_id: ' . $owner_id);
     
-    // 修改 SQL 查詢，加入 WHERE 條件
+    // 檢查是否需要初始化 display_order
+    $check_sql = "SELECT COUNT(*) as count 
+                 FROM bookings b 
+                 JOIN activity_spot_options aso ON b.option_id = aso.option_id
+                 JOIN spot_activities sa ON aso.activity_id = sa.activity_id
+                 WHERE sa.owner_id = :owner_id AND (b.display_order IS NULL OR b.display_order = 0)";
+    
+    $check_stmt = $db->prepare($check_sql);
+    $check_stmt->execute(['owner_id' => $owner_id]);
+    $needs_init = $check_stmt->fetch(PDO::FETCH_ASSOC)['count'] > 0;
+
+    // 如果需要初始化 display_order
+    if ($needs_init) {
+        $init_sql = "UPDATE bookings b
+                    JOIN activity_spot_options aso ON b.option_id = aso.option_id
+                    JOIN spot_activities sa ON aso.activity_id = sa.activity_id
+                    SET b.display_order = (
+                        SELECT @row_number := @row_number + 1 
+                        FROM (SELECT @row_number := 0) AS r
+                    )
+                    WHERE sa.owner_id = :owner_id
+                    ORDER BY b.created_at DESC";
+        
+        $db->exec('SET @row_number := 0');
+        $init_stmt = $db->prepare($init_sql);
+        $init_stmt->execute(['owner_id' => $owner_id]);
+    }
+    
+    // 修改主查詢
     $sql = "SELECT 
-                b.booking_id,
-                b.quantity,
-                b.total_price,
-                b.status,
-                b.booking_date,
-                b.created_at,
-                b.updated_at,
-                sa.activity_name,
-                u.name as user_name,
-                csa.name as spot_name,
-                aso.price as unit_price
-            FROM bookings b
-            JOIN activity_spot_options aso ON b.option_id = aso.option_id
-            JOIN spot_activities sa ON aso.activity_id = sa.activity_id
-            JOIN users u ON b.user_id = u.id
-            JOIN camp_spot_applications csa ON aso.spot_id = csa.spot_id
-            JOIN camp_applications ca ON csa.application_id = ca.application_id
-            WHERE sa.owner_id = :owner_id
-            ORDER BY b.created_at DESC";
+        b.booking_id,
+        b.quantity,
+        b.total_price,
+        b.status,
+        b.booking_date,
+        b.created_at,
+        b.updated_at,
+        COALESCE(b.display_order, 0) as display_order,
+        sa.activity_name,
+        u.name as user_name,
+        csa.name as spot_name,
+        aso.price as unit_price
+    FROM bookings b
+    JOIN activity_spot_options aso ON b.option_id = aso.option_id
+    JOIN spot_activities sa ON aso.activity_id = sa.activity_id
+    JOIN users u ON b.user_id = u.id
+    JOIN camp_spot_applications csa ON aso.spot_id = csa.spot_id
+    WHERE sa.owner_id = :owner_id
+    ORDER BY COALESCE(b.display_order, 0) ASC, b.created_at DESC";
 
     $stmt = $db->prepare($sql);
     $stmt->execute(['owner_id' => $owner_id]);
     $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
-    error_log('Found bookings: ' . count($bookings));
 
     // 統計數據查詢
     $stats_sql = "SELECT 
-                    COUNT(*) as total,
-                    SUM(CASE WHEN b.status = 'pending' THEN 1 ELSE 0 END) as pending,
-                    SUM(CASE WHEN b.status = 'confirmed' THEN 1 ELSE 0 END) as confirmed,
-                    SUM(CASE WHEN b.status = 'cancelled' THEN 1 ELSE 0 END) as cancelled,
-                    COALESCE(SUM(b.total_price), 0) as total_revenue
-                FROM bookings b
-                JOIN activity_spot_options aso ON b.option_id = aso.option_id
-                JOIN spot_activities sa ON aso.activity_id = sa.activity_id
-                WHERE sa.owner_id = :owner_id";
+        COUNT(*) as total,
+        SUM(CASE WHEN b.status = 'pending' THEN 1 ELSE 0 END) as pending,
+        SUM(CASE WHEN b.status = 'confirmed' THEN 1 ELSE 0 END) as confirmed,
+        SUM(CASE WHEN b.status = 'cancelled' THEN 1 ELSE 0 END) as cancelled,
+        COALESCE(SUM(b.total_price), 0) as total_revenue
+    FROM bookings b
+    JOIN activity_spot_options aso ON b.option_id = aso.option_id
+    JOIN spot_activities sa ON aso.activity_id = sa.activity_id
+    WHERE sa.owner_id = :owner_id";
 
     $stats_stmt = $db->prepare($stats_sql);
     $stats_stmt->execute(['owner_id' => $owner_id]);
@@ -100,7 +121,9 @@ try {
             'time' => date('Y-m-d H:i:s'),
             'session_status' => session_status(),
             'session_id' => session_id(),
-            'owner_id' => $_SESSION['owner_id'] ?? 'not set'
+            'owner_id' => $_SESSION['owner_id'] ?? 'not set',
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
         ]
     ]);
 }

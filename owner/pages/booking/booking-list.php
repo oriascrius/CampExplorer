@@ -64,6 +64,7 @@ try {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 
     <style>
         :root {
@@ -547,7 +548,7 @@ try {
             height: 200%;
         }
 
-        /* 詳情片樣式 */
+        /* 詳情片�����������式 */
         .info-card {
             background: white;
             border-radius: 12px;
@@ -1720,7 +1721,7 @@ try {
             background: linear-gradient(135deg, var(--status-cancelled) 0%, #D4B5B5 100%);
         }
 
-        /* active 狀態下的文字和圖標顏色 */
+        /* active 狀��下���文字和圖標��色 */
         .stat-card.active .stat-icon,
         .stat-card.active .stat-number,
         .stat-card.active .stat-label {
@@ -1730,7 +1731,77 @@ try {
         .stat-card.active .stat-icon {
             background-color: rgba(255, 255, 255, 0.2);
         }
-        
+
+        /* 拖動時的視覺效果 */
+        .sortable-ghost {
+            opacity: 0.4;
+            background-color: var(--camp-light);
+        }
+
+        /* 拖動把手樣式 */
+        .drag-handle {
+            cursor: grab;
+            color: var(--camp-secondary);
+            padding: 0.5rem;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+        }
+
+        .drag-handle:hover {
+            opacity: 1;
+        }
+
+        /* 被拖動的行樣式 */
+        tr.is-dragging {
+            background-color: var(--camp-light);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 拖動時的游標樣式 */
+        tr.is-dragging .drag-handle {
+            cursor: grabbing;
+        }
+
+        /* 拖動把手樣式 */
+        .drag-handle {
+            width: 40px;
+            text-align: center;
+            cursor: grab;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+        }
+
+        .drag-handle:hover {
+            opacity: 1;
+        }
+
+        /* 被拖動的行樣式 */
+        tr.is-dragging {
+            background-color: var(--camp-light) !important;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            transform: scale(1.02);
+        }
+
+        /* 拖動時的游標樣式 */
+        tr.is-dragging .drag-handle {
+            cursor: grabbing;
+        }
+
+        /* 放置目標位置指示器 */
+        .sortable-ghost {
+            opacity: 0.3;
+            background-color: var(--camp-primary) !important;
+        }
+
+        /* 確保表格行可以被拖動 */
+        #bookingsList tr {
+            background-color: white;
+        }
+
+        /* 確保拖動時的層級正確 */
+        .sortable-drag {
+            z-index: 1000;
+        }
     </style>
 </head>
 
@@ -1812,6 +1883,7 @@ try {
                 <table class="table">
                     <thead>
                         <tr>
+                            <th style="width: 40px;"></th>  <!-- 新增一列作為拖動把手 -->
                             <th onclick="sortTable('booking_id')">
                                 訂單編號 <i class="bi bi-arrow-down-up sort-icon"></i>
                             </th>
@@ -1839,7 +1911,7 @@ try {
                             <th>操作</th>
                         </tr>
                     </thead>
-                    <tbody id="bookingsList"></tbody>
+                    <tbody id="bookingsList" class="sortable-list"></tbody>
                 </table>
             </div>
 
@@ -2073,7 +2145,7 @@ try {
                 return 'NT$ 0';
             }
 
-            // 格式化價格
+            // 格式化��格
             return `NT$ ${numPrice.toLocaleString('zh-TW')}`;
         }
 
@@ -2141,33 +2213,89 @@ try {
 
             bookings.forEach(booking => {
                 currentBookingData[booking.booking_id] = booking;
-
-                // 處理價格，移除可能的逗號
-                const unitPrice = booking.unit_price.toString().replace(/,/g, '');
-                const totalPrice = booking.total_price.toString().replace(/,/g, '');
-
+                
                 const row = document.createElement('tr');
-                row.style.cursor = 'pointer';
-                row.onclick = () => showBookingDetail(booking.booking_id);
+                row.setAttribute('data-id', booking.booking_id);
+                
+                // 移除 row 的點擊事件，改為特定元素的點擊
                 row.innerHTML = `
-                    <td>${booking.booking_id}</td>
-                    <td>${booking.activity_name}</td>
-                    <td>${booking.spot_name}</td>
-                    <td>${booking.user_name}</td>
-                    <td>${booking.quantity}</td>
-                    <td>${formatPrice(unitPrice)}</td>
-                    <td>${formatPrice(totalPrice)}</td>
-                    <td>${getStatusBadge(booking.status)}</td>
+                    <td class="drag-handle" style="cursor: grab;">
+                        <i class="bi bi-grip-vertical"></i>
+                    </td>
+                    <td onclick="showBookingDetail(${booking.booking_id})">${booking.booking_id}</td>
+                    <td onclick="showBookingDetail(${booking.booking_id})">${booking.activity_name}</td>
+                    <td onclick="showBookingDetail(${booking.booking_id})">${booking.spot_name}</td>
+                    <td onclick="showBookingDetail(${booking.booking_id})">${booking.user_name}</td>
+                    <td onclick="showBookingDetail(${booking.booking_id})">${booking.quantity}</td>
+                    <td onclick="showBookingDetail(${booking.booking_id})">${formatPrice(booking.unit_price)}</td>
+                    <td onclick="showBookingDetail(${booking.booking_id})">${formatPrice(booking.total_price)}</td>
+                    <td onclick="showBookingDetail(${booking.booking_id})">${getStatusBadge(booking.status)}</td>
                     <td>
                         <button type="button" 
                             class="btn btn-outline-primary btn-sm" 
-                            onclick="event.stopPropagation(); showStatusModal(${booking.booking_id})">
+                            onclick="showStatusModal(${booking.booking_id})">
                             編輯狀態
                         </button>
                     </td>
                 `;
                 bookingsList.appendChild(row);
             });
+
+            // 初始化拖放功能
+            initSortable();
+        }
+
+        // 初始化 Sortable
+        function initSortable() {
+            const bookingsList = document.getElementById('bookingsList');
+            if (!bookingsList) return;
+
+            new Sortable(bookingsList, {
+                handle: '.drag-handle',
+                animation: 150,
+                ghostClass: 'sortable-ghost',
+                onStart: function(evt) {
+                    evt.item.classList.add('is-dragging');
+                    document.body.style.userSelect = 'none';
+                },
+                onEnd: async function(evt) {
+                    evt.item.classList.remove('is-dragging');
+                    document.body.style.userSelect = '';
+                    
+                    const newOrder = Array.from(bookingsList.children).map(row => 
+                        row.getAttribute('data-id')
+                    );
+                    
+                    try {
+                        await saveNewOrder(newOrder);
+                        // 更新本地數據順序
+                        filteredBookings.sort((a, b) => {
+                            const indexA = newOrder.indexOf(a.booking_id.toString());
+                            const indexB = newOrder.indexOf(b.booking_id.toString());
+                            return indexA - indexB;
+                        });
+                    } catch (error) {
+                        console.error('Error saving order:', error);
+                        // 只在失敗時顯示錯誤提示
+                        Swal.fire({
+                            title: '錯誤',
+                            text: '無法更新排序',
+                            icon: 'error'
+                        });
+                    }
+                }
+            });
+        }
+
+        // 如果需要保存排序結果到後端
+        async function saveNewOrder(newOrder) {
+            const response = await axios.post('/CampExplorer/owner/api/booking/update_order.php', {
+                order: newOrder
+            });
+
+            if (!response.data.success) {
+                throw new Error(response.data.message || '更新失敗');
+            }
         }
 
         // 確保 DOM 完全載入後再初始化
@@ -2311,7 +2439,7 @@ try {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
 
             filteredBookings = allBookings.filter(booking => {
-                // 移除價格中的所有非數字字符（包括 NT$ 和逗號）
+                // ���除價格中的所有非數字字符（包括 NT$ 和逗號）
                 const unitPrice = parseFloat(booking.unit_price.toString().replace(/[^0-9.-]+/g, ''));
                 const totalPrice = parseFloat(booking.total_price.toString().replace(/[^0-9.-]+/g, ''));
 
