@@ -47,7 +47,6 @@
                         </div>
                         <script>
                             const allSubcategories = <?= json_encode($subcategories); ?>; // PHP 傳遞的次類別資料
-                            console.log(allSubcategories);
                         </script>
 
 
@@ -113,6 +112,7 @@
                                     <option value="<?= htmlspecialchars($subcategory['id']) ?>">
                                         <?= htmlspecialchars($subcategory['name']) ?>
                                     </option>
+
                                 <?php endforeach; ?>
                             </select>
                         </div>

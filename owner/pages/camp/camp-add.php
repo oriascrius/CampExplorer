@@ -22,6 +22,564 @@ if (!isset($_SESSION['owner_id'])) {
 
 <?php include __DIR__ . '/../../includes/sidebar.php'; ?>
 
+
+<style>
+    :root {
+        --camp-primary: #4C6B74;
+        --camp-primary-dark: #3A545C;
+        --camp-secondary: #94A7AE;
+        --camp-light: #F5F7F8;
+        --camp-border: #E3E8EA;
+        --camp-text: #2A4146;
+        --camp-warning: #B4A197;
+        --camp-warning-dark: #9B8A81;
+        --camp-danger: #B47B84;
+    }
+
+    .char-count.text-danger {
+        color: var(--camp-danger) !important;
+    }
+
+    .btn-outline-danger {
+        color: var(--camp-danger);
+        border-color: var(--camp-danger);
+    }
+
+    .btn-outline-danger:hover {
+        background-color: var(--camp-danger);
+        color: white;
+    }
+
+    /* SweetAlert2 按鈕樣式 */
+    .btn-morandy-confirm {
+        background-color: var(--camp-primary) !important;
+        color: white;
+    }
+
+    .btn-morandy-cancel {
+        background-color: var(--camp-secondary) !important;
+        color: white;
+    }
+
+    .btn-morandy-deny {
+        background-color: var(--camp-primary-dark) !important;
+        color: white;
+    }
+
+    /* SweetAlert2 按樣式 */
+    .swal2-popup {
+        border-radius: var(--border-radius-lg) !important;
+    }
+
+    .swal2-actions button {
+        border-radius: var(--border-radius-md) !important;
+    }
+
+    /* 圖片預覽的刪除按鈕 */
+    .image-preview-container .btn-danger {
+        border-radius: 50% !important;
+        /* 持圓形 */
+    }
+
+    /* 其他按鈕和入框 */
+    .btn,
+    .form-control,
+    .input-group,
+    .alert {
+        border-radius: var(--border-radius-md) !important;
+    }
+
+    /* 卡片內容區域 */
+    .card-body {
+        border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg);
+    }
+
+    /* 單區塊樣式 */
+    .form-section {
+        transition: opacity 0.3s ease;
+        opacity: 1;
+    }
+
+    /* 步驟按鈕樣式 */
+    .prev-step,
+    .next-step {
+        min-width: 120px;
+    }
+
+    .prev-step {
+        border: 2px solid var(--camp-primary) !important;
+        color: var(--camp-primary) !important;
+        background-color: transparent !important;
+    }
+
+    .prev-step:hover {
+        background-color: var(--camp-primary) !important;
+        color: white !important;
+    }
+
+    /* 驗證提示樣式 */
+    .is-invalid {
+        border-color: var(--camp-danger) !important;
+    }
+
+    .invalid-feedback {
+        color: var(--camp-danger);
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+
+    /* 表單驗證樣式 */
+    .form-control.is-invalid {
+        border-color: var(--camp-danger);
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23dc3545' viewBox='0 0 12 12'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right calc(.375em + .1875rem) center;
+        background-size: calc(.75em + .375rem) calc(.75em + .375rem);
+    }
+
+    .form-control.is-valid {
+        border-color: var(--morandi-success);
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 8 8'%3e%3cpath fill='%2328a745' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right calc(.375em + .1875rem) center;
+        background-size: calc(.75em + .375rem) calc(.75em + .375rem);
+    }
+
+    .invalid-feedback {
+        display: block;
+        color: var(--camp-danger);
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+
+    .step.completed {
+        background-color: var(--camp-light);
+        color: var(--camp-text);
+    }
+
+    .step.completed::after {
+        content: '✓';
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--camp-text);
+    }
+
+    /* 步驟指示器樣式優化 */
+    .steps {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 2rem 0 3rem;
+        position: relative;
+        padding: 0 2rem;
+    }
+
+
+    .step {
+        position: relative;
+        z-index: 2;
+        background: white;
+        padding: 1.5rem 2.5rem;
+        border-radius: 12px;
+        min-width: 220px;
+        text-align: center;
+        border: 3px solid var(--camp-secondary);
+        /* 使用次要灰藍色 */
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(76, 107, 116, 0.15);
+    }
+
+    .step.active {
+        border-color: var(--camp-primary-dark);
+        /* 使用深藍綠色 */
+        background: linear-gradient(135deg,
+                rgba(76, 107, 116, 0.3) 0%,
+                rgba(255, 255, 255, 0.95) 100%);
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(76, 107, 116, 0.25);
+    }
+
+    .step-title {
+        font-weight: 700;
+        font-size: 1.25rem;
+        color: var(--camp-primary-dark);
+        /* 使用深藍綠色 */
+        margin-bottom: 0.5rem;
+    }
+
+    .step small {
+        color: var(--camp-primary);
+        /* 使用主要藍綠色 */
+        font-size: 1rem;
+        display: block;
+    }
+
+    /* 完成步驟的樣式 */
+    .step.completed {
+        border-color: var(--camp-primary-dark);
+        /* 使用深藍綠色 */
+        background: rgba(76, 107, 116, 0.15);
+    }
+
+    .step.completed::after {
+        content: '✓';
+        position: absolute;
+        right: 1.5rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--camp-primary-dark);
+        /* 使用深藍綠色 */
+        font-size: 1.5rem;
+        font-weight: bold;
+    }
+
+    /* 未完成步驟的樣式 */
+    .step:not(.active):not(.completed) {
+        background: rgba(255, 255, 255, 0.95);
+        border-color: var(--camp-border);
+        opacity: 0.9;
+    }
+
+    .step:not(.active):not(.completed) .step-title {
+        color: var(--camp-secondary);
+        /* 使用次要灰藍色 */
+        opacity: 0.8;
+    }
+
+    /* 響應式調整 */
+    @media (max-width: 768px) {
+        .steps {
+            flex-direction: column;
+            gap: 1rem;
+            padding: 0;
+        }
+
+        .steps::before {
+            width: 2px;
+            height: 100%;
+            left: 50%;
+            top: 0;
+            transform: translateX(-50%);
+        }
+
+        .step {
+            width: 100%;
+            max-width: 300px;
+            margin: 0 auto;
+        }
+    }
+
+    /* 主容器 RWD 優化 */
+    .container-fluid {
+        margin-left: 280px;
+        /* 配合側邊欄寬度 */
+        padding: 2rem;
+        transition: all 0.3s ease;
+    }
+
+    /* 卡片容器優化 */
+    .card {
+        margin: 0 auto;
+        max-width: 100%;
+    }
+
+    /* RWD 調整 */
+    @media (max-width: 1200px) {
+        .container-fluid {
+            padding: 1.5rem;
+        }
+
+        .row>.col-12 {
+            padding: 0 1rem;
+        }
+    }
+
+    @media (max-width: 991px) {
+        .container-fluid {
+            margin-left: 0;
+            padding: 1rem;
+        }
+
+        .card {
+            margin: 0;
+            border-radius: 0;
+        }
+
+        /* 步驟指示器調整 */
+        .steps {
+            padding: 0 1rem;
+        }
+
+        .step {
+            min-width: auto;
+            padding: 1rem;
+        }
+
+        .step-title {
+            font-size: 1rem;
+        }
+
+        .step small {
+            font-size: 0.875rem;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .container-fluid {
+            padding: 0.5rem;
+        }
+
+        .card-body {
+            padding: 1rem;
+        }
+
+        /* 表單元素調整 */
+        .form-control,
+        .form-select {
+            font-size: 0.9rem;
+        }
+
+        .btn {
+            width: 100%;
+            margin-bottom: 0.5rem;
+        }
+    }
+
+    .page-container {
+        max-width: 1600px;
+        margin: 60px 100px 100px;
+        padding: 2rem;
+        background-color: white;
+        border-radius: 16px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    /* RWD 調整 */
+    @media (max-width: 991px) {
+        .page-container {
+            margin: 4rem 1rem;
+            padding: 1.5rem;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .page-container {
+            margin: 3rem 0.5rem;
+            padding: 1rem;
+        }
+    }
+
+    body {
+        background-color: var(--camp-light);
+        color: var(--camp-text);
+        min-height: 100vh;
+        padding: 1rem 1rem 1rem 260px;
+        /* 左側padding配合導覽列寬度 */
+    }
+
+    /* 上傳區塊樣式優化 */
+    .upload-container {
+        width: 100%;
+        margin: 1rem 0;
+    }
+
+    .upload-box {
+        width: 100%;
+        min-height: 200px;
+        border: 2px dashed var(--camp-border);
+        border-radius: 12px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 2rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: var(--camp-light);
+    }
+
+    .upload-box:hover {
+        border-color: var(--camp-primary);
+        background: rgba(76, 107, 116, 0.05);
+    }
+
+    .upload-box i {
+        font-size: 2.5rem;
+        color: var(--camp-primary);
+        margin-bottom: 1rem;
+    }
+
+    .upload-text {
+        text-align: center;
+    }
+
+    .upload-text span {
+        font-size: 1.2rem;
+        color: var(--camp-primary);
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+
+    .upload-text small {
+        color: var(--camp-secondary);
+    }
+
+    /* 圖片預覽容器 */
+    .image-preview-container {
+        width: 100%;
+        margin-top: 1rem;
+        position: relative;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .image-preview {
+        width: 100%;
+        height: auto;
+        max-height: 300px;
+        object-fit: cover;
+    }
+
+    .upload-box.dragover {
+        border-color: var(--camp-primary);
+        background-color: rgba(76, 107, 116, 0.05);
+    }
+
+    .upload-box .spinner-border {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    .image-preview-container {
+        position: relative;
+        width: 100%;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-remove-image {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        background: rgba(0, 0, 0, 0.5);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-remove-image:hover {
+        background-color: var(--camp-primary-dark);
+        transform: scale(1.1);
+        box-shadow: 0 4px 12px rgba(76, 107, 116, 0.2);
+    }
+
+    /* 狀態標籤樣式 */
+    .status-badge {
+        padding: 0.6rem 1rem;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        display: inline-block;
+    }
+
+    /* 使用營地狀態的顏色變數 */
+    .status-0 {
+        /* 審核中 */
+        background-color: var(--camp-light);
+        color: var(--camp-secondary);
+        border: 1px solid var(--camp-secondary);
+    }
+
+    .status-1 {
+        /* 已通過 */
+        background-color: var(--camp-light);
+        color: var(--camp-primary);
+        border: 1px solid var(--camp-primary);
+    }
+
+    .status-2 {
+        /* 已退回 */
+        background-color: #FFF5F6;
+        color: var(--camp-danger);
+        border: 1px solid var(--camp-danger);
+    }
+
+    /* 按鈕基本樣式 */
+    .btn {
+        transition: all 0.3s ease;
+        background-color: var(--camp-primary);
+        color: white;
+        border: none;
+        /* padding: 0.5rem 1.5rem; */
+    }
+
+    .btn:focus {
+        background-color: var(--camp-primary);
+    }
+
+    /* 主要按鈕 hover 效果 */
+    .btn:hover {
+        background-color: var(--camp-primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(76, 107, 116, 0.2);
+    }
+
+    /* 次要按鈕（上一步）樣式 */
+    .btn.prev-step {
+        background-color: transparent;
+        border: 2px solid var(--camp-primary);
+        color: var(--camp-primary);
+    }
+
+    /* 次要按鈕 hover 效果 */
+    .btn.prev-step:hover {
+        background-color: var(--camp-primary);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(76, 107, 116, 0.2);
+    }
+
+    /* 按鈕點擊效果 */
+    .btn:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 6px rgba(76, 107, 116, 0.15);
+    }
+
+    /* 新增營位類型按鈕 */
+    #addSpotType {
+        background-color: var(--camp-light);
+        color: var(--camp-primary);
+        border: 2px solid var(--camp-primary);
+    }
+
+    #addSpotType:hover {
+        background-color: var(--camp-primary);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(76, 107, 116, 0.2);
+    }
+
+    .btn-danger {
+        padding: 0.2rem 0.5rem;
+    }
+
+    .btn-primary:hover {
+        color: white;
+    }
+</style>
+
 <div class="page-container p-0">
     <div class="card shadow-lg border-0">
         <div class="card-header">
@@ -67,7 +625,6 @@ if (!isset($_SESSION['owner_id'])) {
                             <label class="form-label required">營地描述</label>
                             <textarea class="form-control" name="description" rows="4" required maxlength="500"
                                 placeholder="請詳細描述您的營地特色"></textarea>
-                            <!-- <div class="char-count mt-1 text-end"><small>0/500</small></div> -->
                         </div>
                         <div class="col-12">
                             <label class="form-label required">營地主要圖片</label>
@@ -308,7 +865,7 @@ if (!isset($_SESSION['owner_id'])) {
         nextStep() {
             if (this.currentStep >= 3) return;
 
-            // 淡出當前步驟
+            // 淡出前步驟
             this.sections[this.currentStep - 1].style.opacity = '0';
 
             setTimeout(() => {
@@ -516,10 +1073,10 @@ if (!isset($_SESSION['owner_id'])) {
                 // 驗證營位資料
                 const spotForms = document.querySelectorAll('.spot-type-form');
                 if (spotForms.length === 0) {
-                    throw new Error('請��少新增一個營位型');
+                    throw new Error('請少新增一個營位型');
                 }
 
-                // 驗證並添加營位資料
+                // 驗並添加營位資料
                 spotForms.forEach((form, index) => {
                     const imageInput = form.querySelector(`input[name="spot_images_${index}"]`);
                     if (!imageInput || !imageInput.files[0]) {
@@ -576,7 +1133,9 @@ if (!isset($_SESSION['owner_id'])) {
                         icon: 'success',
                         title: '申請成功',
                         timer: 1500,
-                        text: '您的營地申請已提交成功！'
+                        text: '您的營地申請已提交成功！',
+                        iconColor: '#4C6B74', // 使用莫蘭迪藍綠色
+                        confirmButtonColor: '#4C6B74' // 確認按鈕也使用相同顏色
                     });
                     window.location.href = '/CampExplorer/owner/index.php?page=camp_status';
                 } else {
@@ -669,7 +1228,7 @@ if (!isset($_SESSION['owner_id'])) {
 
                     spotTypesContainer.insertAdjacentHTML('beforeend', newSpotHtml);
 
-                    // 為新增的表單設置圖片上傳功能
+                    // 為新增的表單設置圖片上傳能
                     const newForm = spotTypesContainer.lastElementChild;
                     this.setupImageUpload(newForm);
 
@@ -862,15 +1421,19 @@ if (!isset($_SESSION['owner_id'])) {
                 // 拖放處理
                 box.addEventListener('dragover', e => {
                     e.preventDefault();
+                    e.stopPropagation();
                     box.classList.add('dragover');
                 });
 
-                box.addEventListener('dragleave', () => {
+                box.addEventListener('dragleave', e => {
+                    e.preventDefault();
+                    e.stopPropagation();
                     box.classList.remove('dragover');
                 });
 
                 box.addEventListener('drop', e => {
                     e.preventDefault();
+                    e.stopPropagation();
                     box.classList.remove('dragover');
 
                     if (e.dataTransfer.files.length) {
@@ -880,7 +1443,8 @@ if (!isset($_SESSION['owner_id'])) {
                 });
 
                 // 文件選擇處理
-                targetInput.addEventListener('change', () => {
+                targetInput.addEventListener('change', (e) => {
+                    e.stopPropagation();
                     if (targetInput.files.length) {
                         this.handleImagePreview(targetInput.files[0], box, previewContainer);
                     }
@@ -1069,511 +1633,5 @@ if (!isset($_SESSION['owner_id'])) {
                 section.style.display = parseInt(section.dataset.step) === currentStep ? 'block' : 'none';
             });
         }
-
-        // 圖片上傳處理
-        const uploadBoxes = document.querySelectorAll('.upload-box');
-        uploadBoxes.forEach(box => {
-            const fileInput = document.getElementById(box.dataset.target);
-            const previewContainer = box.closest('.upload-container').querySelector('.image-preview-container');
-            const previewImg = previewContainer.querySelector('img');
-            const removeBtn = previewContainer.querySelector('.btn-remove-image');
-
-            // 點擊上傳
-            box.addEventListener('click', () => fileInput.click());
-
-            // 拖放上傳
-            box.addEventListener('dragover', e => {
-                e.preventDefault();
-                box.classList.add('dragover');
-            });
-
-            box.addEventListener('dragleave', () => {
-                box.classList.remove('dragover');
-            });
-
-            box.addEventListener('drop', e => {
-                e.preventDefault();
-                box.classList.remove('dragover');
-
-                const file = e.dataTransfer.files[0];
-                if (file && file.type.startsWith('image/')) {
-                    handleImageUpload(file);
-                }
-            });
-
-            // 文件選擇處理
-            fileInput.addEventListener('change', () => {
-                if (fileInput.files[0]) {
-                    handleImageUpload(fileInput.files[0]);
-                }
-            });
-
-            // 移除圖片
-            removeBtn.addEventListener('click', () => {
-                fileInput.value = '';
-                previewContainer.classList.add('d-none');
-                box.classList.remove('d-none');
-                previewImg.src = '';
-            });
-
-            // 處理圖片上傳
-            function handleImageUpload(file) {
-                if (file.size > 5 * 1024 * 1024) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: '錯誤',
-                        text: '圖片大小不能超過 5MB'
-                    });
-                    return;
-                }
-
-                const reader = new FileReader();
-                reader.onload = e => {
-                    previewImg.src = e.target.result;
-                    previewContainer.classList.remove('d-none');
-                    box.classList.add('d-none');
-                };
-                reader.readAsDataURL(file);
-            }
-        });
     });
 </script>
-
-<style>
-    .char-count.text-danger {
-        color: var(--morandi-danger) !important;
-    }
-
-    .btn-outline-danger {
-        color: var(--morandi-danger);
-        border-color: var(--morandi-danger);
-    }
-
-    .btn-outline-danger:hover {
-        background-color: var(--morandi-danger);
-        color: white;
-    }
-
-    /* SweetAlert2 按鈕樣式 */
-    .btn-morandy-confirm {
-        background-color: var(--morandi-primary) !important;
-        color: white;
-    }
-
-    .btn-morandy-cancel {
-        background-color: var(--morandi-secondary) !important;
-        color: white;
-    }
-
-    .btn-morandy-deny {
-        background-color: var(--morandi-dark) !important;
-        color: white;
-    }
-
-    /* SweetAlert2 按樣式 */
-    .swal2-popup {
-        border-radius: var(--border-radius-lg) !important;
-    }
-
-    .swal2-actions button {
-        border-radius: var(--border-radius-md) !important;
-    }
-
-    /* 圖片預覽的刪除按鈕 */
-    .image-preview-container .btn-danger {
-        border-radius: 50% !important;
-        /* 持圓形 */
-    }
-
-    /* 其他按鈕和入框 */
-    .btn,
-    .form-control,
-    .input-group,
-    .alert {
-        border-radius: var(--border-radius-md) !important;
-    }
-
-    /* 卡片內容區域 */
-    .card-body {
-        border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg);
-    }
-
-    /* 單區塊樣式 */
-    .form-section {
-        transition: opacity 0.3s ease;
-        opacity: 1;
-    }
-
-    /* 步驟按鈕樣式 */
-    .prev-step,
-    .next-step {
-        min-width: 120px;
-    }
-
-    /* 驗證提示樣式 */
-    .is-invalid {
-        border-color: var(--morandi-danger) !important;
-    }
-
-    .invalid-feedback {
-        color: var(--morandi-danger);
-        font-size: 0.875rem;
-        margin-top: 0.25rem;
-    }
-
-    /* 表單驗證樣式 */
-    .form-control.is-invalid {
-        border-color: var(--morandi-danger);
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23dc3545' viewBox='0 0 12 12'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
-        background-repeat: no-repeat;
-        background-position: right calc(.375em + .1875rem) center;
-        background-size: calc(.75em + .375rem) calc(.75em + .375rem);
-    }
-
-    .form-control.is-valid {
-        border-color: var(--morandi-success);
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 8 8'%3e%3cpath fill='%2328a745' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
-        background-repeat: no-repeat;
-        background-position: right calc(.375em + .1875rem) center;
-        background-size: calc(.75em + .375rem) calc(.75em + .375rem);
-    }
-
-    .invalid-feedback {
-        display: block;
-        color: var(--morandi-danger);
-        font-size: 0.875rem;
-        margin-top: 0.25rem;
-    }
-
-    .step.completed {
-        background-color: var(--morandi-success-light);
-        color: var(--morandi-success);
-    }
-
-    .step.completed::after {
-        content: '✓';
-        position: absolute;
-        right: 10px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: var(--morandi-success);
-    }
-
-    /* 步驟指示器樣式優化 */
-    .steps {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin: 2rem 0 3rem;
-        position: relative;
-        padding: 0 2rem;
-    }
-
-
-    .step {
-        position: relative;
-        z-index: 2;
-        background: white;
-        padding: 1.5rem 2.5rem;
-        border-radius: 12px;
-        min-width: 220px;
-        text-align: center;
-        border: 3px solid #94A7AE;
-        /* 使用次要灰藍色 */
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 12px rgba(76, 107, 116, 0.15);
-    }
-
-    .step.active {
-        border-color: #3A545C;
-        /* 使用深藍綠色 */
-        background: linear-gradient(135deg,
-                rgba(76, 107, 116, 0.3) 0%,
-                rgba(255, 255, 255, 0.95) 100%);
-        transform: translateY(-5px);
-        box-shadow: 0 8px 20px rgba(76, 107, 116, 0.25);
-    }
-
-    .step-title {
-        font-weight: 700;
-        font-size: 1.25rem;
-        color: #3A545C;
-        /* 使用深藍綠色 */
-        margin-bottom: 0.5rem;
-    }
-
-    .step small {
-        color: #4C6B74;
-        /* 使用主要藍綠色 */
-        font-size: 1rem;
-        display: block;
-    }
-
-    /* 完成步驟的樣式 */
-    .step.completed {
-        border-color: #3A545C;
-        /* 使用深藍綠色 */
-        background: rgba(76, 107, 116, 0.15);
-    }
-
-    .step.completed::after {
-        content: '✓';
-        position: absolute;
-        right: 1.5rem;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #3A545C;
-        /* 使用深藍綠色 */
-        font-size: 1.5rem;
-        font-weight: bold;
-    }
-
-    /* 未完成步驟的樣式 */
-    .step:not(.active):not(.completed) {
-        background: rgba(255, 255, 255, 0.95);
-        border-color: #E3E8EA;
-        opacity: 0.9;
-    }
-
-    .step:not(.active):not(.completed) .step-title {
-        color: #94A7AE;
-        /* 使用次要灰藍色 */
-        opacity: 0.8;
-    }
-
-    /* 響應式調整 */
-    @media (max-width: 768px) {
-        .steps {
-            flex-direction: column;
-            gap: 1rem;
-            padding: 0;
-        }
-
-        .steps::before {
-            width: 2px;
-            height: 100%;
-            left: 50%;
-            top: 0;
-            transform: translateX(-50%);
-        }
-
-        .step {
-            width: 100%;
-            max-width: 300px;
-            margin: 0 auto;
-        }
-    }
-
-    /* 主容器 RWD 優化 */
-    .container-fluid {
-        margin-left: 280px;
-        /* 配合側邊欄寬度 */
-        padding: 2rem;
-        transition: all 0.3s ease;
-    }
-
-    /* 卡片容器優化 */
-    .card {
-        margin: 0 auto;
-        max-width: 100%;
-    }
-
-    /* RWD 調整 */
-    @media (max-width: 1200px) {
-        .container-fluid {
-            padding: 1.5rem;
-        }
-
-        .row>.col-12 {
-            padding: 0 1rem;
-        }
-    }
-
-    @media (max-width: 991px) {
-        .container-fluid {
-            margin-left: 0;
-            padding: 1rem;
-        }
-
-        .card {
-            margin: 0;
-            border-radius: 0;
-        }
-
-        /* 步驟指示器調整 */
-        .steps {
-            padding: 0 1rem;
-        }
-
-        .step {
-            min-width: auto;
-            padding: 1rem;
-        }
-
-        .step-title {
-            font-size: 1rem;
-        }
-
-        .step small {
-            font-size: 0.875rem;
-        }
-    }
-
-    @media (max-width: 768px) {
-        .container-fluid {
-            padding: 0.5rem;
-        }
-
-        .card-body {
-            padding: 1rem;
-        }
-
-        /* 表單元素調整 */
-        .form-control,
-        .form-select {
-            font-size: 0.9rem;
-        }
-
-        .btn {
-            width: 100%;
-            margin-bottom: 0.5rem;
-        }
-    }
-
-    .page-container {
-        max-width: 1600px;
-        margin: 60px 100px 100px;
-        padding: 2rem;
-        background-color: white;
-        border-radius: 16px;
-        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-    }
-
-    /* RWD 調整 */
-    @media (max-width: 991px) {
-        .page-container {
-            margin: 4rem 1rem;
-            padding: 1.5rem;
-        }
-    }
-
-    @media (max-width: 768px) {
-        .page-container {
-            margin: 3rem 0.5rem;
-            padding: 1rem;
-        }
-    }
-
-    body {
-        background-color: var(--camp-light);
-        color: var(--camp-text);
-        min-height: 100vh;
-        padding: 1rem 1rem 1rem 260px;
-        /* 左側padding配合導覽列寬度 */
-    }
-
-    /* 上傳區塊樣式優化 */
-    .upload-container {
-        width: 100%;
-        margin: 1rem 0;
-    }
-
-    .upload-box {
-        width: 100%;
-        min-height: 200px;
-        border: 2px dashed var(--camp-border);
-        border-radius: 12px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        padding: 2rem;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        background: var(--camp-light);
-    }
-
-    .upload-box:hover {
-        border-color: var(--camp-primary);
-        background: rgba(76, 107, 116, 0.05);
-    }
-
-    .upload-box i {
-        font-size: 2.5rem;
-        color: var(--camp-primary);
-        margin-bottom: 1rem;
-    }
-
-    .upload-text {
-        text-align: center;
-    }
-
-    .upload-text span {
-        font-size: 1.2rem;
-        color: var(--camp-primary);
-        display: block;
-        margin-bottom: 0.5rem;
-    }
-
-    .upload-text small {
-        color: var(--camp-secondary);
-    }
-
-    /* 圖片預覽容器 */
-    .image-preview-container {
-        width: 100%;
-        margin-top: 1rem;
-        position: relative;
-        border-radius: 12px;
-        overflow: hidden;
-    }
-
-    .image-preview {
-        width: 100%;
-        height: auto;
-        max-height: 300px;
-        object-fit: cover;
-    }
-
-    .upload-box.dragover {
-        border-color: var(--camp-primary);
-        background-color: rgba(76, 107, 116, 0.05);
-    }
-
-    .upload-box .spinner-border {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-    }
-
-    .image-preview-container {
-        position: relative;
-        width: 100%;
-        border-radius: 12px;
-        overflow: hidden;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    .btn-remove-image {
-        position: absolute;
-        top: 8px;
-        right: 8px;
-        background: rgba(0, 0, 0, 0.5);
-        color: white;
-        border: none;
-        border-radius: 50%;
-        width: 32px;
-        height: 32px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-
-    .btn-remove-image:hover {
-        background: rgba(0, 0, 0, 0.7);
-        transform: scale(1.1);
-    }
-</style>

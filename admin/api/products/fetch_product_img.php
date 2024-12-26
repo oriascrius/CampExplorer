@@ -1,5 +1,5 @@
 <?php
-require_once 'pdo-connect.php';
+require_once __DIR__ . "../../../../camping_db.php";
 header('Content-Type: application/json');
 
 
@@ -10,7 +10,7 @@ if (!$product_id) {
 }
 
 try {
-    $stmt = $pdo->prepare("SELECT id, image_path, is_main FROM product_images WHERE product_id = ?");
+    $stmt = $db->prepare("SELECT id, image_path, is_main FROM product_images WHERE product_id = ?");
     $stmt->execute([$product_id]);
     $images = $stmt->fetchAll(PDO::FETCH_ASSOC);
     echo json_encode(['success' => true, 'images' => $images]);

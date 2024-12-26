@@ -1,6 +1,6 @@
 <?php
 // 引入資料庫連線檔案
-require_once("pdo-connect.php");
+require_once __DIR__ . '/../../../camping_db.php';
 
 
 // 排序邏輯處理
@@ -50,14 +50,15 @@ if (isset($_GET["search"])) {
 
 //獲取category表內有的類別
 try {
-    $stmt = $pdo->query("SELECT id, name ,status FROM categories");
+    $stmt = $db->query("SELECT id, name ,status FROM categories");
+    $stmt = $db->query("SELECT id, name ,status FROM categories");
     $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     die("無法取得類別資料：" . $e->getMessage());
 }
 
 try {
-    $stmt = $pdo->query("SELECT id, name ,category_id AS subcategory_category FROM subcategories");
+    $stmt = $db->query("SELECT id, name ,category_id AS subcategory_category ,status FROM subcategories");
     $subcategories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     die("無法取得類別資料：" . $e->getMessage());
@@ -80,7 +81,8 @@ $countQuery = "SELECT COUNT(*) FROM products
                 $whereClause"; // 加上篩選條件
 
 try {
-    $stmt = $pdo->query($countQuery);
+    $stmt = $db->query($countQuery);
+    $stmt = $db->query($countQuery);
     $totalItems = $stmt->fetchColumn();
 } catch (PDOException $e) {
     die("查詢資料總數失敗：" . $e->getMessage());
@@ -103,7 +105,7 @@ if ($offset < 0) $offset = 1;
 // 獲取商品資料並關聯類別子類別表
 
 try {
-    $stmt = $pdo->query("SELECT 
+    $stmt = $db->query("SELECT 
         products.id, 
         products.name AS product_name, 
         products.price, 
@@ -234,8 +236,8 @@ try {
         }
 
         .smallImg {
-            width: 100px;
-            height: 100px;
+            width: 110px;
+            height: 150px;
             object-fit: cover;
 
             img {
@@ -243,6 +245,64 @@ try {
                 height: 100%;
                 object-fit: cover;
             }
+        }
+        .header-style{
+            background:#fff;
+            padding: 15px;
+            border-radius: 30px 30px 0 0;
+            box-shadow: 0px 18px 10px rgba(0, 0, 0, 0.1);
+        }
+        table{
+            box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.1);
+        }
+        table thead{
+            color:#fff;
+        }
+        tbody{
+            background:#fff;
+        }
+        .container{
+            padding: 4rem;
+            padding-top: 1rem;
+            max-width: 100%;
+            margin: 0;
+            padding-bottom: 1rem; 
+        }
+        .bg-success{
+            background-color: transparent !important;
+            border: 1px solid #0080005c;
+            color: #008000 !important;
+            padding: 7px 23px;
+        }
+        .btn-secondary{
+            color: #6c757d;
+            background-color: #6c757d38;
+            border: 0;
+        }
+        .btn.btn-primary{
+            background-color: #ecba82;
+            border: 0;
+        }
+        .badge.bg-secondary{
+            background-color: transparent !important;
+            border: 1px solid #ff000040;
+            color: #db0000 !important;
+            padding: 7px 23px;
+        }
+        tbody tr{
+            border-bottom-width: 1px;
+        }
+        tbody tr:hover{
+            background: rgb(155 254 144 / 10%);
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0px 0px 10px 0px rgb(0 0 0 / 10%);
+            --bs-table-accent-bg: none!important;
+        }
+        tbody td{
+            line-height: 107px;
+        }
+        .btn.btn-warning:hover{
+            background-color: #ffca2c!important;
         }
     </style>
 </head>
@@ -254,8 +314,8 @@ try {
     <!-- 導入modal -->
 
     <div class="container mt-5">
-        <h1 class="text-center mb-4">商品列表</h1>
-        <div class="d-flex justify-content-between">
+        <h1 class="mb-4">商品列表</h1>
+        <div class="d-flex justify-content-between header-style">
             <div class="my-3">
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addProductModal">
                     新增商品
@@ -318,42 +378,42 @@ try {
             </div>
         </div>
         <!-- 顯示列表內容 -->
-        <table class="table table-striped table-bordered">
-            <thead class="table-dark">
+        <table class="table">
+            <thead class="">
                 <tr>
-                    <th>ID</th>
-                    <th>名稱</th>
-                    <th>主類別</th>
-                    <th>次類別</th>
-                    <th>圖片</th>
-                    <th>價格</th>
-                    <th>庫存</th>
-                    <th>新增時間</th>
-                    <th>狀態</th>
-                    <th>操作</th>
+                    <th class="text-center">ID</th>
+                    <th class="text-center">名稱</th>
+                    <th class="text-center">主類別</th>
+                    <th class="text-center">次類別</th>
+                    <th class="text-center">圖片</th>
+                    <th class="text-center">價格</th>
+                    <th class="text-center">庫存</th>
+                    <th class="text-center">新增時間</th>
+                    <th class="text-center">狀態</th>
+                    <th class="text-center">操作</th>
                 </tr>
             </thead>
             <tbody>
                 <?php if (!empty($products)): ?>
                     <?php foreach ($products as $product): ?>
                         <tr>
-                            <td><?= htmlspecialchars($product['id']) ?></td>
-                            <td><?= htmlspecialchars($product['product_name']) ?></td>
-                            <td><?= htmlspecialchars($product['category_name']) ?></td>
-                            <td><?= htmlspecialchars($product['subcategory_name']) ?></td>
+                            <td class="px-3 text-center"><?= htmlspecialchars($product['id']) ?></td>
+                            <td class="text-center"><?= htmlspecialchars($product['product_name']) ?></td>
+                            <td class="text-center"><?= htmlspecialchars($product['category_name']) ?></td>
+                            <td class="text-center"><?= htmlspecialchars($product['subcategory_name']) ?></td>
                             <td class="text-center smallImg">
                                 <img src="../uploads/products/img/<?= htmlspecialchars($product['img_path']) ?>" alt="">
                             </td>
-                            <td class="text-end">$<?= htmlspecialchars(number_format($product['price'])) ?></td>
-                            <td class="text-end"><?= htmlspecialchars($product['stock']) ?></td>
-                            <td class="text-end"><?= htmlspecialchars($product['created_at']) ?></td>
+                            <td class="px-2 text-center">$<?= htmlspecialchars(number_format($product['price'])) ?></td>
+                            <td class="px-2 text-center"><?= htmlspecialchars($product['stock']) ?></td>
+                            <td class="px-2 text-center"><?= htmlspecialchars($product['created_at']) ?></td>
                             <td class="text-center">
                                 <?= $product['status'] == 1 ? '<span class="badge bg-success">上架</span>' : '<span class="badge bg-secondary">下架</span>' ?>
                             </td>
                             <td class="text-center">
                                 <!-- 編輯按鈕 要傳送data-XX參數給JS -->
                                 <button
-                                    class="btn btn-warning btn-sm edit-btn"
+                                    class="btn btn-warning btn-sm edit-btn mx-3"
                                     data-id="<?= $product['id'] ?>"
                                     data-name="<?= htmlspecialchars($product['product_name']) ?>"
                                     data-price="<?= $product['price'] ?>"
@@ -416,7 +476,7 @@ try {
 
         <!-- 分頁按鈕End -->
     </div>
-    <?php include("js.php") ?>
+
 
     <!-- 新增編輯功能的JS (AJAX PRIMASE) -->
     <?php include("add_edit_ajax_JS.php") ?>
@@ -425,7 +485,6 @@ try {
     <!-- 圖片編輯功能的JS -->
     <?php include("img_js.php") ?>
     <!-- 圖片編輯功能的JS -->
-
 </body>
 
 </html>

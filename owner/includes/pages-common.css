@@ -117,7 +117,8 @@ body::before {
 }
 
 .btn-primary:hover {
-  background-color: #7a8364;
+  background-color: transparent;
+  color: #546e7a;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(139, 148, 117, 0.3);
 }
@@ -161,7 +162,7 @@ body::before {
 
 .prev-step:hover,
 .next-step:hover {
-  background-color: #7a8364;
+  /* background-color: #7a8364; */
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(139, 148, 117, 0.3);
 }
@@ -267,7 +268,8 @@ body::before {
 /* 統計卡片樣式優化 */
 .stat-card {
   background: rgba(255, 255, 255, 0.95);
-  border: 1px solid rgba(255, 255, 255, 0.8);
+  /* border: 1px solid rgba(255, 255, 255, 0.8); */
+  border: 1px solid #e8e8e8;
   backdrop-filter: blur(8px);
   transition: all 0.3s ease;
 }
@@ -311,10 +313,10 @@ body::before {
 .steps .step.active {
   background: linear-gradient(
     135deg,
-    rgba(76, 107, 116, 0.1) 0%,
-    rgba(255, 255, 255, 0.95) 100%
+    rgba(139, 164, 176, 0.4) 0%,
+    rgba(240, 242, 240, 1) 100%
   );
-  border: 1px solid rgba(76, 107, 116, 0.2);
+  border: 1px solid rgba(139, 164, 176, 0.3);
 }
 
 /* 上傳區域樣式優化 */

@@ -11,7 +11,7 @@
         padding: 1rem 0;
         overflow-y: auto;
         z-index: 1000;
-        box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
         scroll-behavior: smooth;
     }
 
@@ -20,11 +20,11 @@
     }
 
     .sidebar::-webkit-scrollbar-track {
-        background: rgba(255,255,255,0.1);
+        background: rgba(255, 255, 255, 0.1);
     }
 
     .sidebar::-webkit-scrollbar-thumb {
-        background: rgba(255,255,255,0.2);
+        background: rgba(255, 255, 255, 0.2);
         border-radius: 3px;
     }
 
@@ -49,8 +49,6 @@
         overflow: hidden;
         transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         padding-left: 2rem;
-        background: rgba(0, 0, 0, 0.1);
-        border-left: 2px solid rgba(52, 152, 219, 0.5);
     }
 
     .sub-menu.show {
@@ -124,13 +122,17 @@
     .logo-text {
         transition: all 0.3s ease;
         position: relative;
-        display: block;
-        margin-top: 0.5rem;
+        display: inline-block;
+        margin: 0;
+        padding: 0.2rem 0;
+    }
+
+    a {
+        text-decoration: none;
     }
 
     .logo-text:hover {
         text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
-        transform: scale(1.1);
     }
 
     .logo-text:after {
@@ -138,26 +140,213 @@
         position: absolute;
         width: 0;
         height: 2px;
-        bottom: 0;
+        bottom: -4px;
         left: 50%;
         background-color: #fff;
         transition: all 0.3s ease;
+        transform: translateX(-50%);
     }
 
     .logo-text:hover:after {
-        width: 100%;
-        left: 0;
+        width: 110%;
+    }
+
+    .logo-container {
+        padding: 1.5rem 0;
+    }
+
+    .logo-link {
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .logo-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .logo-animation {
+        transition: transform 0.3s ease;
+    }
+
+    .logo-animation:hover {
+        transform: scale(1.05);
+    }
+
+    .logo-text {
+        position: relative;
+        pointer-events: auto;
+    }
+
+    .logo-text:after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 2px;
+        bottom: -4px;
+        left: 50%;
+        background-color: #fff;
+        transition: all 0.3s ease;
+        transform: translateX(-50%);
+    }
+
+    .logo-text:hover:after {
+        width: 110%;
+    }
+    /* ***********共用*********** */
+    h1{
+        position: relative;
+        font-weight: 700;
+        color: #767676;
+    }
+    .btn-warning{
+        color: #8b6a09;
+        background-color: #ffc1076e;
+        border: 0;
+    }
+    .bg-danger{
+        background-color: #f5000029!important;
+        color: #db0000 !important;
+    }
+    .bg-success{
+        background-color: #0080003b!important;
+        color: green !important;
+    }
+    /* .container-fluid{
+        padding: 4rem;
+        max-width: 100%;
+    } */
+    .container.py-4{
+        padding: 4rem;
+        max-width: 100%;
+    }
+    .card{
+        border-radius: 0px;
+    }
+    .card-header{
+        background: #fefefe;
+        border-radius: 30px 30px 0 0;
+        border: 0;
+        box-shadow: 0px 18px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    tr th{
+        border: 0;
+    }
+    tbody td{
+        border: 0;
+        padding: 20px 0 !important;
+        color: #767676 !important;
+    }
+    .table thead{
+        background-image: linear-gradient(to top, #0ba360 0%, #3cba92 100%);
+    }
+    .card-body{
+        padding: 0 15px;
+    }
+    .card.border-0{
+        background: #fefefe;
+        box-shadow: 0px 7px 10px rgba(0, 0, 0, 0.1);
+    }
+    .btn-primary{
+        background-color: #ecba82;
+        border: 0;
+    }
+    .page-item.active .page-link{
+        background-color: #ecba82;
+        border: 1px solid #ecba82;
+    }
+    .page-item .page-link{
+        color: #ecba82;
+    }
+    body{
+        background-color: #f8f9fa;
+    }
+    .px-0.sidebar{
+        margin: 25px;
+        min-height: auto;
+        background: #fefefe;
+        padding: 0;
+        border-radius: 30px;
+    }
+    .px-0.sidebar {
+        overflow: hidden;
+        .text-center.mb-3{
+            background-image: linear-gradient(to top, #0ba360 0%, #3cba92 100%);
+            padding-bottom: 20px;
+            padding-top: 20px;
+        }
+        .nav-link{
+            margin: 4px 0;
+            color: #767676!important;
+        }
+        .nav-link.active{
+            background: #f8f9fa;
+            border-radius: 50px 0 0 50px;
+            color: #fff !important;
+            background-image: linear-gradient(to top, #0ba360 0%, #3cba92 100%);
+        }
+        .nav-link.active:hover{
+            color: #fff !important;
+        }
+        .nav-link:hover{
+            color: #a8b2c1 !important;
+        }
+        .nav.flex-column{
+            padding-left: 15px;
+        }
+    }
+    .container.py-4{
+        padding: 4rem;
+        max-width: 100%;
+    }
+    .sub-menu{
+        background: rgb(155 254 144 / 10%);
+    }
+    .modal-header{
+        background-image: linear-gradient(to top, #0ba360 0%, #3cba92 100%);
+        color: #fff;
+    }
+    .swal2-icon-success .swal2-title{
+        background-image: none;
+        color: green;
+    }
+    .swal2-icon-warning .swal2-title{
+        background-image: none;
+        color: green;
+    } 
+    .swal2-icon-warning .swal2-default-outline{
+        background: #ecba82!important;
+    }
+    .swal2-title{
+        background-image: linear-gradient(to top, #0ba360 0%, #3cba92 100%);
+        color: #fff;
+        padding-bottom: 1rem;
+        border-radius: 15px 15px 0 0;
+    }
+    .swal2-html-container .table thead{
+        background-image: none;
+    }
+    .swal2-confirm.swal2-styled{
+        background-color: #ecba82;
+    }
+    .swal2-popup {
+        border-radius: 15px;
     }
 </style>
 
 <div class="px-0 sidebar">
-    <div class="text-center mb-3">
-        <a href="/CampExplorer/admin/index.php?page=dashboard" style="text-decoration: none;">
-            <img src="/CampExplorer/assets/images/logo.png"
-                alt="露營趣 LOGO" 
-                class="img-fluid logo-animation"
-                style="max-width: 120px;">
-            <h4 class="text-white logo-text mt-2">露營趣後台</h4>
+    <div class="logo-container text-center mb-3">
+        <a href="/CampExplorer/admin/index.php?page=dashboard" class="logo-link">
+            <div class="logo-wrapper">
+                <img src="/CampExplorer/assets/images/logo.png"
+                    alt="露營趣 LOGO"
+                    class="img-fluid logo-animation"
+                    style="max-width: 120px;">
+                <h4 class="text-white logo-text">露營趣後台</h4>
+            </div>
         </a>
     </div>
     <nav class="nav flex-column">
@@ -173,16 +362,11 @@
             </div>
         </div>
 
-        <!-- 類別管理 -->
+        <!-- 商品類別管理 -->
         <div class="nav-item">
-            <div class="nav-link menu-toggle" data-bs-toggle="collapse" data-bs-target="#categoryMenu">
-                <div><i class="bi bi-tags me-2"></i>類別管理</div>
-                <i class="bi bi-chevron-down toggle-icon"></i>
-            </div>
-            <div class="sub-menu" id="categoryMenu">
-                <a href="/CampExplorer/admin/index.php?page=spot_category" class="nav-link">營位類別管理</a>
-                <a href="/CampExplorer/admin/index.php?page=product_category" class="nav-link">商品類別管理</a>
-            </div>
+            <a href="/CampExplorer/admin/index.php?page=product_category" class="nav-link">
+                <i class="bi bi-tags me-2"></i>商品類別管理
+            </a>
         </div>
 
         <!-- 營區管理 -->
@@ -202,17 +386,10 @@
             <i class="bi bi-box me-2"></i>商品管理
         </a>
 
-        <!-- 訂單管理 -->
-        <div class="nav-item">
-            <div class="nav-link menu-toggle" data-bs-toggle="collapse" data-bs-target="#orderMenu">
-                <div><i class="bi bi-receipt me-2"></i>訂單管理</div>
-                <i class="bi bi-chevron-down toggle-icon"></i>
-            </div>
-            <div class="sub-menu" id="orderMenu">
-                <a href="/CampExplorer/admin/index.php?page=orders_list" class="nav-link">商品訂單管理</a>
-                <a href="/CampExplorer/admin/index.php?page=coupons_list" class="nav-link">營位訂單管理</a>
-            </div>
-        </div>
+        <!-- 商品訂單管理 -->
+        <a href="/CampExplorer/admin/index.php?page=orders_list" class="nav-link">
+            <i class="bi bi-receipt me-2"></i>商品訂單管理
+        </a>
 
         <!-- 使用者管理 -->
         <div class="nav-item">
@@ -248,12 +425,7 @@
         init() {
             this.closeAllMenus();
             this.initMenuHandlers();
-            this.initPageNavigation();
-            
-            const currentPath = window.location.pathname + window.location.search;
-            if (currentPath) {
-                this.openCurrentPageMenu(currentPath);
-            }
+            this.highlightCurrentPage();
         },
 
         closeAllMenus() {
@@ -273,12 +445,10 @@
         initMenuHandlers() {
             document.querySelectorAll('.menu-toggle').forEach(toggle => {
                 toggle.addEventListener('click', (e) => {
-                    e.preventDefault();
                     const subMenu = toggle.nextElementSibling;
                     const isCurrentlyActive = toggle.classList.contains('active');
                     const currentToggleIcon = toggle.querySelector('.toggle-icon');
 
-                    // 如果点击的是当前已激活的菜单，则只关闭当前菜单
                     if (isCurrentlyActive) {
                         toggle.classList.remove('active');
                         subMenu.classList.remove('show');
@@ -286,16 +456,7 @@
                         return;
                     }
 
-                    // 关闭所有子菜单和重置所有图标
-                    document.querySelectorAll('.sub-menu.show').forEach(menu => {
-                        menu.classList.remove('show');
-                        const menuToggle = menu.previousElementSibling;
-                        menuToggle.classList.remove('active');
-                        const toggleIcon = menuToggle.querySelector('.toggle-icon');
-                        toggleIcon.style.transform = 'rotate(0deg)';
-                    });
-
-                    // 打开当前点击的菜单
+                    this.closeAllMenus();
                     toggle.classList.add('active');
                     subMenu.classList.add('show');
                     currentToggleIcon.style.transform = 'rotate(180deg)';
@@ -303,98 +464,37 @@
             });
         },
 
-        async loadPage(url) {
-            try {
-                const loadingDelay = setTimeout(() => {
-                    Swal.fire({
-                        title: '載入中...',
-                        allowOutsideClick: false,
-                        didOpen: () => {
-                            Swal.showLoading();
-                        }
-                    });
-                }, 300);
-
-                const response = await axios.get(url, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                });
-
-                clearTimeout(loadingDelay);
-
-                if (typeof response.data === 'string') {
-                    const container = document.querySelector('.main-content .container-fluid');
-                    container.innerHTML = response.data;
-                    
-                    // 觸發自定義事件
-                    const event = new CustomEvent('pageLoaded');
-                    document.dispatchEvent(event);
-                    
-                    history.pushState({}, '', url);
-                    this.highlightCurrentPage();
-                } else {
-                    throw new Error('無效的回應格式');
-                }
-            } catch (error) {
-                console.error('頁面載入錯誤:', error);
-                Swal.fire({
-                    icon: 'error',
-                    title: '錯誤',
-                    text: '載入頁面失敗',
-                    timer: 2000
-                });
-            } finally {
-                Swal.close();
-            }
-        },
-
-        initPageNavigation() {
-            document.querySelectorAll('.sub-menu .nav-link').forEach(link => {
-                link.addEventListener('click', async (e) => {
-                    e.preventDefault();
-                    await this.loadPage(link.href);
-                });
-            });
-
-            window.addEventListener('popstate', async () => {
-                await this.loadPage(window.location.href);
-            });
-        },
-
         highlightCurrentPage() {
             const currentPath = window.location.pathname + window.location.search;
             
-            this.closeAllMenus();
-            
+            // 先移除所有active狀態
             document.querySelectorAll('.nav-link').forEach(link => {
-                const href = link.getAttribute('href');
-                if (href && href.includes(currentPath)) {
-                    link.classList.add('active');
-                    const parentMenu = link.closest('.sub-menu');
-                    if (parentMenu) {
-                        parentMenu.classList.add('show');
-                        const menuToggle = parentMenu.previousElementSibling;
-                        if (menuToggle) {
-                            menuToggle.classList.add('active');
-                            const toggleIcon = menuToggle.querySelector('.toggle-icon');
-                            if (toggleIcon) {
-                                toggleIcon.style.transform = 'rotate(180deg)';
-                            }
-                        }
-                    }
-                } else {
-                    link.classList.remove('active');
-                }
+                link.classList.remove('active');
             });
-        },
-
-        openCurrentPageMenu(currentPath) {
+            
+            // 找到當前頁面對應的連結並設置active
             document.querySelectorAll('.nav-link').forEach(link => {
                 const href = link.getAttribute('href');
                 if (href && currentPath.includes(href)) {
+                    link.classList.add('active');
+                    
+                    // 如果active的連結在子選單中，只打開該子選單
                     const parentMenu = link.closest('.sub-menu');
                     if (parentMenu) {
+                        // 先關閉所有子選單
+                        document.querySelectorAll('.sub-menu').forEach(menu => {
+                            menu.classList.remove('show');
+                            const toggle = menu.previousElementSibling;
+                            if (toggle) {
+                                toggle.classList.remove('active');
+                                const icon = toggle.querySelector('.toggle-icon');
+                                if (icon) {
+                                    icon.style.transform = 'rotate(0deg)';
+                                }
+                            }
+                        });
+                        
+                        // 只打開當前連結所在的子選單
                         parentMenu.classList.add('show');
                         const menuToggle = parentMenu.previousElementSibling;
                         if (menuToggle) {
@@ -405,7 +505,6 @@
                             }
                         }
                     }
-                    link.classList.add('active');
                 }
             });
         }

@@ -30,8 +30,13 @@ if ($search) {
     $whereClause = match ($order) {
         1 => "ORDER BY name ASC",
         2 => "ORDER BY name DESC",
-        3 => "ORDER BY id ASC",
-        4 => "ORDER BY id DESC",
+        3 => "ORDER BY start_date ASC",
+        4 => "ORDER BY start_date DESC",
+        5 => "ORDER BY end_date ASC",
+        6 => "ORDER BY end_date DESC",
+        7 => "ORDER BY min_purchase ASC",
+        8 => "ORDER BY min_purchase DESC",
+        // 4 => "ORDER BY discount_value DESC",
         default => "ORDER BY id ASC"
     };
     // 構建最終查詢，進行分頁
@@ -59,68 +64,145 @@ try {
 $db = null;
 ?>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css" integrity="sha512-5Hs3dF2AEPkpNAR7UiOHba+lRSJNeM2ECkwxUIxC1Q/FLycGTbNapWXB4tP889k5T5Ju8fs4b1P5z/iB4nMfSQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<style>
+    
+    .form-label {
+        font-size: 14px;
+    }
+
+    #search {
+        width: 150px;
+        margin-right: 15px;
+        border-radius: 5px;
+    }
+
+    .search-btn {
+        border-radius: 5px !important;
+    }
+
+    .left-btn {
+        margin-top: 31px;
+    }
+
+    table {
+        background: #fefefe;
+    }
+
+    .table thead {
+        background-color: #212529;
+        color: #fff;
+    }
+
+    .card {
+        background-color: transparent;
+    }
+
+    .status-style {
+        font-size: 14px;
+        text-align: center;
+        border-radius: 5px;
+    }
+    .status-style.bg-success{
+        background-color: transparent !important;
+        border: 1px solid #0080005c;
+        color: #008000 !important;
+    }
+    .status-style.bg-danger{
+        background-color: transparent !important;
+        border: 1px solid #ff000040;
+        color: red !important;
+    }
+    
+
+    .edit-button {
+        font-size: 14px;
+    }
+    .clear-btn{
+        border-radius: 5px!important;
+    }
+    .card.border-0{
+        border-radius: 0 0 30px 30px;
+    }
+    tbody tr:hover{
+        background: rgb(155 254 144 / 10%);
+        transition: all 0.2s ease-in-out;
+        box-shadow: 0px 0px 10px 0px rgb(0 0 0 / 10%);
+        --bs-table-accent-bg: none!important;
+    }
+    /* ************************************* */
+    
+  
+
+    /* ************************************* */
+</style>
 <!-- 主要內容 -->
-<div class="container-fluid py-4">
+<div class="container py-4">
     <div class="row">
         <div class="col-12">
-            <h1 class="mb-5 text-center font-weight-bold">優惠券管理</h1>
-            <div class="card-header bg-transparent d-flex justify-content-between align-items-center py-3">
-                <form action="" method="get">
-                    <div class="input-group">
-                        <input type="search" id="search" class="form-control" name="search" value="<?= htmlspecialchars($search) ?>" placeholder="搜尋優惠券名稱">
-                        <button class="btn btn-primary" onclick="htmlspecialchars()"><i class="fa fa-search" aria-hidden="true"></i></button>
-                        <?php if (isset($_GET["search"])): ?><!---//查詢search是否有參數 -->
-                            <a class="btn btn-primary me-2" href="index.php?page=coupons_list"><i class="fa-solid fa-left-long fa-fw"></i></a>
-                        <?php endif; ?>
-                    </div>
-                </form>
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal_2">
+            <h1 class="mb-5 font-weight-bold">優惠券管理</h1>
+            <div class="card-header d-flex justify-content-between align-items-center py-3">
+                <button type="button" class="btn btn-primary left-btn" data-bs-toggle="modal" data-bs-target="#exampleModal_2">
                     <i class="bi bi-plus-lg me-1"></i>新增優惠券
                 </button>
-                <form method="GET" action="index.php?page=coupons_list">
-                    <select name="order" class="form-select" onchange="redirectToOrderPage(this)">
-                        <option style="display: none;" value="0" <?= $order == 0 ? 'selected' : '' ?>>排序方式</option>
-                        <option value="1" <?= $order == 1 ? 'selected' : '' ?>>排序由高到低</option>
-                        <option value="2" <?= $order == 2 ? 'selected' : '' ?>>排序由低到高</option>
-                        <option value="3" <?= $order == 3 ? 'selected' : '' ?>>排序由A到Z</option>
-                        <option value="4" <?= $order == 4 ? 'selected' : '' ?>>排序由Z到A</option>
-                    </select>
-                </form>
-                <div class="">
+                <div class="d-flex align-items-center">
+                    <form method="GET" action="index.php?page=coupons_list" class="d-flex flex-column mx-3">
+                        <label for="" class="form-label">排序方式:</label>
+                        <select name="order" class="form-select" onchange="redirectToOrderPage(this)">
+                            <option style="display: none;" value="0" <?= $order == 0 ? 'selected' : '' ?>>預設</option>
+                            <option value="1" <?= $order == 1 ? 'selected' : '' ?>>名稱排序從前至後</option>
+                            <option value="2" <?= $order == 2 ? 'selected' : '' ?>>名稱排序從後至前</option>
+                            <option value="3" <?= $order == 3 ? 'selected' : '' ?>>開始日期排序從先至後</option>
+                            <option value="4" <?= $order == 4 ? 'selected' : '' ?>>開始日期排序從後至先</option>
+                            <option value="5" <?= $order == 5 ? 'selected' : '' ?>>結束日期排序從先至後</option>
+                            <option value="6" <?= $order == 6 ? 'selected' : '' ?>>結束日期排序從後至先</option>
+                            <option value="7" <?= $order == 7 ? 'selected' : '' ?>>最低消費排序從低至高</option>
+                            <option value="8" <?= $order == 8 ? 'selected' : '' ?>>最低消費排序從高至低</option>
+                        </select>
+                    </form>
+                    <form action="" method="get">
+                        <label for="" class="form-label">搜尋關鍵字：</label>
+                        <div class="input-group">
+                            <input type="search" id="search" class="form-control mr-3" name="search" value="<?= htmlspecialchars($search) ?>" placeholder="搜尋優惠券名稱">
+                            <button class="btn btn-primary search-btn mx-2" onclick="htmlspecialchars()"><i class="fa fa-search" aria-hidden="true"></i></button>
+                            <?php if (isset($_GET["search"])): ?><!---//查詢search是否有參數 -->
+                                <a class="btn btn-primary me-2 clear-btn" href="index.php?page=coupons_list"><i class="fa fa-times" aria-hidden="true"></i></a>
+                            <?php endif; ?>
+                        </div>
+                    </form>
 
                 </div>
             </div>
 
-            <div class="card border-0 shadow-sm">
-                <div class="card-body p-0">
+            <div class="card border-0">
+                <div class="card-body">
                     <div class="table-responsive">
                         <?php if ($rowCount > 0): ?>
                             <table class="table table-bordered">
                                 <thead>
                                     <tr>
-                                        <th scope="col">優惠券代碼</th>
-                                        <th scope="col">優惠券名稱</th>
-                                        <th scope="col">折扣類型</th>
-                                        <th scope="col">折扣值</th>
-                                        <th scope="col">最低消費</th>
-                                        <th scope="col">使用期限</th>
-                                        <th scope="col">狀態</th>
-                                        <th scope="col">操作</th>
+                                        <th class="text-center" scope="col">優惠券代碼</th>
+                                        <th class="text-center" scope="col">優惠券名稱</th>
+                                        <th class="text-center" scope="col">折扣類型</th>
+                                        <th class="text-center" scope="col">折扣值</th>
+                                        <th class="text-center" scope="col">最低消費</th>
+                                        <th class="text-center" scope="col">使用期限</th>
+                                        <th class="text-center" scope="col">狀態</th>
+                                        <th class="text-center" scope="col">操作</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <?php foreach ($rows as $user): ?>
                                         <tr>
-                                            <td><?= $user["code"] ?></td>
-                                            <td><?= $user["name"] ?></td>
-                                            <td><?= $user['discount_type'] === 'percentage' ? '百分比' : '固定金額' ?></td>
-                                            <td><?= $user['discount_type'] === 'percentage' ? $user["discount_value"] . '%' : '$' . $user["discount_value"] ?></td>
-                                            <td><?= $user["min_purchase"] ?></td>
-                                            <td><?= date('Y/m/d', strtotime($user['start_date'])) ?> - <?= date('Y/m/d', strtotime($user["end_date"])) ?></td>
-                                            <td><?= $user["status"] === 1 ? '<div class="p-1 bg-success text-white">啟用</div>' : '<div class="p-1 bg-danger text-white">停用</div>' ?></td>
+                                            <td class="px-2"><?= $user["code"] ?></td>
+                                            <td class="text-center"><?= $user["name"] ?></td>
+                                            <td class="text-center"><?= $user['discount_type'] === 'percentage' ? '百分比' : '固定金額' ?></td>
+                                            <td class="text-center"><?= $user['discount_type'] === 'percentage' ? $user["discount_value"] . '%' : '$' . $user["discount_value"] ?></td>
+                                            <td class="text-center"><?= '$' . $user["min_purchase"] ?></td>
+                                            <td class="text-center"><?= date('Y/m/d', strtotime($user['start_date'])) ?> - <?= date('Y/m/d', strtotime($user["end_date"])) ?></td>
+                                            <td class="text-center"><?= $user["status"] === 1 ? '<div class="p-1 bg-success text-white status-style">啟用</div>' : '<div class="p-1 bg-danger text-white status-style">停用</div>' ?></td>
                                             <td class="d-flex justify-content-center align-items-center">
-                                                <button class="btn mx-2 btn-info edit-button" data-bs-toggle="modal" data-bs-target="#exampleModal" data-id="<?= $user['id'] ?>">編輯</button>
-                                                <button class="btn mx-2 delete-button text-white <?= $user['status'] === 1 ? 'bg-danger' : 'bg-success' ?>" data-id="<?= $user['id'] ?>" data-bs-toggle="modal" data-bs-target="<?= $user['status'] === 1 ? '#deactivateModal' : '#openModal' ?>"><?= $user['status'] === 1 ? '停用' : '啟用' ?></button>
+                                                <button class="btn btn-sm  mx-2 btn-warning edit-button" data-bs-toggle="modal" data-bs-target="#exampleModal" data-id="<?= $user['id'] ?>">編輯</button>
+                                                <button class="btn btn-sm  mx-2 delete-button text-white <?= $user['status'] === 1 ? 'bg-danger' : 'bg-success' ?>" data-id="<?= $user['id'] ?>" data-bs-toggle="modal" data-bs-target="<?= $user['status'] === 1 ? '#deactivateModal' : '#openModal' ?>"><?= $user['status'] === 1 ? '停用' : '啟用' ?></button>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
@@ -139,7 +221,7 @@ $db = null;
                                 </nav>
                             <?php endif; ?>
                         <?php else: ?>
-                            目前沒有符合條件的優惠券
+                            <img class="w-100 m-auto" src="../../../../CampExplorer/images/1732783571139.jpg" alt="no data" class="no-data-img">
                         <?php endif; ?>
 
                     </div>
@@ -192,48 +274,47 @@ $db = null;
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="editForm">
+                <form id="editForm" class="couponForm">
                     <input type="hidden" id="user-id" name="id">
                     <table class="table table-bordered">
-                        <tr>
-                            <th>優惠卷代碼</th>
-                            <td>
-                                <div class="input-group mb-3">
-                                    <input type="text" class="form-control" name="code" placeholder="" aria-label="Recipient's username" aria-describedby="button-addon2" id="code-input">
-                                    <button class="btn btn-outline-secondary" type="button" id="button-addon2">新增代碼</button>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>優惠卷名稱</th>
-                            <td><input type="text" id="name" class="form-control" name="name" required></td>
-                        </tr>
-                        <tr>
-                            <th>折扣類型</th>
-                            <td><select name="discount_type" id="discount_type" class="w-100">
-                                    <option value="fixed">折扣金額</option>
-                                    <option value="percentage">折扣百分比</option>
-                                </select></td>
-                        </tr>
-                        <tr>
-                            <th>折扣值</th>
-                            <td><input type="number" id="discount_value" class="form-control" name="discount_value" required></td>
-                        </tr>
-                        <tr>
-                            <th>最低消費金額</th>
-                            <td><input type="number" id="min_purchase" class="form-control" name="min_purchase" required></td>
-                        </tr>
-                        <tr>
-                            <th>最高折抵金額</th>
-                            <td><input type="number" id="max_discount" class="form-control" name="max_discount" required></td>
-                        </tr>
-                        <tr>
-                            <th>優惠卷期限</th>
-                            <td>
+                        <div class="mb-3">
+                            <label for="productName" class="form-label">優惠卷代碼</label>
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" name="code" placeholder="" aria-label="Recipient's username" aria-describedby="button-addon2" id="code-input">
+                                <button class="btn btn-outline-secondary" type="button" id="button-addon2">新增代碼</button>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="productName" class="form-label">優惠卷名稱</label>
+                            <input type="text" id="name" class="form-control" name="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="" class="form-label">折扣類型</label>
+                            <select class="form-select" name="discount_type" id="discount_type" class="w-100">
+                                <option value="fixed">折扣金額</option>
+                                <option value="percentage">折扣百分比</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="" class="form-label">折扣值</label>
+                            <input type="text" id="discount_value" class="form-control" name="discount_value" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="" class="form-label">最低消費金額</label>
+                            <input type="number" id="min_purchase" class="form-control" name="min_purchase" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="" class="form-label">最高折抵金額</label>
+                            <input type="number" id="max_discount" class="form-control" name="max_discount" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="" class="form-label">優惠卷期限</label>
+                            <div class="d-flex">
                                 <input type="date" id="start_date" class="form-control" name="start_date" required>
+                                <p class="mx-2 mt-3">至</p>
                                 <input type="date" id="end_date" class="form-control" name="end_date" required>
-                            </td>
-                        </tr>
+                            </div>
+                        </div>
                     </table>
                     <div class="d-flex justify-content-between">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
@@ -253,49 +334,47 @@ $db = null;
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form action="../../../../CampExplorer/admin/api/coupons/doCreateCoupon.php" method="post">
+                <form action="../../../../CampExplorer/admin/api/coupons/doCreateCoupon.php" class="couponForm" method="post">
                     <input type="hidden" id="user-id" name="id">
                     <table class="table table-bordered">
-                        <tr>
-                            <th>優惠卷代碼</th>
-                            <td>
-                                <div class="input-group mb-3">
-                                    <input type="text" class="form-control" name="code" placeholder="" aria-label="Recipient's username" aria-describedby="button-addon22" id="code-input2">
-                                    <button class="btn btn-outline-secondary" type="button" id="button-addon22">新增代碼</button>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>優惠卷名稱</th>
-                            <td><input type="text" id="name" class="form-control" name="name" required></td>
-                        </tr>
-                        <tr>
-                            <th>折扣類型</th>
-                            <td><select name="discount_type" id="discount_type" class="w-100">
-                                    <option value="fixed">折扣金額</option>
-                                    <option value="percentage">折扣百分比</option>
-                                </select></td>
-                        </tr>
-                        <tr>
-                            <th>折扣值</th>
-                            <td><input type="number" id="discount_value" class="form-control" name="discount_value" required></td>
-                        </tr>
-                        <tr>
-                            <th>最低消費金額</th>
-                            <td><input type="number" id="min_purchase" class="form-control" name="min_purchase" required></td>
-                        </tr>
-                        <tr>
-                            <th>最高折抵金額</th>
-                            <td><input type="number" id="max_discount" class="form-control" name="max_discount" required></td>
-                        </tr>
-                        <tr>
-                            <th>優惠卷期限</th>
-                            <td>
+                        <div class="mb-3">
+                            <label for="productName" class="form-label">優惠卷代碼</label>
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" name="code" placeholder="" aria-label="Recipient's username" aria-describedby="button-addon22" id="code-input2">
+                                <button class="btn btn-outline-secondary" type="button" id="button-addon22">新增代碼</button>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="productName" class="form-label">優惠卷名稱</label>
+                            <input type="text" id="name" class="form-control" name="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="" class="form-label">折扣類型</label>
+                            <select class="form-select" name="discount_type" id="discount_type" class="w-100">
+                                <option value="fixed">折扣金額</option>
+                                <option value="percentage">折扣百分比</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="" class="form-label">折扣值</label>
+                            <input type="text" id="discount_value" class="form-control" name="discount_value" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="" class="form-label">最低消費金額</label>
+                            <input type="number" id="min_purchase" class="form-control" name="min_purchase" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="" class="form-label">最高折抵金額</label>
+                            <input type="number" id="max_discount" class="form-control" name="max_discount" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="" class="form-label">優惠卷期限</label>
+                            <div class="d-flex">
                                 <input type="date" id="start_date" class="form-control" name="start_date" required>
+                                <p class="mx-2 mt-3">至</p>
                                 <input type="date" id="end_date" class="form-control" name="end_date" required>
-                                <!-- <input type="date" id="end_date" class="form-control hidden" name="end_date" required> -->
-                            </td>
-                        </tr>
+                            </div>
+                        </div>
                     </table>
                     <div class="d-flex justify-content-between">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
@@ -323,8 +402,12 @@ $db = null;
         const url = `index.php?page=coupons_list&p=${p}&order=${orderValue}`;
         window.location.href = url; // 重定向到新的 URL
     }
+
+
     document.addEventListener("DOMContentLoaded", function() {
+
         //
+
         // 使用 JavaScript 在选择框变化时执行页面跳转
 
         // 生成以英文开头的随机代码
@@ -337,6 +420,10 @@ $db = null;
         // 点击按钮时触发
         document.getElementById("button-addon22").addEventListener("click", function() {
             const inputField = document.getElementById("code-input2");
+            inputField.value = generateRandomCode();
+        });
+        document.getElementById("button-addon2").addEventListener("click", function() {
+            const inputField = document.getElementById("code-input");
             inputField.value = generateRandomCode();
         });
 
@@ -404,15 +491,29 @@ $db = null;
 
         // 保存修改的资料
         document.getElementById("editForm").addEventListener("submit", function(event) {
-            event.preventDefault();
+            const discountType = document.getElementById("discount_type").value; // 获取折扣类型
+            const discountValueInput = document.getElementById("discount_value"); // 获取折扣值输入框
+            const discountValue = parseFloat(discountValueInput.value); // 转换为浮点数
+
+            // 检查折扣类型为百分比时，验证折扣值范围
+            if (discountType === "percentage") {
+                if (isNaN(discountValue) || discountValue < 0 || discountValue > 100) {
+                    event.preventDefault(); // 阻止表单提交
+                    alert("折扣值必须在 0 到 100% 之间！");
+                    return; // 直接返回，不执行后续代码
+                }
+            }
+
+            // 构造表单数据
             const formData = new FormData(this);
 
-            // 输出查看数据
+            // 输出数据到控制台
             for (let pair of formData.entries()) {
                 console.log(pair[0] + ": " + pair[1]);
             }
 
-            // AJAX 发送保存请求
+            // AJAX 提交表单数据
+            event.preventDefault(); // 阻止默认表单提交行为
             fetch("../../../../CampExplorer/admin/api/coupons/doUpdataCoupon.php", {
                     method: "POST",
                     body: formData,
@@ -425,16 +526,15 @@ $db = null;
                             icon: "success",
                             timer: 1000,
                         }).then(() => {
-                            location.reload(); // 刷新页面显示最新数据
-                        })
-                        // alert("资料更新成功！");
-
+                            location.reload(); // 刷新页面
+                        });
                     } else {
                         alert(data.message);
                     }
                 })
                 .catch((error) => console.error("Error updating user data:", error));
         });
+
 
         // 删除按钮点击事件
         document.querySelectorAll(".delete-button").forEach(function(button) {

@@ -5,7 +5,7 @@ $db_user = 'root';
 $db_pass = '';
 $db_charset = 'utf8mb4';
 
-try {
+try { 
     // 建立 PDO 連線
     $dsn = "mysql:host={$db_host};dbname={$db_name};charset={$db_charset}";
     $db = new PDO($dsn, $db_user, $db_pass);

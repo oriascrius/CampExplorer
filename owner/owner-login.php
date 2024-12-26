@@ -42,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_SERVER['HTTP_X_REQUESTED_W
                     throw new Exception('此信箱已被註冊');
                 }
 
-                // 新增營主資料
+                // 新增營主資料 - 使用 MD5 加密密碼
                 $stmt = $conn->prepare("INSERT INTO owners (email, password, name, company_name, phone, address, status) VALUES (?, ?, ?, ?, ?, ?, 1)");
 
                 // 記錄 SQL 執行前的資料
@@ -50,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_SERVER['HTTP_X_REQUESTED_W
 
                 $result = $stmt->execute([
                     $email,
-                    $password,
+                    md5($password), // 使用 MD5 加密密碼
                     $name,
                     $company_name,
                     $phone,
@@ -67,10 +67,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_SERVER['HTTP_X_REQUESTED_W
                 $conn->commit();
                 error_log("Transaction committed successfully for email: " . $email);
 
-                // 返回成功響應
+                // 修改返回響應,添加 showLogin = true
                 echo json_encode([
                     'success' => true,
-                    'message' => '註冊成功！'
+                    'message' => '註冊成功！請使用新帳號登入',
+                    'showLogin' => true  // 新增這行
                 ]);
                 return;
             } catch (Exception $e) {
@@ -99,7 +100,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_SERVER['HTTP_X_REQUESTED_W
                 throw new Exception('信箱或密碼錯誤');
             }
 
-            if ($password === $owner['password']) {
+            // 使用 MD5 加密比對密碼
+            if (md5($password) === $owner['password']) {
                 // 設置 session
                 $_SESSION['owner_id'] = $owner['id'];
                 $_SESSION['owner_name'] = $owner['name'];
@@ -806,7 +808,7 @@ if (empty($_SESSION['csrf_token'])) {
             animation: float 6s ease-in-out infinite;
         }
 
-        /* 營火效果優化 */
+        /* 營火效果���化 */
         .campfire {
             position: absolute;
             bottom: 21%;
@@ -897,13 +899,27 @@ if (empty($_SESSION['csrf_token'])) {
                     </div>
 
                     <div class="form-floating password-field">
-                        <input type="password" class="form-control" id="login-password" name="password" required>
+                        <input type="password" 
+                               class="form-control" 
+                               id="login-password" 
+                               name="password" 
+                               required
+                               autocomplete="current-password"
+                               aria-describedby="password-toggle-help">
                         <label for="login-password">
                             <i class="bi bi-lock me-2"></i>密碼
                         </label>
-                        <button type="button" class="password-toggle">
-                            <i class="bi bi-eye"></i>
+                        <button type="button" 
+                                class="password-toggle" 
+                                aria-label="切換密碼顯示"
+                                data-bs-toggle="tooltip"
+                                data-bs-placement="left"
+                                title="點擊切換密碼顯示">
+                            <i class="bi bi-eye password-toggle-icon" aria-hidden="true"></i>
                         </button>
+                        <span id="password-toggle-help" class="visually-hidden">
+                            點擊右側眼睛圖示可切換密碼顯示
+                        </span>
                     </div>
 
                     <button type="submit" class="btn-auth">
@@ -1020,19 +1036,53 @@ if (empty($_SESSION['csrf_token'])) {
             const toggles = document.querySelectorAll('.password-toggle');
             
             toggles.forEach(toggle => {
-                toggle.addEventListener('click', function() {
-                    const input = this.previousElementSibling;
-                    const icon = this.querySelector('i');
+                // 初始化 tooltip
+                new bootstrap.Tooltip(toggle);
+                
+                toggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const input = this.closest('.password-field').querySelector('input');
+                    const icon = this.querySelector('.password-toggle-icon');
                     
-                    if (input.type === 'password') {
-                        input.type = 'text';
-                        icon.classList.remove('bi-eye');
-                        icon.classList.add('bi-eye-slash');
-                    } else {
-                        input.type = 'password';
-                        icon.classList.remove('bi-eye-slash');
-                        icon.classList.add('bi-eye');
+                    // 切換密碼顯示
+                    const isVisible = input.type === 'text';
+                    input.type = isVisible ? 'password' : 'text';
+                    
+                    // 更新圖標
+                    icon.classList.toggle('bi-eye', isVisible);
+                    icon.classList.toggle('bi-eye-slash', !isVisible);
+                    
+                    // 添加旋轉動畫
+                    icon.classList.add('rotate');
+                    setTimeout(() => icon.classList.remove('rotate'), 300);
+                    
+                    // 更新 aria-label 和 title
+                    const newText = isVisible ? '顯示密碼' : '隱藏密碼';
+                    this.setAttribute('aria-label', newText);
+                    this.setAttribute('title', newText);
+                    
+                    // 銷毀並重新創建 tooltip
+                    bootstrap.Tooltip.getInstance(this)?.dispose();
+                    new bootstrap.Tooltip(this);
+                });
+                
+                // 支援鍵盤操作
+                toggle.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        this.click();
                     }
+                });
+            });
+            
+            // 在表單提交時確保密碼是隱藏的
+            document.querySelectorAll('form').forEach(form => {
+                form.addEventListener('submit', () => {
+                    form.querySelectorAll('input[type="text"]').forEach(input => {
+                        if (input.classList.contains('form-control')) {
+                            input.type = 'password';
+                        }
+                    });
                 });
             });
         }
@@ -1073,6 +1123,11 @@ if (empty($_SESSION['csrf_token'])) {
                             }).then(() => {
                                 if (result.redirect) {
                                     window.location.href = result.redirect;
+                                } else if (result.showLogin) {
+                                    // 如果是註冊成功,切換到登入表單
+                                    document.querySelector('.auth-tab[data-form="login"]').click();
+                                    // 清空註冊表單
+                                    form.reset();
                                 }
                             });
                         } else {

@@ -35,8 +35,61 @@ try {
     $camps = [];
 }
 ?>
+<style>
+    .card.shadow-sm {
+        border-radius: 30px;
+        padding-top: 15px;
+    }
 
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    .table thead {
+        color: #fff;
+    }
+
+    .badge.bg-primary {
+        background-color: transparent !important;
+        border: 1px solid #007bff;
+        color: #007bff !important;
+        padding: 7px 23px;
+    }
+
+    .badge.bg-info {
+        background-color: transparent !important;
+        border: 1px solid #0dcaf0;
+        color: #0dcaf0 !important;
+        padding: 7px 23px;
+    }
+
+    .d-flex.justify-content-between {
+        margin: 0 75px;
+    }
+
+    .card.shadow-sm {
+        margin: 0 75px;
+    }
+
+    tr {
+        border-bottom-width: 1px;
+    }
+
+    tbody tr:hover {
+        background: rgb(155 254 144 / 10%);
+        transition: all 0.2s ease-in-out;
+        box-shadow: 0px 0px 10px 0px rgb(0 0 0 / 10%);
+        --bs-table-accent-bg: none !important;
+    }
+
+    .left-thead {
+        border-top-left-radius: 12px;
+        border-bottom-left-radius: 12px;
+    }
+
+    .right-thead {
+        border-top-right-radius: 12px;
+        border-bottom-right-radius: 12px;
+    }
+</style>
+
+<div style="margin-top: 40px;" class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3">
     <h1 class="h2">已通過審核營地列表</h1>
 </div>
 
@@ -44,13 +97,13 @@ try {
     <div class="card-body">
         <div class="table-responsive">
             <table class="table table-hover align-middle">
-                <thead class="table-light">
+                <thead class="">
                     <tr>
-                        <th scope="col" class="text-nowrap">營地編號</th>
-                        <th scope="col" style="min-width: 200px;">營地資訊</th>
-                        <th scope="col" style="min-width: 180px;">營主資訊</th>
+                        <th scope="col" class="text-center text-nowrap left-thead">營地編號</th>
+                        <th scope="col" class="text-center" style="min-width: 200px;">營地資訊</th>
+                        <th scope="col" class="text-center" style="min-width: 180px;">營主資訊</th>
                         <th scope="col" class="text-center">營地內容</th>
-                        <th scope="col" class="text-nowrap">通過時間</th>
+                        <th scope="col" class="text-nowrap text-center right-thead">通過時間</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -64,19 +117,19 @@ try {
                     <?php else: ?>
                         <?php foreach ($camps as $camp): ?>
                             <tr>
-                                <td class="text-nowrap">
-                                    <span class="badge bg-success">
-                                        #<?= htmlspecialchars($camp['application_id']) ?>
-                                    </span>
+                                <td class="text-nowrap text-center">
+
+                                    <?= htmlspecialchars($camp['application_id']) ?>
+
                                 </td>
-                                <td>
+                                <td class="text-center">
                                     <div class="fw-bold mb-1"><?= htmlspecialchars($camp['camp_name']) ?></div>
                                     <small class="text-muted">
                                         <i class="bi bi-geo-alt"></i>
                                         <?= htmlspecialchars($camp['address']) ?>
                                     </small>
                                 </td>
-                                <td>
+                                <td class="text-center">
                                     <div class="mb-1"><?= htmlspecialchars($camp['owner_name']) ?></div>
                                     <small class="text-muted d-block">
                                         <i class="bi bi-building"></i>
@@ -97,7 +150,7 @@ try {
                                         <?= $camp['image_count'] ?> 張圖片
                                     </span>
                                 </td>
-                                <td class="text-nowrap">
+                                <td class="text-nowrap text-center">
                                     <small>
                                         <i class="bi bi-clock"></i>
                                         <?= date('Y/m/d H:i', strtotime($camp['created_at'])) ?>
